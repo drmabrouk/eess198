@@ -2733,13 +2733,40 @@ class SM_Public {
         if (isset($_POST['section_filter'])) $filters['section'] = sanitize_text_field($_POST['section_filter']);
         if (isset($_POST['type_filter'])) $filters['type'] = sanitize_text_field($_POST['type_filter']);
 
-        $records = SM_DB::get_records($filters);
+        $paged = isset($_POST['paged']) ? max(1, intval($_POST['paged'])) : 1;
+        $limit = isset($_POST['limit']) ? max(1, intval($_POST['limit'])) : 10;
+        $orderby = isset($_POST['orderby']) ? sanitize_text_field($_POST['orderby']) : 'created_at';
+        $order = isset($_POST['order']) ? sanitize_text_field($_POST['order']) : 'DESC';
+
+        $total_count = SM_DB::get_records_count($filters);
+        $total_pages = max(1, ceil($total_count / $limit));
+        if ($paged > $total_pages) {
+            $paged = $total_pages;
+        }
+        $offset = ($paged - 1) * $limit;
+
+        $query_filters = array_merge($filters, array(
+            'limit' => $limit,
+            'offset' => $offset,
+            'orderby' => $orderby,
+            'order' => $order
+        ));
+
+        $records = SM_DB::get_records($query_filters);
 
         ob_start();
         include SM_PLUGIN_DIR . 'templates/partials/violations-table-rows.php';
         $rows_html = ob_get_clean();
 
-        wp_send_json_success(array('html' => $rows_html));
+        wp_send_json_success(array(
+            'html' => $rows_html,
+            'total' => $total_count,
+            'paged' => $paged,
+            'limit' => $limit,
+            'total_pages' => $total_pages,
+            'from' => $total_count > 0 ? $offset + 1 : 0,
+            'to' => min($offset + $limit, $total_count)
+        ));
     }
 
     public function ajax_mark_contacted() {
