@@ -195,29 +195,41 @@
 
     <!-- Import Form Drawer (Hidden by default) -->
     <div id="violation-import-form" style="display:none; background: #f8fafc; padding: 24px; border: 2px dashed #cbd5e1; border-radius: 16px; margin-bottom: 20px;">
-        <h3 style="margin-top:0; color:#1e293b; font-size: 16px; font-weight: 800;">دليل استيراد السجلات (CSV)</h3>
+        <h3 style="margin-top:0; color:#1e293b; font-size: 16px; font-weight: 800;">دليل استيراد سجلات المخالفات السلوكية (Excel / CSV)</h3>
         
-        <div style="background:#fff; padding:15px; border-radius:12px; border:1px solid #e2e8f0; margin-bottom:20px;">
-            <p style="font-size:12.5px; font-weight:700; margin-bottom:10px; color:#334155;">هيكل ملف السجلات الصحيح:</p>
-            <table style="width:100%; font-size:11px; border-collapse:collapse; text-align:center;">
+        <p style="font-size: 12.5px; color: #64748b; line-height: 1.6; margin-bottom: 15px;">
+            يتم مطابقة المخرجات مع قاعدة بيانات الطلاب باستخدام <strong>رقم الطالب (Student Number) في العمود A</strong> كمرجع رئيسي لربط المخالفة بالطالب تلقائياً دون تكرار.
+        </p>
+
+        <div style="background:#fff; padding:15px; border-radius:12px; border:1px solid #e2e8f0; margin-bottom:20px; overflow-x: auto;">
+            <p style="font-size:12.5px; font-weight:700; margin-bottom:10px; color:#334155;">هيكل ملف السجلات القياسي (ترتيب الأعمدة):</p>
+            <table style="width:100%; font-size:11px; border-collapse:collapse; text-align:center; min-width: 600px;">
                 <thead>
                     <tr style="background:#f1f5f9;">
-                        <th style="border:1px solid #cbd5e1; padding:6px;">كود الطالب</th>
-                        <th style="border:1px solid #cbd5e1; padding:6px;">النوع (سلوك/غياب/تأخر)</th>
-                        <th style="border:1px solid #cbd5e1; padding:6px;">الحدة (منخفضة/متوسطة/خطيرة)</th>
-                        <th style="border:1px solid #cbd5e1; padding:6px;">التفاصيل</th>
-                        <th style="border:1px solid #cbd5e1; padding:6px;">الإجراء المتخذ</th>
-                        <th style="border:1px solid #cbd5e1; padding:6px;">المكافأة/العقوبة</th>
+                        <th style="border:1px solid #cbd5e1; padding:6px; color:#dc2626;">A: رقم الطالب *</th>
+                        <th style="border:1px solid #cbd5e1; padding:6px;">B: اسم الطالب</th>
+                        <th style="border:1px solid #cbd5e1; padding:6px;">C: الجنسية</th>
+                        <th style="border:1px solid #cbd5e1; padding:6px;">D: المدرسة</th>
+                        <th style="border:1px solid #cbd5e1; padding:6px;">E: الصف</th>
+                        <th style="border:1px solid #cbd5e1; padding:6px;">F: الشعبة</th>
+                        <th style="border:1px solid #cbd5e1; padding:6px; color:#dc2626;">G: نوع المخالفة *</th>
+                        <th style="border:1px solid #cbd5e1; padding:6px;">H: بند المخالفة</th>
+                        <th style="border:1px solid #cbd5e1; padding:6px; color:#dc2626;">I: التفاصيل *</th>
+                        <th style="border:1px solid #cbd5e1; padding:6px; color:#dc2626;">J: التاريخ *</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td style="border:1px solid #cbd5e1; padding:6px;">STU001</td>
-                        <td style="border:1px solid #cbd5e1; padding:6px;">سلوكية</td>
-                        <td style="border:1px solid #cbd5e1; padding:6px;">خطيرة</td>
-                        <td style="border:1px solid #cbd5e1; padding:6px;">تعدي على الزملاء</td>
-                        <td style="border:1px solid #cbd5e1; padding:6px;">فصل 3 أيام</td>
-                        <td style="border:1px solid #cbd5e1; padding:6px;">حرمان من الرحلة</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px; font-weight:700; color:#dc2626;">10001</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px;">أحمد علي</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px;">إماراتي</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px;">المدرسة الرئيسية</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px;">الصف 10</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px;">1</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px; font-weight:700; color:#dc2626;">سلوكية</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px;">V-102</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px;">التأخر عن الحصة</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px; font-weight:700; color:#dc2626;"><?php echo date('Y-m-d'); ?></td>
                     </tr>
                 </tbody>
             </table>
@@ -226,15 +238,15 @@
         <form method="post" enctype="multipart/form-data" onsubmit="return handleImportSubmit(this, 'sm_import_violations_csv')">
             <?php wp_nonce_field('sm_admin_action', 'sm_admin_nonce'); ?>
             <div class="sm-form-group">
-                <label class="sm-label" style="font-size: 13px; font-weight: 700; color: #334155;">اختر ملف CSV للمخالفات:</label>
-                <input type="file" name="csv_file" accept=".csv" required style="margin-top: 6px;">
+                <label class="sm-label" style="font-size: 13px; font-weight: 700; color: #334155;">اختر ملف CSV / Excel للمخالفات السلوكية:</label>
+                <input type="file" name="csv_file" accept=".csv, .txt" required style="margin-top: 6px;">
             </div>
             <div id="import-loading" style="display:none; margin-bottom: 15px; padding: 10px; background: #ebf8ff; border-left: 4px solid #3182ce; color: #2c5282; font-weight: 700; border-radius: 8px;">
                 <span class="dashicons dashicons-update spin" style="margin-left: 10px;"></span>
-                جاري استيراد البيانات... يرجى عدم إغلاق الصفحة.
+                جاري استيراد البيانات وربط المخالفات بالطلاب... يرجى عدم إغلاق الصفحة.
             </div>
             <div style="display:flex; gap:10px; margin-top:20px;">
-                <button type="submit" name="sm_import_violations_csv" class="sm-btn" style="width:auto; background:#16a34a; border-radius: 10px; height: 40px; padding: 0 18px; font-weight: 700;">استيراد السجلات الآن</button>
+                <button type="submit" name="sm_import_violations_csv" class="sm-btn" style="width:auto; background:#16a34a; border-radius: 10px; height: 40px; padding: 0 18px; font-weight: 700;">استيراد السجلات وتثبيتها الآن</button>
                 <button type="button" onclick="this.parentElement.parentElement.parentElement.style.display='none'" class="sm-btn" style="width:auto; background:#94a3b8; border-radius: 10px; height: 40px; padding: 0 18px; font-weight: 700;">إلغاء</button>
             </div>
         </form>

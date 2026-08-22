@@ -4418,36 +4418,118 @@ class SM_Public {
             }
         }
 
-        // Handle Violation CSV Upload
+        // Handle Violation CSV/Excel Upload
         if (isset($_POST['sm_import_violations_csv']) && wp_verify_nonce($_POST['sm_admin_nonce'], 'sm_admin_action')) {
             if (current_user_can('إدارة_المخالفات')) {
-                $handle = fopen($_FILES['csv_file']['tmp_name'], "r");
-                $header = fgetcsv($handle); // skip header
-                $count = 0;
-                while (($data = fgetcsv($handle)) !== FALSE) {
-                    if (count($data) >= 4) {
-                        // code, type, severity, details, action, reward
-                        $student = SM_DB::get_student_by_code($data[0]);
-                        if ($student) {
+                if (!empty($_FILES['csv_file']['tmp_name'])) {
+                    $handle = fopen($_FILES['csv_file']['tmp_name'], "r");
+
+                    // Detect delimiter
+                    $first_line = fgets($handle);
+                    rewind($handle);
+                    $delimiters = [',', ';', "\t", '|'];
+                    $delimiter = ',';
+                    $max_count = -1;
+                    foreach ($delimiters as $d) {
+                        $count = substr_count($first_line, $d);
+                        if ($count > $max_count) {
+                            $max_count = $count;
+                            $delimiter = $d;
+                        }
+                    }
+
+                    $header = fgetcsv($handle, 0, $delimiter); // skip header
+                    $count = 0;
+                    $errors_count = 0;
+
+                    while (($data = fgetcsv($handle, 0, $delimiter)) !== FALSE) {
+                        if (empty($data) || (count($data) == 1 && empty($data[0]))) continue;
+
+                        // Encoding fix
+                        foreach ($data as $k => $v) {
+                            $encoding = mb_detect_encoding($v, array('UTF-8', 'ISO-8859-6', 'ISO-8859-1'), true);
+                            if ($encoding && $encoding != 'UTF-8') {
+                                $data[$k] = mb_convert_encoding($v, 'UTF-8', $encoding);
+                            }
+                            $data[$k] = trim($data[$k]);
+                        }
+
+                        $student_code = $data[0] ?? '';
+                        if (empty($student_code)) continue;
+
+                        // Search Student Number in Student Management as primary relationship key
+                        $student = SM_DB::get_student_by_code($student_code);
+                        if (!$student) {
+                            // Fallback search by Student ID or National ID or Name
+                            global $wpdb;
+                            $student = $wpdb->get_row($wpdb->prepare(
+                                "SELECT * FROM {$wpdb->prefix}sm_students WHERE student_code = %s OR national_id = %s OR name = %s",
+                                $student_code, $student_code, $student_code
+                            ));
+                        }
+
+                        if (!$student) {
+                            $errors_count++;
+                            continue;
+                        }
+
+                        // Determine structure format (Standard 18-column vs legacy 6-column)
+                        if (count($data) >= 10) {
+                            // Col A: Student Number, B: Student Name, C: Nationality, D: School, E: Grade, F: Section
+                            // Col G: Violation Type, H: Violation Code, I: Violation Details, J: Date
+                            // Col K: Time, L: Location, M: Severity, N: Frequency, O: Action Taken, P: Status, Q: Recorded By, R: Notes
+                            $v_type        = !empty($data[6]) ? $data[6] : (!empty($data[1]) ? $data[1] : 'سلوكية');
+                            $v_code        = !empty($data[7]) ? $data[7] : '';
+                            $v_details     = !empty($data[8]) ? $data[8] : (!empty($data[3]) ? $data[3] : 'مخالفة سلوكية');
+                            $v_date        = !empty($data[9]) ? $data[9] : '';
+                            $v_severity    = !empty($data[12]) ? $data[12] : (!empty($data[2]) ? $data[2] : 'low');
+                            $v_action      = !empty($data[14]) ? $data[14] : (!empty($data[4]) ? $data[4] : '');
+
+                            // Normalize Severity
+                            $sev_map = array(
+                                'منخفضة' => 'low', 'بسيطة' => 'low', 'low' => 'low',
+                                'متوسطة' => 'medium', 'medium' => 'medium',
+                                'خطيرة' => 'high', 'جسيمة' => 'high', 'شديدة' => 'high', 'high' => 'high', 'severe' => 'high'
+                            );
+                            $v_severity = $sev_map[$v_severity] ?? 'low';
+
+                            $record_data = array(
+                                'student_id'     => $student->id,
+                                'type'           => $v_type,
+                                'violation_code' => $v_code,
+                                'severity'       => $v_severity,
+                                'details'        => $v_details,
+                                'action_taken'   => $v_action
+                            );
+                            if (!empty($v_date)) {
+                                $record_data['custom_date'] = date('Y-m-d', strtotime($v_date));
+                            }
+
+                            $rid = SM_DB::add_record($record_data, true);
+                            if ($rid) {
+                                $count++;
+                                SM_Notifications::send_violation_alert($rid);
+                            }
+                        } elseif (count($data) >= 4) {
+                            // Legacy format: code, type, severity, details, action, reward
                             $rid = SM_DB::add_record(array(
-                                'student_id' => $student->id,
-                                'type' => $data[1],
-                                'severity' => $data[2],
-                                'details' => $data[3],
+                                'student_id'   => $student->id,
+                                'type'         => $data[1],
+                                'severity'     => $data[2],
+                                'details'      => $data[3],
                                 'action_taken' => isset($data[4]) ? $data[4] : '',
-                                'reward_penalty' => isset($data[5]) ? $data[5] : ''
-                            ), true); // Skip individual logs
+                            ), true);
                             if ($rid) {
                                 $count++;
                                 SM_Notifications::send_violation_alert($rid);
                             }
                         }
                     }
+                    fclose($handle);
+                    SM_Logger::log('استيراد مخالفات (جماعي)', "تم استيراد ($count) مخالفة بنجاح.");
+                    wp_redirect(add_query_arg('sm_admin_msg', 'csv_imported', $_SERVER['REQUEST_URI']));
+                    exit;
                 }
-                fclose($handle);
-                SM_Logger::log('استيراد مخالفات (جماعي)', "تم استيراد ($count) مخالفة بنجاح.");
-                wp_redirect(add_query_arg('sm_admin_msg', 'csv_imported', $_SERVER['REQUEST_URI']));
-                exit;
             }
         }
     }
