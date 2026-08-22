@@ -1,7 +1,7 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <?php if (empty($records)): ?>
     <tr>
-        <td colspan="8" style="padding: 60px 20px; text-align: center; color: #64748b;">
+        <td colspan="7" style="padding: 60px 20px; text-align: center; color: #64748b;">
             <div style="width: 64px; height: 64px; background: #f1f5f9; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #94a3b8; margin-bottom: 16px;">
                 <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
             </div>
@@ -116,14 +116,7 @@
                 </div>
             </td>
 
-            <!-- 2. Nationality Column -->
-            <td style="padding: 14px 18px; vertical-align: middle;">
-                <span style="font-size: 12.5px; font-weight: 600; color: #475569;">
-                    <?php echo esc_html($nationality_str); ?>
-                </span>
-            </td>
-
-            <!-- 3. School / Academic Placement (Compact School Name + Reduced Grade & Section Badges) -->
+            <!-- 2. School / Academic Placement (Compact School Name + Reduced Grade & Section Badges) -->
             <td style="padding: 12px 16px; vertical-align: middle;">
                 <div style="font-weight: 700; font-size: 12px; color: #334155; margin-bottom: 4px; line-height: 1.2;">
                     <?php echo esc_html($school_display); ?>
