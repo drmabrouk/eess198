@@ -181,34 +181,42 @@
             <td style="padding: 14px 18px; vertical-align: middle; text-align: center;">
                 <div style="display: flex; align-items: center; gap: 6px; justify-content: center;">
 
-                    <!-- Delete Icon -->
-                    <?php if (current_user_can('إدارة_المخالفات') || current_user_can('manage_options')): ?>
-                        <button type="button" onclick="confirmDeleteRecord(<?php echo $row->id; ?>)"
-                                class="eess-action-btn"
-                                style="width: 34px; height: 34px; min-width: 34px; min-height: 34px; border-radius: 50%; background: #fef2f2 !important; color: #dc2626 !important; border: 1px solid #fecaca !important; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"
-                                title="حذف المخالفة" aria-label="حذف المخالفة">
-                            <svg width="16" height="16" fill="none" stroke="#dc2626" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        </button>
-                    <?php endif; ?>
+                    <!-- View Details (Eye Icon) -->
+                    <button type="button" onclick="viewViolationDetails(<?php echo htmlspecialchars(json_encode($row)); ?>)"
+                            class="eess-action-btn"
+                            style="width: 34px; height: 34px; min-width: 34px; min-height: 34px; border-radius: 50%; background: #f8fafc !important; color: #475569 !important; border: 1px solid #cbd5e1 !important; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"
+                            title="عرض التفاصيل" aria-label="عرض التفاصيل">
+                        <svg width="16" height="16" fill="none" stroke="#475569" viewBox="0 0 24 24" style="width: 16px; height: 16px; display: block;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    </button>
 
-                    <!-- Print Icon -->
-                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=single_violation&record_id=' . $row->id); ?>"
-                       target="_blank"
-                       class="eess-action-btn"
-                       style="width: 34px; height: 34px; min-width: 34px; min-height: 34px; border-radius: 50%; background: #f0f9ff !important; color: #0284c7 !important; border: 1px solid #bae6fd !important; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.2s;"
-                       title="طباعة التقرير" aria-label="طباعة التقرير">
-                        <svg width="16" height="16" fill="none" stroke="#0284c7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                    </a>
-
-                    <!-- Edit Icon -->
+                    <!-- Edit Icon (Pencil) -->
                     <?php if (current_user_can('إدارة_المخالفات') || current_user_can('manage_options')): ?>
                         <button type="button" onclick="editSmRecord(<?php echo htmlspecialchars(json_encode($row)); ?>)"
                                 class="eess-action-btn"
                                 style="width: 34px; height: 34px; min-width: 34px; min-height: 34px; border-radius: 50%; background: #fffbeb !important; color: #d97706 !important; border: 1px solid #fde68a !important; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"
                                 title="تعديل السجل" aria-label="تعديل السجل">
-                            <svg width="16" height="16" fill="none" stroke="#d97706" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            <svg width="16" height="16" fill="none" stroke="#d97706" viewBox="0 0 24 24" style="width: 16px; height: 16px; display: block;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                         </button>
                     <?php endif; ?>
+
+                    <!-- Delete Icon (Trash) -->
+                    <?php if (current_user_can('إدارة_المخالفات') || current_user_can('manage_options')): ?>
+                        <button type="button" onclick="confirmDeleteRecord(<?php echo $row->id; ?>)"
+                                class="eess-action-btn"
+                                style="width: 34px; height: 34px; min-width: 34px; min-height: 34px; border-radius: 50%; background: #fef2f2 !important; color: #dc2626 !important; border: 1px solid #fecaca !important; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"
+                                title="حذف المخالفة" aria-label="حذف المخالفة">
+                            <svg width="16" height="16" fill="none" stroke="#dc2626" viewBox="0 0 24 24" style="width: 16px; height: 16px; display: block;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    <?php endif; ?>
+
+                    <!-- Print Icon (Printer) -->
+                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=single_violation&record_id=' . $row->id); ?>"
+                       target="_blank"
+                       class="eess-action-btn"
+                       style="width: 34px; height: 34px; min-width: 34px; min-height: 34px; border-radius: 50%; background: #f0f9ff !important; color: #0284c7 !important; border: 1px solid #bae6fd !important; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.2s;"
+                       title="طباعة التقرير" aria-label="طباعة التقرير">
+                        <svg width="16" height="16" fill="none" stroke="#0284c7" viewBox="0 0 24 24" style="width: 16px; height: 16px; display: block;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    </a>
 
                     <!-- WhatsApp Icon with Dynamic Status -->
                     <?php if ($formatted_phone): ?>
@@ -220,7 +228,7 @@
                                class="eess-action-btn"
                                style="width: 34px; height: 34px; min-width: 34px; min-height: 34px; border-radius: 50%; background: #dcfce7 !important; color: #15803d !important; border: 1px solid #86efac !important; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; position: relative; transition: all 0.2s;"
                                title="تم التواصل عبر واتساب بنجاح" aria-label="تم التواصل عبر واتساب بنجاح">
-                                <svg width="16" height="16" fill="#15803d" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                                <svg width="16" height="16" fill="#15803d" viewBox="0 0 24 24" style="width: 16px; height: 16px; display: block;"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
                                 <span style="position: absolute; top: -3px; right: -3px; width: 14px; height: 14px; background: #16a34a; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; border: 1.5px solid #ffffff; font-weight: 900;">✓</span>
                             </a>
                         <?php else: ?>
@@ -231,7 +239,7 @@
                                class="eess-action-btn"
                                style="width: 34px; height: 34px; min-width: 34px; min-height: 34px; border-radius: 50%; background: #f0fdf4 !important; color: #16a34a !important; border: 1px solid #bbf7d0 !important; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.2s;"
                                title="إرسال عبر واتساب" aria-label="إرسال عبر واتساب">
-                               <svg width="16" height="16" fill="#16a34a" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                               <svg width="16" height="16" fill="#16a34a" viewBox="0 0 24 24" style="width: 16px; height: 16px; display: block;"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
                             </a>
                         <?php endif; ?>
                     <?php else: ?>
@@ -240,16 +248,16 @@
                                 class="eess-action-btn"
                                 style="width: 34px; height: 34px; min-width: 34px; min-height: 34px; border-radius: 50%; background: #fef2f2 !important; color: #dc2626 !important; border: 1px solid #fecaca !important; display: inline-flex; align-items: center; justify-content: center; cursor: not-allowed;"
                                 title="واتساب غير متاح (رقم هاتف مفقود أو غير صحيح)" aria-label="واتساب غير متاح">
-                            <svg width="16" height="16" fill="#dc2626" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                            <svg width="16" height="16" fill="#dc2626" viewBox="0 0 24 24" style="width: 16px; height: 16px; display: block;"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
                         </button>
                     <?php endif; ?>
 
-                    <!-- More / Details Icon -->
+                    <!-- More / Additional Actions (Three dots) -->
                     <button type="button" onclick="viewViolationDetails(<?php echo htmlspecialchars(json_encode($row)); ?>)"
                             class="eess-action-btn"
                             style="width: 34px; height: 34px; min-width: 34px; min-height: 34px; border-radius: 50%; background: #f8fafc !important; color: #475569 !important; border: 1px solid #cbd5e1 !important; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"
                             title="المزيد والتفاصيل" aria-label="المزيد والتفاصيل">
-                        <svg width="16" height="16" fill="none" stroke="#475569" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/></svg>
+                        <svg width="16" height="16" fill="none" stroke="#475569" viewBox="0 0 24 24" style="width: 16px; height: 16px; display: block;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/></svg>
                     </button>
 
                 </div>
