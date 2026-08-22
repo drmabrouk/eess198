@@ -88,19 +88,23 @@
                     </div>
                     <div>
                         <div style="font-weight: 800; font-size: 13.5px; color: #0f172a; display: flex; align-items: center; gap: 6px; line-height: 1.3; margin-bottom: 4px;">
-                            <?php echo esc_html($row->student_name); ?>
                             <?php if (current_user_can('إدارة_الطلاب')): ?>
-                                <button type="button" onclick='editSmStudentFromStats(<?php echo json_encode(array(
+                                <a href="javascript:void(0)" onclick='editSmStudentFromStats(<?php echo json_encode(array(
                                     "id" => $row->student_id,
                                     "name" => $row->student_name,
                                     "class_name" => $row->class_name,
                                     "section" => $row->section,
                                     "parent_email" => $row->parent_email ?? "",
                                     "guardian_phone" => $row->guardian_phone ?? "",
-                                    "student_id" => $row->student_code
-                                )); ?>)' style="background: none; border: none; padding: 0; cursor: pointer; color: #94a3b8; display: inline-flex;" title="تعديل بيانات الطالب">
-                                    <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.03H3v-3.572L16.732 3.732z"></path></svg>
-                                </button>
+                                    "nationality" => $row->nationality ?? "",
+                                    "student_code" => $row->student_code ?? "",
+                                    "student_id" => $row->student_code ?? "",
+                                    "photo_url" => $row->photo_url ?? ""
+                                )); ?>)' style="color: #0f172a; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'; this.style.textDecoration='underline';" onmouseout="this.style.color='#0f172a'; this.style.textDecoration='none';" title="انقر لتعديل ملف الطالب">
+                                    <?php echo esc_html($row->student_name); ?>
+                                </a>
+                            <?php else: ?>
+                                <span><?php echo esc_html($row->student_name); ?></span>
                             <?php endif; ?>
                         </div>
                         <!-- Student Code & Nationality Badges on same horizontal line -->
