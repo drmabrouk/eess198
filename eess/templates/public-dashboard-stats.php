@@ -363,85 +363,9 @@
 
     </div>
 
-    <!-- Edit Student Modal (For Admins) -->
+    <!-- Unified Student Profile Edit Modal -->
     <?php if (current_user_can('إدارة_الطلاب')): ?>
-    <div id="edit-student-modal" class="sm-modal-overlay" style="display: none;">
-        <div class="sm-modal-content" style="max-width: 750px; border-radius: 20px; padding: 28px;">
-            <div class="sm-modal-header" style="border-bottom: 1px solid #e2e8f0; padding-bottom: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #0f172a;">تعديل الملف المعلوماتي للطالب</h3>
-                <button class="sm-modal-close" onclick="document.getElementById('edit-student-modal').style.display='none'" style="background: none; border: none; font-size: 24px; color: #94a3b8; cursor: pointer;">&times;</button>
-            </div>
-            <form id="edit-student-form">
-                <?php wp_nonce_field('sm_add_student', 'sm_nonce'); ?>
-                <input type="hidden" name="student_id" id="edit_stu_id">
-
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; background:#f8fafc; padding:20px; border-radius:14px; border:1px solid #e2e8f0;">
-                    <div style="grid-column: span 2; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 4px; color: #dc2626; font-weight: 800; font-size: 13.5px;">البيانات الأساسية</div>
-
-                    <div class="sm-form-group">
-                        <label class="sm-label" style="font-size: 12.5px; font-weight: 700; color: #334155;">الاسم الكامل للطالب:</label>
-                        <input type="text" name="name" id="edit_stu_name" class="sm-input" required style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px;">
-                    </div>
-                    <div class="sm-form-group">
-                        <label class="sm-label" style="font-size: 12.5px; font-weight: 700; color: #334155;">الصف الدراسي:</label>
-                        <select name="class_name" id="edit_stu_class" class="sm-select" required style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px;">
-                            <?php
-                            $academic = SM_Settings::get_academic_structure();
-                            foreach ($academic['active_grades'] as $grade_num) {
-                                echo "<option value='الصف $grade_num'>الصف $grade_num</option>";
-                            }
-                            ?>
-                        </select>
-                    </div>
-                    <div class="sm-form-group">
-                        <label class="sm-label" style="font-size: 12.5px; font-weight: 700; color: #334155;">الشعبة:</label>
-                        <input type="text" name="section" id="edit_stu_section" class="sm-input" required style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px;">
-                    </div>
-                    <div class="sm-form-group">
-                        <label class="sm-label" style="font-size: 12.5px; font-weight: 700; color: #334155;">الرقم الأكاديمي (الكود):</label>
-                        <input type="text" name="student_code" id="edit_stu_code" class="sm-input" readonly style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px; background: #e2e8f0;">
-                    </div>
-                    <div class="sm-form-group">
-                        <label class="sm-label" style="font-size: 12.5px; font-weight: 700; color: #334155;">بريد ولي الأمر:</label>
-                        <input type="email" name="parent_email" id="edit_stu_email" class="sm-input" style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px;">
-                    </div>
-                    <div class="sm-form-group">
-                        <label class="sm-label" style="font-size: 12.5px; font-weight: 700; color: #334155;">رقم هاتف ولي الأمر:</label>
-                        <input name="guardian_phone" id="edit_stu_phone" type="text" class="sm-input" style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px;">
-                    </div>
-                </div>
-
-                <div style="display:flex; gap:12px; margin-top:24px; justify-content: flex-end;">
-                    <button type="submit" class="sm-btn" style="background: #dc2626; color: #fff; height:42px; border-radius: 10px; padding: 0 22px; font-weight:800; border: none;">تحديث البيانات الآن</button>
-                    <button type="button" onclick="document.getElementById('edit-student-modal').style.display='none'" class="sm-btn" style="background:#cbd5e1; color:#334155; height:42px; border-radius: 10px; padding: 0 18px; font-weight:700; border: none;">إلغاء</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <script>
-    (function() {
-        const editForm = document.getElementById('edit-student-form');
-        if (editForm) {
-            editForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const formData = new FormData(this);
-                formData.append('action', 'sm_update_student_ajax');
-
-                fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })
-                .then(r => r.json())
-                .then(res => {
-                    if (res.success) {
-                        if (typeof smShowNotification === 'function') smShowNotification('تم تحديث بيانات الطالب');
-                        document.getElementById('edit-student-modal').style.display = 'none';
-                        document.getElementById('violation-filter-form').dispatchEvent(new Event('submit'));
-                    } else {
-                        if (typeof smShowNotification === 'function') smShowNotification('خطأ: ' + res.data, true);
-                    }
-                });
-            });
-        }
-    })();
-    </script>
+        <?php include SM_PLUGIN_DIR . 'templates/partials/student-profile-edit-modal.php'; ?>
     <?php endif; ?>
 
     <!-- Edit Record Modal -->

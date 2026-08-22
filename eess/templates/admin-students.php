@@ -211,7 +211,7 @@ if ($import_results) {
                                     <button onclick="viewSmStudent(<?php echo htmlspecialchars(json_encode($student)); ?>)" class="sm-btn" style="background:var(--sm-secondary-color); font-size:11px; padding: 4px 10px; width: auto; height: 28px;">الملف السلوكي</button>
                                     <?php if ($is_admin): ?>
                                         <button onclick="showStudentCreds('<?php echo esc_js($student->student_code); ?>', '<?php echo esc_js(get_user_meta($student->parent_user_id, 'sm_temp_pass', true)); ?>', '<?php echo esc_js($student->name); ?>', <?php echo $student->id; ?>)" class="sm-btn" style="background:#2d3748; font-size:11px; padding: 4px 10px; width: auto; height: 28px;">حساب الدخول</button>
-                                        <button onclick='editSmStudent(<?php echo json_encode($student); ?>)' class="sm-btn" style="background:#edf2f7; color:#2d3748; font-size:11px; padding: 4px 10px; width: auto; height: 28px;">تعديل</button>
+                                        <button onclick='editSmStudent(<?php echo json_encode($student); ?>)' class="sm-btn" style="background:#2563eb; color:#ffffff !important; font-size:11px; padding: 4px 10px; width: auto; height: 28px; font-weight:700;">تعديل الطالب</button>
                                         <button onclick="confirmDeleteStudent(<?php echo $student->id; ?>, '<?php echo esc_js($student->name); ?>')" class="sm-btn" style="background:#e53e3e; font-size:11px; padding: 4px 10px; width: auto; height: 28px;">حذف</button>
                                     <?php endif; ?>
                                 </div>
@@ -286,98 +286,10 @@ if ($import_results) {
         </div>
     </div>
 
-    <!-- REDESIGNED MULTI-STEP EDIT STUDENT PROFILE DIALOG (Cairo Font + Labels as Placeholders) -->
-    <div id="edit-student-modal" class="sm-modal-overlay">
-        <div class="sm-modal-content" style="max-width: 600px;">
-            <div class="sm-modal-header" style="border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">
-                <h3 style="margin:0; font-weight:800; font-size: 15px;">تعديل بيانات الطالب</h3>
-                <button class="sm-modal-close" onclick="document.getElementById('edit-student-modal').style.display='none'">&times;</button>
-            </div>
-
-            <form id="edit-student-form">
-                <?php wp_nonce_field('sm_add_student', 'sm_nonce'); ?>
-                <input type="hidden" name="student_id" id="edit_stu_id">
-
-                <!-- Step Progress Bar -->
-                <div class="eess-step-progress-bar" style="display:flex; justify-content:space-between; margin-bottom:20px; position:relative; font-family:'Cairo', sans-serif !important;">
-                    <div class="eess-step-node active" id="edit-node-1" style="width:30px; height:30px; border-radius:50%; background:#000; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:12px; z-index:2; border: 2px solid #000; transition:0.3s;">1</div>
-                    <div class="eess-step-node" id="edit-node-2" style="width:30px; height:30px; border-radius:50%; background:#fff; border:2px solid #cbd5e1; color:#64748b; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:12px; z-index:2; transition:0.3s;">2</div>
-                    <div class="eess-step-node" id="edit-node-3" style="width:30px; height:30px; border-radius:50%; background:#fff; border:2px solid #cbd5e1; color:#64748b; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:12px; z-index:2; transition:0.3s;">3</div>
-                </div>
-
-                <!-- Step 1: Personal info -->
-                <div id="edit-step-1" class="edit-wizard-step" style="display: block;">
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #edf2f7; font-family:'Cairo', sans-serif !important;">
-                        <div style="grid-column: span 2; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 5px; color: var(--sm-primary-color); font-weight: 700; font-size:12px;">الخطوة 1: البيانات الشخصية والتعريفية</div>
-
-                        <div class="sm-form-group" style="margin-bottom:0;">
-                            <input type="text" name="name" id="edit_stu_name" class="sm-input" required placeholder="الاسم الكامل للطالب *" style="height:38px; font-size:12px; font-family:'Cairo', sans-serif !important; border-radius: 8px;">
-                        </div>
-                        <div class="sm-form-group" style="margin-bottom:0;">
-                            <input type="text" name="nationality" id="edit_stu_nationality" class="sm-input" placeholder="جنسية الطالب" style="height:38px; font-size:12px; font-family:'Cairo', sans-serif !important; border-radius: 8px;">
-                        </div>
-                        <div class="sm-form-group" style="margin-bottom:0;">
-                            <input type="date" name="registration_date" id="edit_stu_reg_date" class="sm-input" placeholder="تاريخ التسجيل" style="height:38px; font-size:12px; font-family:'Cairo', sans-serif !important; border-radius: 8px;">
-                        </div>
-                        <div class="sm-form-group" style="margin-bottom:0;">
-                            <input type="text" name="student_code" id="edit_stu_code" class="sm-input" readonly placeholder="الرقم الأكاديمي (الكود)" style="height:38px; font-size:12px; background:#e2e8f0; font-family:'Cairo', sans-serif !important; border-radius: 8px;">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Step 2: Academic info -->
-                <div id="edit-step-2" class="edit-wizard-step" style="display: none;">
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #edf2f7; font-family:'Cairo', sans-serif !important;">
-                        <div style="grid-column: span 2; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 5px; color: var(--sm-primary-color); font-weight: 700; font-size:12px;">الخطوة 2: الفصل والمرحلة الدراسية</div>
-
-                        <div class="sm-form-group" style="margin-bottom:0;">
-                            <select name="class_name" id="edit_stu_class" class="sm-select" required style="height:38px; font-size:12px; padding:0 10px; font-family:'Cairo', sans-serif !important; border-radius: 8px;">
-                                <option value="">-- اختر الصف الدراسي --</option>
-                                <?php
-                                foreach ($academic['active_grades'] as $grade_num) {
-                                    echo "<option value='الصف $grade_num'>الصف $grade_num</option>";
-                                }
-                                ?>
-                            </select>
-                        </div>
-                        <div class="sm-form-group" style="margin-bottom:0;">
-                            <input type="text" name="section" id="edit_stu_section" class="sm-input" required placeholder="الشعبة / الفصل *" list="existing-sections" style="height:38px; font-size:12px; font-family:'Cairo', sans-serif !important; border-radius: 8px;">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Step 3: Guardian & Account Info -->
-                <div id="edit-step-3" class="edit-wizard-step" style="display: none;">
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #edf2f7; font-family:'Cairo', sans-serif !important;">
-                        <div style="grid-column: span 2; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 5px; color: var(--sm-primary-color); font-weight: 700; font-size:12px;">الخطوة 3: معلومات التواصل وربط الحساب</div>
-
-                        <div class="sm-form-group" style="margin-bottom:0;">
-                            <input type="email" name="parent_email" id="edit_stu_email" class="sm-input" placeholder="البريد الإلكتروني لولي الأمر" style="height:38px; font-size:12px; font-family:'Cairo', sans-serif !important; border-radius: 8px;">
-                        </div>
-                        <div class="sm-form-group" style="margin-bottom:0;">
-                            <input type="text" name="guardian_phone" id="edit_stu_phone" class="sm-input" placeholder="رقم هاتف ولي الأمر" style="height:38px; font-size:12px; font-family:'Cairo', sans-serif !important; border-radius: 8px;">
-                        </div>
-                        <div class="sm-form-group" style="grid-column: span 2; margin-bottom:0;">
-                            <select name="parent_user_id" id="edit_stu_parent_user" class="sm-select" style="height:38px; font-size:12px; padding:0 10px; font-family:'Cairo', sans-serif !important; border-radius: 8px;">
-                                <option value="">-- ربط بحساب الطالب (اختياري) --</option>
-                                <?php foreach (get_users(array('role' => 'sm_student')) as $p): ?>
-                                    <option value="<?php echo $p->ID; ?>"><?php echo esc_html($p->display_name); ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Wizard Actions Footer -->
-                <div style="display:flex; gap:12px; margin-top:20px; justify-content: flex-end; font-family:'Cairo', sans-serif !important;">
-                    <button type="button" id="edit-prev-btn" onclick="goEditStep(prevStepVal())" class="sm-btn" style="background:#cbd5e0; color:#2d3748 !important; width:100px; display:none; height: 36px; font-size:11px; border-radius: 6px;">السابق</button>
-                    <button type="button" id="edit-next-btn" onclick="goEditStep(nextStepVal())" class="sm-btn" style="background:#000; color:#fff !important; width:100px; height: 36px; font-size:11px; border-radius: 6px;">التالي</button>
-                    <button type="submit" id="edit-submit-btn" class="sm-btn" style="width:140px; height: 36px; font-size:11px; display:none; background:#8b1e1e; border-radius: 6px;">تحديث البيانات الآن</button>
-                    <button type="button" onclick="document.getElementById('edit-student-modal').style.display='none'" class="sm-btn sm-btn-outline" style="width:100px; height:36px; font-size:11px; border-radius: 6px;">إلغاء</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <!-- UNIFIED STUDENT PROFILE EDIT MODAL -->
+    <?php if ($is_admin): ?>
+        <?php include SM_PLUGIN_DIR . 'templates/partials/student-profile-edit-modal.php'; ?>
+    <?php endif; ?>
     <?php endif; ?>
 
     <!-- VIEW STUDENT RECORD MODAL -->
