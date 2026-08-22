@@ -635,6 +635,11 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                     'desc' => 'متابعة وإعداد واعتماد التحضيرات والخطط الأكاديمية والتعليمية للكادر التدريسي والأكاديمي.',
                     'button' => ''
                 ),
+                'term-plans' => array(
+                    'title' => 'الخطط الفصلية والسنوية',
+                    'desc' => 'إعداد وتحديد الخطط الأكاديمية والتوزيع الأسبوعي للمناهج الدراسية بالفصول والاعتماد المباشر.',
+                    'button' => ''
+                ),
                 'assignments' => array(
                     'title' => 'الواجبات المدرسية',
                     'desc' => 'إنشاء وتوزيع ومتابعة الواجبات المدرسية والمهام المنزلية المقررة على الطلاب لمتابعة الأداء الأكاديمي.',
@@ -897,6 +902,10 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
 
                 case 'lesson-plans':
                     include SM_PLUGIN_DIR . 'templates/admin-lesson-prep.php';
+                    break;
+
+                case 'term-plans':
+                    include SM_PLUGIN_DIR . 'templates/admin-term-plans.php';
                     break;
 
                 case 'assignments':

@@ -256,6 +256,31 @@ class SM_Activator {
             created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
             PRIMARY KEY  (id),
             KEY prep_id (prep_id)
+        ) $charset_collate;
+
+        CREATE TABLE {$wpdb->prefix}sm_term_plans (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            teacher_id bigint(20) NOT NULL,
+            academic_year varchar(50) NOT NULL,
+            subject varchar(100) NOT NULL,
+            grade varchar(50) NOT NULL,
+            weekly_lessons int(11) DEFAULT 1 NOT NULL,
+            num_terms int(11) DEFAULT 3 NOT NULL,
+            term_number int(11) DEFAULT 1 NOT NULL,
+            start_date date NOT NULL,
+            end_date date NOT NULL,
+            total_weeks int(11) DEFAULT 0 NOT NULL,
+            weeks_data longtext,
+            completion_pct int(11) DEFAULT 0 NOT NULL,
+            status varchar(50) DEFAULT 'draft' NOT NULL,
+            review_notes text,
+            reviewed_by bigint(20) DEFAULT NULL,
+            reviewed_at datetime DEFAULT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+            PRIMARY KEY  (id),
+            KEY teacher_id (teacher_id),
+            KEY status (status)
         ) $charset_collate;";
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
