@@ -76,7 +76,7 @@
     ?>
         <tr id="record-row-<?php echo $row->id; ?>" style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc';" onmouseout="this.style.background='transparent';">
 
-            <!-- 1. Student Cell (Photo, Name, ID) -->
+            <!-- 1. Student Cell (Photo, Name, Student Number & Nationality Badges) -->
             <td style="padding: 14px 18px; vertical-align: middle;">
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <div style="width: 42px; height: 42px; min-width: 42px; min-height: 42px; border-radius: 50%; overflow: hidden; background: #e2e8f0; display: flex; align-items: center; justify-content: center; border: 2px solid #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.06); flex-shrink: 0;">
@@ -87,7 +87,7 @@
                         <?php endif; ?>
                     </div>
                     <div>
-                        <div style="font-weight: 800; font-size: 13.5px; color: #0f172a; display: flex; align-items: center; gap: 6px; line-height: 1.3;">
+                        <div style="font-weight: 800; font-size: 13.5px; color: #0f172a; display: flex; align-items: center; gap: 6px; line-height: 1.3; margin-bottom: 4px;">
                             <?php echo esc_html($row->student_name); ?>
                             <?php if (current_user_can('إدارة_الطلاب')): ?>
                                 <button type="button" onclick='editSmStudentFromStats(<?php echo json_encode(array(
@@ -103,8 +103,14 @@
                                 </button>
                             <?php endif; ?>
                         </div>
-                        <div style="font-size: 12px; font-weight: 700; color: #475569; margin-top: 2px;">
-                            <?php echo esc_html($student_id_code); ?>
+                        <!-- Student Code & Nationality Badges on same horizontal line -->
+                        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                            <span style="display: inline-flex; align-items: center; padding: 2px 8px; background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 11px; font-weight: 700;" title="رقم الطالب">
+                                <?php echo esc_html($student_id_code); ?>
+                            </span>
+                            <span style="display: inline-flex; align-items: center; padding: 2px 8px; background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; border-radius: 12px; font-size: 11px; font-weight: 700;" title="الجنسية">
+                                <?php echo esc_html($nationality_str); ?>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -117,17 +123,17 @@
                 </span>
             </td>
 
-            <!-- 3. School / Academic Placement -->
-            <td style="padding: 14px 18px; vertical-align: middle;">
-                <div style="font-weight: 700; font-size: 12.5px; color: #0f172a; margin-bottom: 4px;">
+            <!-- 3. School / Academic Placement (Compact School Name + Reduced Grade & Section Badges) -->
+            <td style="padding: 12px 16px; vertical-align: middle;">
+                <div style="font-weight: 700; font-size: 12px; color: #334155; margin-bottom: 4px; line-height: 1.2;">
                     <?php echo esc_html($school_display); ?>
                 </div>
-                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                    <span style="font-weight: 700; color: #334155; background: #f1f5f9; padding: 2px 8px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 11.5px;">
+                <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+                    <span style="font-weight: 700; color: #334155; background: #f1f5f9; padding: 1.5px 7px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 11px;">
                         <?php echo esc_html($row->class_name ?? 'غير محدد'); ?>
                     </span>
-                    <span style="font-weight: 700; color: #0369a1; background: #f0f9ff; padding: 2px 8px; border-radius: 6px; border: 1px solid #bae6fd; font-size: 11.5px;">
-                        الشعبة: <?php echo esc_html(!empty($row->section) ? $row->section : 'عام'); ?>
+                    <span style="font-weight: 700; color: #0369a1; background: #f0f9ff; padding: 1.5px 7px; border-radius: 6px; border: 1px solid #bae6fd; font-size: 11px;">
+                        <?php echo esc_html(!empty($row->section) ? 'شعبة ' . $row->section : 'شعبة عامة'); ?>
                     </span>
                 </div>
             </td>
@@ -211,22 +217,37 @@
                         </button>
                     <?php endif; ?>
 
-                    <!-- WhatsApp Icon -->
+                    <!-- WhatsApp Icon with Dynamic Status -->
                     <?php if ($formatted_phone): ?>
-                        <a href="https://wa.me/<?php echo $formatted_phone; ?>?text=<?php echo $waMsg; ?>"
-                           target="_blank"
-                           onclick="markAsContacted(<?php echo $row->id; ?>)"
-                           class="eess-action-btn"
-                           style="width: 34px; height: 34px; min-width: 34px; min-height: 34px; border-radius: 50%; background: #f0fdf4 !important; color: #16a34a !important; border: 1px solid #bbf7d0 !important; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.2s;"
-                           title="إرسال عبر واتساب" aria-label="إرسال عبر واتساب">
-                           <svg width="16" height="16" fill="#16a34a" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-                        </a>
+                        <?php if (!empty($row->contacted)): ?>
+                            <!-- Contacted / Sent State: Distinct Green with Checkmark Indicator -->
+                            <a href="https://wa.me/<?php echo $formatted_phone; ?>?text=<?php echo $waMsg; ?>"
+                               target="_blank"
+                               onclick="markAsContacted(<?php echo $row->id; ?>)"
+                               class="eess-action-btn"
+                               style="width: 34px; height: 34px; min-width: 34px; min-height: 34px; border-radius: 50%; background: #dcfce7 !important; color: #15803d !important; border: 1px solid #86efac !important; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; position: relative; transition: all 0.2s;"
+                               title="تم التواصل عبر واتساب بنجاح" aria-label="تم التواصل عبر واتساب بنجاح">
+                                <svg width="16" height="16" fill="#15803d" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                                <span style="position: absolute; top: -3px; right: -3px; width: 14px; height: 14px; background: #16a34a; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; border: 1.5px solid #ffffff; font-weight: 900;">✓</span>
+                            </a>
+                        <?php else: ?>
+                            <!-- Available State: Green -->
+                            <a href="https://wa.me/<?php echo $formatted_phone; ?>?text=<?php echo $waMsg; ?>"
+                               target="_blank"
+                               onclick="markAsContacted(<?php echo $row->id; ?>)"
+                               class="eess-action-btn"
+                               style="width: 34px; height: 34px; min-width: 34px; min-height: 34px; border-radius: 50%; background: #f0fdf4 !important; color: #16a34a !important; border: 1px solid #bbf7d0 !important; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.2s;"
+                               title="إرسال عبر واتساب" aria-label="إرسال عبر واتساب">
+                               <svg width="16" height="16" fill="#16a34a" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                            </a>
+                        <?php endif; ?>
                     <?php else: ?>
+                        <!-- Unavailable / Error State: Red -->
                         <button type="button" onclick="alert('<?php echo empty($raw_phone) ? 'رقم هاتف ولي الأمر غير مسجل في سجل الطالب' : 'صيغة رقم الهاتف غير صحيحة'; ?>')"
                                 class="eess-action-btn"
-                                style="width: 34px; height: 34px; min-width: 34px; min-height: 34px; border-radius: 50%; background: #f8fafc !important; color: #cbd5e1 !important; border: 1px solid #e2e8f0 !important; display: inline-flex; align-items: center; justify-content: center; cursor: not-allowed;"
-                                title="واتساب (غير متاح)" aria-label="واتساب (غير متاح)">
-                            <svg width="16" height="16" fill="#cbd5e1" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                                style="width: 34px; height: 34px; min-width: 34px; min-height: 34px; border-radius: 50%; background: #fef2f2 !important; color: #dc2626 !important; border: 1px solid #fecaca !important; display: inline-flex; align-items: center; justify-content: center; cursor: not-allowed;"
+                                title="واتساب غير متاح (رقم هاتف مفقود أو غير صحيح)" aria-label="واتساب غير متاح">
+                            <svg width="16" height="16" fill="#dc2626" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
                         </button>
                     <?php endif; ?>
 
