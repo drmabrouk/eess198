@@ -5629,6 +5629,146 @@ class SM_Public {
             $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}sm_lesson_preps WHERE id IN ($placeholders)", $prep_ids));
             wp_send_json_success(array('message' => 'تم حذف التحضيرات المحددة نهائياً.'));
         }
+    }
+
+    public function ajax_save_term_plan() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        if (!wp_verify_nonce($_POST['sm_nonce'] ?? '', 'sm_term_plan_action')) wp_send_json_error('Security check failed');
+
+        $user_id = get_current_user_id();
+        $plan_id = intval($_POST['plan_id'] ?? 0);
+        $academic_year = sanitize_text_field($_POST['academic_year'] ?? '');
+        $subject = sanitize_text_field($_POST['subject'] ?? '');
+        $grade = sanitize_text_field($_POST['grade'] ?? '');
+        $weekly_lessons = max(1, intval($_POST['weekly_lessons'] ?? 1));
+        $num_terms = max(2, min(3, intval($_POST['num_terms'] ?? 3)));
+        $term_number = max(1, min(3, intval($_POST['term_number'] ?? 1)));
+        $start_date = sanitize_text_field($_POST['start_date'] ?? '');
+        $end_date = sanitize_text_field($_POST['end_date'] ?? '');
+        $status = sanitize_text_field($_POST['status'] ?? 'draft');
+
+        if (!in_array($status, array('draft', 'submitted', 'approved', 'returned'))) {
+            $status = 'draft';
+        }
+
+        // Calculate weeks automatically
+        $total_weeks = 0;
+        if (!empty($start_date) && !empty($end_date)) {
+            $t_start = strtotime($start_date);
+            $t_end = strtotime($end_date);
+            if ($t_end >= $t_start) {
+                $days = floor(($t_end - $t_start) / (60 * 60 * 24));
+                $total_weeks = max(1, ceil($days / 7));
+            }
+        }
+
+        // Process weekly titles and summaries JSON
+        $raw_weeks = $_POST['weeks'] ?? array();
+        $weeks_data = array();
+        if (is_array($raw_weeks)) {
+            foreach ($raw_weeks as $w_num => $w_val) {
+                $w_i = intval($w_num);
+                $title = sanitize_text_field($w_val['title'] ?? '');
+                $summary = sanitize_textarea_field($w_val['summary'] ?? '');
+                $completed = (!empty($title) || !empty($summary)) ? 1 : 0;
+                $weeks_data[$w_i] = array(
+                    'title' => $title,
+                    'summary' => $summary,
+                    'completed' => $completed
+                );
+            }
+        }
+
+        // Compute completion percentage
+        $completed_count = 0;
+        if ($total_weeks > 0) {
+            for ($i = 1; $i <= $total_weeks; $i++) {
+                if (!empty($weeks_data[$i]['completed'])) {
+                    $completed_count++;
+                }
+            }
+            $completion_pct = round(($completed_count / $total_weeks) * 100);
+        } else {
+            $completion_pct = 0;
+        }
+
+        global $wpdb;
+        $data_fields = array(
+            'teacher_id' => $user_id,
+            'academic_year' => $academic_year,
+            'subject' => $subject,
+            'grade' => $grade,
+            'weekly_lessons' => $weekly_lessons,
+            'num_terms' => $num_terms,
+            'term_number' => $term_number,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+            'total_weeks' => $total_weeks,
+            'weeks_data' => wp_json_encode($weeks_data),
+            'completion_pct' => $completion_pct,
+            'status' => $status
+        );
+
+        if ($plan_id > 0) {
+            // Ensure owner or admin
+            $existing = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}sm_term_plans WHERE id = %d", $plan_id));
+            if (!$existing) wp_send_json_error('الخطة غير موجودة.');
+            if ($existing->teacher_id != $user_id && !current_user_can('manage_options')) {
+                wp_send_json_error('عذراً، لا تمتلك صلاحية تعديل هذه الخطة.');
+            }
+
+            $wpdb->update("{$wpdb->prefix}sm_term_plans", $data_fields, array('id' => $plan_id));
+            SM_Logger::log('حفظ الخطة الفصلية', "تم حفظ الخطة (ID: $plan_id) بحالة: $status بنسبة $completion_pct%");
+            wp_send_json_success(array('plan_id' => $plan_id, 'status' => $status, 'completion_pct' => $completion_pct, 'total_weeks' => $total_weeks));
+        } else {
+            $inserted = $wpdb->insert("{$wpdb->prefix}sm_term_plans", $data_fields);
+            if ($inserted) {
+                $new_id = $wpdb->insert_id;
+                SM_Logger::log('إنشاء خطة فصلية', "تم إنشاء خطة فصلية جديدة (ID: $new_id)");
+                wp_send_json_success(array('plan_id' => $new_id, 'status' => $status, 'completion_pct' => $completion_pct, 'total_weeks' => $total_weeks));
+            } else {
+                wp_send_json_error('فشل حفظ الخطة في قاعدة البيانات.');
+            }
+        }
+    }
+
+    public function ajax_review_term_plan() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        if (!wp_verify_nonce($_POST['sm_nonce'] ?? '', 'sm_term_plan_action')) wp_send_json_error('Security check failed');
+
+        $roles = (array) wp_get_current_user()->roles;
+        $can_review = in_array('administrator', $roles) || in_array('sm_system_admin', $roles) || in_array('sm_principal', $roles) || in_array('sm_supervisor', $roles) || in_array('sm_coordinator', $roles) || current_user_can('manage_options');
+
+        if (!$can_review) {
+            wp_send_json_error('عذراً، لا تمتلك صلاحية مراجعة الخطة.');
+        }
+
+        $plan_id = intval($_POST['plan_id'] ?? 0);
+        $review_status = sanitize_text_field($_POST['review_status'] ?? '');
+        $review_notes = sanitize_textarea_field($_POST['review_notes'] ?? '');
+
+        if (!in_array($review_status, array('approved', 'returned'))) {
+            wp_send_json_error('حالة المراجعة غير صحيحة.');
+        }
+
+        global $wpdb;
+        $updated = $wpdb->update(
+            "{$wpdb->prefix}sm_term_plans",
+            array(
+                'status' => $review_status,
+                'review_notes' => $review_notes,
+                'reviewed_by' => get_current_user_id(),
+                'reviewed_at' => current_time('mysql')
+            ),
+            array('id' => $plan_id)
+        );
+
+        if ($updated !== false) {
+            SM_Logger::log('مراجعة خطة فصلية', "تم مراجعة الخطة ID: $plan_id وتغيير الحالات إلى: $review_status");
+            wp_send_json_success(array('plan_id' => $plan_id, 'status' => $review_status));
+        } else {
+            wp_send_json_error('فشل تحديث حالة الخطة.');
+        }
 
         wp_send_json_error('إجراء جماعي غير مدعوم.');
     }
