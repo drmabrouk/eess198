@@ -34,7 +34,7 @@ $history = $wpdb->get_results("
 
     <!-- Clinic Search Engine -->
     <div style="margin-bottom: 25px;">
-        <input type="text" id="eess-clinic-search" onkeyup="eessFilterClinic()" class="sm-input" placeholder="🔍 ابحث عن طالب بالاسم، الصف، أو المحول..." style="height: 42px; border-radius: 8px; width: 100%; font-family: 'Cairo'; padding: 0 15px;">
+        <input type="text" id="eess-clinic-search" onkeyup="eessFilterClinic()" class="sm-input" placeholder="ابحث عن طالب بالاسم، الصف، أو المحول..." style="height: 42px; border-radius: 8px; width: 100%; font-family: 'Cairo'; padding: 0 15px;">
     </div>
 
     <!-- PENDING REFERRALS -->

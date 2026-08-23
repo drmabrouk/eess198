@@ -4,7 +4,7 @@
     <!-- Top Action Bar & Homework Search Engine -->
     <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0;">
         <div style="flex: 1;">
-            <input type="text" id="eess-homework-search" onkeyup="eessFilterHomework()" class="sm-input" placeholder="🔍 ابحث عن واجب باسم المادة، المدرس، الطالب، أو العنوان..." style="height: 40px; border-radius: 8px; width: 100%; font-size: 13px; padding: 0 15px;">
+            <input type="text" id="eess-homework-search" onkeyup="eessFilterHomework()" class="sm-input" placeholder="ابحث عن واجب باسم المادة، المدرس، الطالب، أو العنوان..." style="height: 40px; border-radius: 8px; width: 100%; font-size: 13px; padding: 0 15px;">
         </div>
         <button type="button" onclick="document.getElementById('add-assignment-modal').style.display='flex'" class="sm-btn" style="height: 40px; padding: 0 20px; font-weight: 800; font-size: 13px; background: var(--sm-primary-color); color: white !important; display: inline-flex; align-items: center; gap: 8px; border-radius: 8px; cursor: pointer;">
             <span class="dashicons dashicons-plus-alt" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
