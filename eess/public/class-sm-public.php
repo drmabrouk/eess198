@@ -6850,4 +6850,157 @@ class SM_Public {
             wp_send_json_error('حدث خطأ أثناء حذف السجل.');
         }
     }
+
+    // Technical Support & Help Capsule AJAX Endpoints
+    public function ajax_submit_support_request() {
+        if (!is_user_logged_in()) {
+            wp_send_json_error('عفواً، يجب تسجيل الدخول لتقديم طلب الدعم والمساعدة.');
+        }
+
+        $user_id  = get_current_user_id();
+        $category = sanitize_text_field($_POST['category'] ?? '');
+
+        if (!in_array($category, array('suggestion', 'technical_issue', 'rating'))) {
+            wp_send_json_error('تصنيف الطلب غير صحيح.');
+        }
+
+        if ($category === 'suggestion') {
+            $title   = sanitize_text_field($_POST['title'] ?? '');
+            $details = sanitize_textarea_field($_POST['details'] ?? '');
+
+            if (empty($title) || empty($details)) {
+                wp_send_json_error('جميع الحقول مطلوبة لإرسال المقترح.');
+            }
+
+            if (mb_strlen($details) > 1000) {
+                wp_send_json_error('تفاصيل المقترح تتجاوز الحد الأقصى المسموح به (1000 حرف).');
+            }
+
+            $req_id = SM_DB::add_support_request(array(
+                'user_id'  => $user_id,
+                'category' => 'suggestion',
+                'title'    => $title,
+                'details'  => $details,
+                'status'   => 'new'
+            ));
+
+            if ($req_id) {
+                SM_Logger::log('تقديم مقترح', "تم تقديم مقترح جديد (ID: $req_id) بعنوان: $title");
+                wp_send_json_success(array('message' => 'نشكرك على تقديم هذا المقترح المتميز! تم استلامه وبانتظار مراجعة الإدارة.'));
+            } else {
+                wp_send_json_error('حدث خطأ أثناء حفظ المقترح.');
+            }
+
+        } elseif ($category === 'technical_issue') {
+            $title   = sanitize_text_field($_POST['title'] ?? '');
+            $details = sanitize_textarea_field($_POST['details'] ?? '');
+            $attachment_url = '';
+
+            if (empty($title) || empty($details)) {
+                wp_send_json_error('عنوان المشكلة وتفاصيلها حقول إلزامية.');
+            }
+
+            if (!empty($_FILES['screenshot']['name'])) {
+                $file = $_FILES['screenshot'];
+
+                // File validation: type and size (max 5MB)
+                $allowed_mimes = array('image/jpeg', 'image/png', 'image/gif', 'image/webp');
+                if (!in_array($file['type'], $allowed_mimes)) {
+                    wp_send_json_error('نوع الملف غير مدعوم. يُسمح فقط بالصور (JPG, PNG, GIF, WEBP).');
+                }
+
+                if ($file['size'] > 5 * 1024 * 1024) {
+                    wp_send_json_error('حجم الملف يتجاوز الحد الأقصى المسموح به (5 ميجابايت).');
+                }
+
+                require_once(ABSPATH . 'wp-admin/includes/image.php');
+                require_once(ABSPATH . 'wp-admin/includes/file.php');
+                require_once(ABSPATH . 'wp-admin/includes/media.php');
+
+                $attachment_id = media_handle_upload('screenshot', 0);
+                if (is_wp_error($attachment_id)) {
+                    wp_send_json_error('فشل رفع لقطة الشاشة: ' . $attachment_id->get_error_message());
+                }
+                $attachment_url = wp_get_attachment_url($attachment_id);
+            }
+
+            $req_id = SM_DB::add_support_request(array(
+                'user_id'        => $user_id,
+                'category'       => 'technical_issue',
+                'title'          => $title,
+                'details'        => $details,
+                'attachment_url' => $attachment_url,
+                'status'         => 'new'
+            ));
+
+            if ($req_id) {
+                SM_Logger::log('الإبلاغ عن مشكلة فنية', "تم الإبلاغ عن مشكلة فنية (ID: $req_id) بعنوان: $title");
+                wp_send_json_success(array('message' => 'تم إرسال بلاغ المشكلة الفنية بنجاح. وسوف يتواصل معك الفريق التقني فور المراجعة.'));
+            } else {
+                wp_send_json_error('حدث خطأ أثناء إرسال بلاغ المشكلة.');
+            }
+
+        } elseif ($category === 'rating') {
+            $stars   = intval($_POST['rating_stars'] ?? 5);
+            $comment = sanitize_textarea_field($_POST['comment'] ?? '');
+
+            if ($stars < 1 || $stars > 5) {
+                wp_send_json_error('يرجى تحديد التقييم من 1 إلى 5 نجوم.');
+            }
+
+            if (mb_strlen($comment) > 250) {
+                wp_send_json_error('التعليق يتجاوز الحد الأقصى المسموح به (250 حرف).');
+            }
+
+            $req_id = SM_DB::add_support_request(array(
+                'user_id'      => $user_id,
+                'category'     => 'rating',
+                'title'        => 'تقييم المنظومة (' . $stars . ' نجوم)',
+                'details'      => $comment,
+                'rating_stars' => $stars,
+                'status'       => 'new'
+            ));
+
+            if ($req_id) {
+                SM_Logger::log('تقديم تقييم وشكر', "تم إرسال تقييم ($stars نجوم) بواسطة المستخدم ID: $user_id");
+                wp_send_json_success(array('message' => 'شكراً جزيلاً لتقييمك وكلماتك الطيبة! يسعدنا دائماً تقديم الأفضل لكم.'));
+            } else {
+                wp_send_json_error('حدث خطأ أثناء حفظ التقييم.');
+            }
+        }
+    }
+
+    public function ajax_update_support_status() {
+        if (!is_user_logged_in() || !current_user_can('manage_options')) {
+            wp_send_json_error('غير مصرح لك بتغيير حالة طلبات الدعم.');
+        }
+
+        $id     = intval($_POST['id'] ?? 0);
+        $status = sanitize_text_field($_POST['status'] ?? 'new');
+
+        if (!$id) wp_send_json_error('معرف الطلب غير صحيح.');
+
+        if (SM_DB::update_support_request_status($id, $status)) {
+            SM_Logger::log('تحديث حالة طلب دعم', "تم تغيير حالة الطلب ID: $id إلى: $status");
+            wp_send_json_success(array('message' => 'تم تحديث حالة الطلب بنجاح.'));
+        } else {
+            wp_send_json_error('فشل تحديث حالة الطلب.');
+        }
+    }
+
+    public function ajax_delete_support_request() {
+        if (!is_user_logged_in() || !current_user_can('manage_options')) {
+            wp_send_json_error('غير مصرح لك بحذف سجلات الدعم.');
+        }
+
+        $id = intval($_POST['id'] ?? 0);
+        if (!$id) wp_send_json_error('معرف الطلب غير صحيح.');
+
+        if (SM_DB::delete_support_request($id)) {
+            SM_Logger::log('حذف سجل دعم نهائياً', "تم حذف سجل الدعم/التقييم ID: $id نهائياً مع ملفه المرفق");
+            wp_send_json_success(array('message' => 'تم حذف السجل والملف المرفق به بنجاح.'));
+        } else {
+            wp_send_json_error('حدث خطأ أثناء حذف السجل.');
+        }
+    }
 }

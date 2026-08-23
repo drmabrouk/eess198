@@ -1115,4 +1115,92 @@ class SM_DB {
         global $wpdb;
         return (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sm_records WHERE confiscated_item != '' AND confiscated_item IS NOT NULL AND status = 'expired'");
     }
+
+    // Support & Feedback Helper Methods
+    public static function add_support_request($data) {
+        global $wpdb;
+        $inserted = $wpdb->insert(
+            "{$wpdb->prefix}sm_support_requests",
+            array(
+                'user_id'        => intval($data['user_id']),
+                'category'       => sanitize_text_field($data['category']),
+                'title'          => sanitize_text_field($data['title'] ?? ''),
+                'details'        => sanitize_textarea_field($data['details'] ?? ''),
+                'attachment_url' => esc_url_raw($data['attachment_url'] ?? ''),
+                'rating_stars'   => intval($data['rating_stars'] ?? 0),
+                'status'         => sanitize_text_field($data['status'] ?? 'new'),
+                'created_at'     => current_time('mysql'),
+                'updated_at'     => current_time('mysql')
+            )
+        );
+        return $inserted ? $wpdb->insert_id : false;
+    }
+
+    public static function get_support_requests($filters = array()) {
+        global $wpdb;
+        $query = "SELECT s.*, u.display_name, u.user_email, u.user_login FROM {$wpdb->prefix}sm_support_requests s LEFT JOIN {$wpdb->users} u ON s.user_id = u.ID WHERE 1=1";
+        $params = array();
+
+        if (!empty($filters['category']) && $filters['category'] !== 'all') {
+            $query .= " AND s.category = %s";
+            $params[] = sanitize_text_field($filters['category']);
+        }
+
+        if (!empty($filters['status'])) {
+            $query .= " AND s.status = %s";
+            $params[] = sanitize_text_field($filters['status']);
+        }
+
+        if (!empty($filters['search'])) {
+            $search_like = '%' . $wpdb->esc_like(trim($filters['search'])) . '%';
+            $query .= " AND (s.title LIKE %s OR s.details LIKE %s OR u.display_name LIKE %s OR u.user_login LIKE %s)";
+            $params[] = $search_like;
+            $params[] = $search_like;
+            $params[] = $search_like;
+            $params[] = $search_like;
+        }
+
+        $query .= " ORDER BY s.created_at DESC";
+
+        if (!empty($params)) {
+            return $wpdb->get_results($wpdb->prepare($query, $params));
+        }
+        return $wpdb->get_results($query);
+    }
+
+    public static function get_support_request_by_id($id) {
+        global $wpdb;
+        return $wpdb->get_row($wpdb->prepare(
+            "SELECT s.*, u.display_name, u.user_email, u.user_login FROM {$wpdb->prefix}sm_support_requests s LEFT JOIN {$wpdb->users} u ON s.user_id = u.ID WHERE s.id = %d",
+            $id
+        ));
+    }
+
+    public static function update_support_request_status($id, $status) {
+        global $wpdb;
+        return $wpdb->update(
+            "{$wpdb->prefix}sm_support_requests",
+            array('status' => sanitize_text_field($status), 'updated_at' => current_time('mysql')),
+            array('id' => intval($id))
+        );
+    }
+
+    public static function delete_support_request($id) {
+        global $wpdb;
+        $req = self::get_support_request_by_id($id);
+        if ($req) {
+            // Delete file attachment if local file
+            if (!empty($req->attachment_url)) {
+                $upload_dir = wp_upload_dir();
+                if (strpos($req->attachment_url, $upload_dir['baseurl']) !== false) {
+                    $file_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $req->attachment_url);
+                    if (file_exists($file_path)) {
+                        @unlink($file_path);
+                    }
+                }
+            }
+            return $wpdb->delete("{$wpdb->prefix}sm_support_requests", array('id' => intval($id)));
+        }
+        return false;
+    }
 }
