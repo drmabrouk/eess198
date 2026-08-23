@@ -88,8 +88,8 @@
                     </div>
                     <div>
                         <div style="font-weight: 800; font-size: 13.5px; color: #0f172a; display: flex; align-items: center; gap: 6px; line-height: 1.3; margin-bottom: 4px;">
-                            <?php if (current_user_can('إدارة_الطلاب')): ?>
-                                <a href="javascript:void(0)" onclick='editSmStudentFromStats(<?php echo json_encode(array(
+                            <?php if (current_user_can('إدارة_الطلاب') || current_user_can('manage_options')): ?>
+                                <a href="javascript:void(0)" onclick='openUnifiedProfileModal(<?php echo json_encode(array(
                                     "id" => $row->student_id,
                                     "name" => $row->student_name,
                                     "class_name" => $row->class_name,
@@ -100,7 +100,7 @@
                                     "student_code" => $row->student_code ?? "",
                                     "student_id" => $row->student_code ?? "",
                                     "photo_url" => $row->photo_url ?? ""
-                                )); ?>)' style="color: #0f172a; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'; this.style.textDecoration='underline';" onmouseout="this.style.color='#0f172a'; this.style.textDecoration='none';" title="انقر لتعديل ملف الطالب">
+                                )); ?>)' style="color: #0f172a; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#881337'; this.style.textDecoration='underline';" onmouseout="this.style.color='#0f172a'; this.style.textDecoration='none';" title="انقر لعرض وتعديل ملف الطالب">
                                     <?php echo esc_html($row->student_name); ?>
                                 </a>
                             <?php else: ?>

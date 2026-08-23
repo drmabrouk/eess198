@@ -671,23 +671,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
             );
 
             if ($active_tab === 'students') {
-                $header_map['students']['button'] = '
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    ' . (($is_admin || current_user_can('إدارة_الطلاب')) ? '<button onclick="document.getElementById(\'add-single-student-modal\').style.display=\'flex\'" class="sm-btn" style="background:#000; border:1px solid #000; color:#fff; border-radius:8px; font-weight:700; height:38px; display:inline-flex; align-items:center; gap:8px; cursor:pointer;"><span class="dashicons dashicons-plus-alt"></span> إضافة طالب جديد</button>' : '') . '
-                    <div style="position: relative; display: inline-block;">
-                        <button type="button" onclick="jQuery(\'#eess-student-actions-dropdown\').toggle(); event.stopPropagation();" class="sm-btn sm-btn-outline" style="width: auto; height: 38px; display: inline-flex; align-items: center; gap: 5px; border-color: #cbd5e1; cursor: pointer; padding: 0 10px; font-size: 12px; background: #fff; color: #334155; border-radius: 8px;">
-                            <span class="dashicons dashicons-menu-alt" style="font-size: 16px; width: 16px; height: 16px; margin: 0; color: #475569;"></span>
-                            <span>خيارات الطلاب</span>
-                            <span class="dashicons dashicons-arrow-down-alt2" style="font-size: 10px; width: 10px; height: 10px; margin: 0;"></span>
-                        </button>
-                        <div id="eess-student-actions-dropdown" style="display: none; position: absolute; left: 0; top: 110%; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; width: 220px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 99999; padding: 5px 0; text-align: right;">
-                            <a href="javascript:void(0)" onclick="document.getElementById(\'csv-import-form\').style.display=\'block\'; jQuery(\'#eess-student-actions-dropdown\').hide();" style="display: block; padding: 8px 15px; color: #334155; font-size: 12px; text-decoration: none; border-bottom: 1px solid #f1f5f9;">📥 استيراد طلاب (Excel)</a>
-                            <a href="' . admin_url('admin-ajax.php?action=sm_export_students_csv&nonce=' . wp_create_nonce('sm_admin_action')) . '" style="display: block; padding: 8px 15px; color: #334155; font-size: 12px; text-decoration: none; border-bottom: 1px solid #f1f5f9;">📤 تصدير الطلاب (Excel)</a>
-                            <a href="data:text/csv;charset=utf-8,' . rawurlencode("الاسم الكامل,الصف,الشعبة,الجنسية,البريد,الهاتف,رقم الهوية\nأحمد محمد,الصف 12,أ,إماراتي,parent@example.com,0501234567,784-1234-1234567-1") . '" download="student_template.csv" style="display: block; padding: 8px 15px; color: #334155; font-size: 12px; text-decoration: none; border-bottom: 1px solid #f1f5f9;">📄 تحميل نموذج استيراد CSV</a>
-                            <a href="' . admin_url('admin-ajax.php?action=sm_print&print_type=id_card') . '" target="_blank" style="display: block; padding: 8px 15px; color: #16a34a; font-size: 12px; font-weight: bold; text-decoration: none;">🖨️ طباعة بطاقات الطلاب</a>
-                        </div>
-                    </div>
-                </div>';
+                $header_map['students']['button'] = '';
             }
             if ($active_tab === 'teachers') {
                 $header_map['teachers']['button'] = '
