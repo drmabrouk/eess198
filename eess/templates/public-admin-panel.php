@@ -552,11 +552,11 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                 <?php endforeach; ?>
             </ul>
 
-            <!-- Absolute Bottom Sidebar Technical Support Capsule -->
-            <div style="padding: 15px; margin-top: auto; border-top: 1px solid #e2e8f0;">
-                <button type="button" onclick="eessOpenSupportHelpCapsule()" style="width: 100%; height: 38px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; color: #1e293b; font-weight: 700; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-                    <span class="dashicons dashicons-sos" style="font-size: 16px; width: 16px; height: 16px; color: #ef4444; margin: 0;"></span>
-                    <span>الدعم الفني والمساعدة</span>
+            <!-- Absolute Bottom Sidebar Technical Support Capsule (Lightweight, No top border line) -->
+            <div style="padding: 10px 15px; margin-top: auto;">
+                <button type="button" onclick="eessOpenSupportHelpCapsule()" style="width: 100%; height: 32px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 9999px !important; color: #475569; font-weight: 700; font-size: 11.5px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: all 0.2s ease;">
+                    <span class="dashicons dashicons-sos" style="font-size: 14px; width: 14px; height: 14px; color: #dc2626; margin: 0;"></span>
+                    <span>الدعم والمساعدة</span>
                 </button>
             </div>
         </div>

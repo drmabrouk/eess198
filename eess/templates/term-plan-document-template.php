@@ -44,6 +44,11 @@ $first_plan = $plans[0];
 $teacher = get_userdata($first_plan->teacher_id);
 $teacher_name = $teacher ? $teacher->display_name : 'غير محدد';
 $emp_id = get_user_meta($first_plan->teacher_id, 'sm_employee_id', true) ?: (get_user_meta($first_plan->teacher_id, 'sm_employee_code', true) ?: $first_plan->teacher_id);
+
+// Dynamic Institutional Branding for Assigned Teacher
+$assigned_school = get_user_meta($first_plan->teacher_id, 'eess_school_name', true) ?: ($school_info['school_name'] ?? 'خدمات الأنظمة الإلكترونية التعليمية (EESS)');
+$school_logo = get_user_meta($first_plan->teacher_id, 'eess_school_logo', true) ?: ($school_info['school_logo'] ?? '');
+$school_phone = get_user_meta($first_plan->teacher_id, 'eess_school_phone', true) ?: ($school_info['phone'] ?? '');
 ?>
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
@@ -198,17 +203,26 @@ $emp_id = get_user_meta($first_plan->teacher_id, 'sm_employee_id', true) ?: (get
         <button onclick="window.print()" style="padding: 8px 18px; background: #0f172a; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px;">🖨️ بدء طباعة الخطة / حفظ PDF</button>
     </div>
 
-    <!-- Official School Document Header -->
+    <!-- Official School Document Header (Dynamic Institutional Branding) -->
     <div class="doc-header">
-        <div>
-            <h1 class="doc-title"><?php echo esc_html($school_info['school_name'] ?? 'خدمات الأنظمة الإلكترونية التعليمية (EESS)'); ?></h1>
-            <p style="margin: 4px 0 0 0; color: #64748b; font-size: 12px; font-weight: 700;">
-                <?php echo $is_annual ? 'وثيقة الخطة السنوية الشاملة للمنهج' : 'وثيقة التوزيع الأسبوعي للخطة الفصلية المعتمدة'; ?> | تاريخ التصدير: <?php echo current_time('Y-m-d H:i'); ?>
-            </p>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <?php if (!empty($school_logo)): ?>
+                <img src="<?php echo esc_url($school_logo); ?>" style="max-height: 55px; width: auto; object-fit: contain;">
+            <?php endif; ?>
+            <div>
+                <h1 class="doc-title"><?php echo esc_html($assigned_school); ?></h1>
+                <p style="margin: 4px 0 0 0; color: #64748b; font-size: 12px; font-weight: 700;">
+                    <?php echo $is_annual ? 'وثيقة الخطة السنوية الشاملة للمنهج' : 'وثيقة التوزيع الأسبوعي للخطة الفصلية المعتمدة'; ?> | تاريخ التصدير: <?php echo current_time('Y-m-d H:i'); ?>
+                </p>
+            </div>
         </div>
         <div style="text-align: left;">
-            <div style="font-weight: 900; font-size: 18px; color: #2563eb;">EESS ONLINE</div>
-            <div style="font-size: 11px; color: #64748b;">منظومة الخطط الدراسية الشبكية</div>
+            <div style="font-weight: 900; font-size: 16px; color: #881337;"><?php echo esc_html($assigned_school); ?></div>
+            <?php if (!empty($school_phone)): ?>
+                <div style="font-size: 11px; color: #64748b; font-family: monospace;">هاتف: <?php echo esc_html($school_phone); ?></div>
+            <?php else: ?>
+                <div style="font-size: 11px; color: #64748b;">منظومة الخطط المعتمدة</div>
+            <?php endif; ?>
         </div>
     </div>
 
