@@ -1726,28 +1726,51 @@ class SM_Public {
             </div>
         </div>
 
-        <!-- Registration Wizard Modal -->
+        <!-- Registration Wizard Modal (Without OTP) -->
+        ' . (function() {
+            $schools_list = SM_DB::get_schools();
+            $subjects_list = SM_DB::get_subjects();
+            $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $subjects_list));
+            $nationalities = array('إماراتي', 'سعودي', 'مصري', 'أردني', 'سوري', 'عماني', 'كويتي', 'بحريني', 'قطري', 'عراقي', 'يمني', 'سوداني', 'مغربي', 'جزائري', 'تونسية', 'لبناني', 'فلسطيني', 'جنسية أخرى');
+
+            $schools_opts = '';
+            foreach ($schools_list as $sch) {
+                $schools_opts .= '<option value="' . esc_attr($sch->name) . '">' . esc_html($sch->name) . '</option>';
+            }
+
+            $subject_opts = '';
+            foreach ($unique_subjects as $subj) {
+                $subject_opts .= '<option value="' . esc_attr($subj) . '">' . esc_html($subj) . '</option>';
+            }
+
+            $nat_opts = '';
+            foreach ($nationalities as $nat) {
+                $nat_opts .= '<option value="' . esc_attr($nat) . '">' . esc_html($nat) . '</option>';
+            }
+
+            return '
         <div id="eess-register-modal" class="eess-modal-overlay">
-            <div class="eess-modal-dialog">
+            <div class="eess-modal-dialog" style="max-width: 520px;">
                 <div class="eess-modal-header">
-                    <h3>تسجيل حساب جديد - الخدمات التعليمية الإلكترونية (EESS)</h3>
+                    <h3>طلب تسجيل حساب جديد (قيد مراجعة الإدارة)</h3>
                     <button type="button" class="eess-modal-close" onclick="eessCloseRegisterModal()">&times;</button>
                 </div>
                 <div class="eess-modal-body">
-                    <!-- Step Indicator -->
+                    <!-- Step Progress Bar -->
                     <div class="eess-step-progress-bar">
                         <div class="eess-step-node active" id="node-1">1</div>
                         <div class="eess-step-node" id="node-2">2</div>
                         <div class="eess-step-node" id="node-3">3</div>
                         <div class="eess-step-node" id="node-4">4</div>
+                        <div class="eess-step-node" id="node-5">5</div>
                     </div>
 
                     <div id="eess-register-msg" class="eess-modal-msg"></div>
 
-                    <!-- Step 1: Basic Information -->
+                    <!-- Step 1: Personal Info -->
                     <div id="eess-reg-step-1" class="eess-wizard-step active">
-                        <p style="font-size: 13px; color: #64748b; margin-bottom: 20px; line-height: 1.6;">يرجى إدخال اسمك الأول واسم العائلة، والبريد الإلكتروني للبدء بالتحقق منه عبر رمز OTP.</p>
-                        <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                        <p style="font-size: 13px; color: #64748b; margin-bottom: 15px; line-height: 1.6;">الخطوة الأولى: أدخل الاسم الثلاثي، تاريخ الميلاد والجنسية.</p>
+                        <div style="display: flex; gap: 12px; margin-bottom: 14px;">
                             <div class="eess-form-group" style="flex: 1; margin-bottom: 0;">
                                 <div class="eess-float-container">
                                     <input type="text" id="eess-reg-first-name" class="eess-float-input" placeholder=" ">
@@ -1761,94 +1784,105 @@ class SM_Public {
                                 </div>
                             </div>
                         </div>
-                        <div class="eess-form-group">
+                        <div style="display: flex; gap: 12px; margin-bottom: 14px;">
+                            <div class="eess-form-group" style="flex: 1; margin-bottom: 0;">
+                                <label style="display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px;">تاريخ الميلاد *</label>
+                                <input type="date" id="eess-reg-dob" class="eess-form-input" style="height: 42px; padding: 0 10px; font-size: 13px; font-weight: 700;">
+                            </div>
+                            <div class="eess-form-group" style="flex: 1; margin-bottom: 0;">
+                                <label style="display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px;">الجنسية *</label>
+                                <select id="eess-reg-nationality" class="eess-form-input" style="height: 42px; padding: 0 10px; font-size: 13px; font-weight: 700;">
+                                    <option value="">-- اختر الجنسية --</option>
+                                    ' . $nat_opts . '
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+                            <button type="button" onclick="eessGoToRegStep(2)" class="eess-btn-login" style="width: auto; height: 38px; padding: 0 20px; font-size: 0.85rem;">المتابعة للخطوة التالية &larr;</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Contact Info -->
+                    <div id="eess-reg-step-2" class="eess-wizard-step">
+                        <p style="font-size: 13px; color: #64748b; margin-bottom: 15px; line-height: 1.6;">الخطوة الثانية: أدخل بريدك الإلكتروني الرسمي ورقم الهاتف.</p>
+                        <div class="eess-form-group" style="margin-bottom: 14px;">
                             <div class="eess-float-container">
                                 <input type="email" id="eess-reg-email" class="eess-float-input" placeholder=" ">
                                 <label for="eess-reg-email" class="eess-float-label">البريد الإلكتروني الرسمي *</label>
                             </div>
                         </div>
-                        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-                            <button type="button" onclick="eessRegisterStep1Next()" class="eess-btn-login" style="width: auto; min-width: 100px; height: 36px; padding: 0 18px; font-size: 0.85rem;">التالي</button>
-                        </div>
-                    </div>
-
-                    <!-- Step 2: Email OTP Verification -->
-                    <div id="eess-reg-step-2" class="eess-wizard-step">
-                        <p style="font-size: 13px; color: #64748b; margin-bottom: 20px; line-height: 1.6;">تم إرسال رمز تفعيل آمن (OTP) مكون من 6 أرقام إلى بريدك الإلكتروني. يرجى كتابته بالأسفل للتحقق منه.</p>
-                        <div class="eess-form-group">
+                        <div class="eess-form-group" style="margin-bottom: 14px;">
                             <div class="eess-float-container">
-                                <input type="text" id="eess-reg-otp" class="eess-float-input" placeholder=" " maxlength="6" style="text-align: center; letter-spacing: 6px; font-size: 20px;">
-                                <label for="eess-reg-otp" class="eess-float-label">رمز التحقق (OTP) *</label>
+                                <input type="text" id="eess-reg-phone" class="eess-float-input" placeholder=" ">
+                                <label for="eess-reg-phone" class="eess-float-label">رقم الهاتف والتواصل *</label>
                             </div>
                         </div>
-                        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-                            <button type="button" onclick="eessGoToRegStep(1)" class="eess-btn-reset-pwd" style="width: auto; min-width: 90px; height: 36px; padding: 0 16px; font-size: 0.85rem; background-color: #8b1e1e !important;">السابق</button>
-                            <button type="button" onclick="eessRegisterStep2VerifyOTP()" class="eess-btn-login" style="width: auto; min-width: 100px; height: 36px; padding: 0 18px; font-size: 0.85rem;">التالي</button>
+                        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                            <button type="button" onclick="eessGoToRegStep(1)" class="eess-btn-reset-pwd" style="width: auto; height: 38px; padding: 0 16px; font-size: 0.85rem; background: #64748b !important;">&rarr; السابق</button>
+                            <button type="button" onclick="eessGoToRegStep(3)" class="eess-btn-login" style="width: auto; height: 38px; padding: 0 20px; font-size: 0.85rem;">المتابعة للخطوة التالية &larr;</button>
                         </div>
                     </div>
 
-                    <!-- Step 3: Employment & Institution Information -->
+                    <!-- Step 3: Employment & Institution -->
                     <div id="eess-reg-step-3" class="eess-wizard-step">
-                        <p style="font-size: 13px; color: #64748b; margin-bottom: 20px; line-height: 1.6;">يرجى كتابة رقمك الوظيفي، واختيار مسمالك الوظيفي والمؤسسة والمدرسة التابع لها.</p>
-                        <div style="display: flex; gap: 12px; margin-bottom: 16px;">
-                            <div class="eess-form-group" style="flex: 1; margin-bottom: 0;">
-                                <div class="eess-float-container">
-                                    <input type="text" id="eess-reg-emp-num" class="eess-float-input" placeholder=" ">
-                                    <label for="eess-reg-emp-num" class="eess-float-label">الرقم الوظيفي / رقم الموظف *</label>
-                                </div>
-                            </div>
-                            <div class="eess-form-group" style="flex: 1; margin-bottom: 0;">
-                                <select id="eess-reg-role" class="eess-form-input" style="height: 42px; padding: 0 10px;">
-                                    <option value="sm_teacher">معلم</option>
-                                    <option value="sm_coordinator">منسق مادة</option>
-                                    <option value="sm_supervisor">مشرف تربوي</option>
-                                    <option value="sm_clinic">ممرض عيادة</option>
-                                </select>
+                        <p style="font-size: 13px; color: #64748b; margin-bottom: 15px; line-height: 1.6;">الخطوة الثالثة: أدخل الرقم الوظيفي واختر المؤسسة/المدرسة.</p>
+                        <div class="eess-form-group" style="margin-bottom: 14px;">
+                            <div class="eess-float-container">
+                                <input type="text" id="eess-reg-emp-num" class="eess-float-input" placeholder=" ">
+                                <label for="eess-reg-emp-num" class="eess-float-label">الرقم الوظيفي / رقم الموظف *</label>
                             </div>
                         </div>
-                        <div class="eess-form-group" style="margin-bottom: 12px;">
-                            <select id="eess-reg-institution" onchange="eessOnRegInstitutionChange()" class="eess-form-input" style="height: 42px; padding: 0 10px;">
-                                ';
-                                global $wpdb;
-                                $insts = $wpdb->get_results("SELECT id, name FROM {$wpdb->prefix}eess_institutions WHERE status = 'active' ORDER BY name ASC");
-                                if (!empty($insts)) {
-                                    foreach ($insts as $inst) {
-                                        $output .= '<option value="' . $inst->id . '">' . esc_html($inst->name) . '</option>';
-                                    }
-                                } else {
-                                    $output .= '<option value="1">المؤسسة العامة للخدمات التعليمية</option>';
-                                }
-                                $output .= '
+                        <div class="eess-form-group" style="margin-bottom: 14px;">
+                            <label style="display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px;">المؤسسة / المدرسة *</label>
+                            <select id="eess-reg-institution" class="eess-form-input" style="height: 42px; padding: 0 10px; font-size: 13px; font-weight: 700;">
+                                <option value="خدمات الأنظمة الإلكترونية التعليمية (EESS)">خدمات الأنظمة الإلكترونية التعليمية (EESS)</option>
+                                ' . $schools_opts . '
                             </select>
                         </div>
-                        <div class="eess-form-group">
-                            <select id="eess-reg-school" class="eess-form-input" style="height: 42px; padding: 0 10px;">
-                                ';
-                                $schools = $wpdb->get_results("SELECT id, name, institution_id FROM {$wpdb->prefix}eess_schools WHERE status = 'active' ORDER BY name ASC");
-                                if (!empty($schools)) {
-                                    foreach ($schools as $sch) {
-                                        $output .= '<option value="' . esc_attr($sch->name) . '" data-inst="' . $sch->institution_id . '">' . esc_html($sch->name) . '</option>';
-                                    }
-                                } else {
-                                    $school_info = SM_Settings::get_school_info();
-                                    $output .= '<option value="' . esc_attr($school_info['school_name']) . '" data-inst="1">' . esc_html($school_info['school_name']) . '</option>';
-                                }
-                                $output .= '
-                            </select>
-                        </div>
-                        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-                            <button type="button" onclick="eessGoToRegStep(2)" class="eess-btn-reset-pwd" style="width: auto; min-width: 90px; height: 36px; padding: 0 16px; font-size: 0.85rem; background-color: #8b1e1e !important;">السابق</button>
-                            <button type="button" onclick="eessRegisterStep3Next()" class="eess-btn-login" style="width: auto; min-width: 100px; height: 36px; padding: 0 18px; font-size: 0.85rem;">التالي</button>
+                        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                            <button type="button" onclick="eessGoToRegStep(2)" class="eess-btn-reset-pwd" style="width: auto; height: 38px; padding: 0 16px; font-size: 0.85rem; background: #64748b !important;">&rarr; السابق</button>
+                            <button type="button" onclick="eessGoToRegStep(4)" class="eess-btn-login" style="width: auto; height: 38px; padding: 0 20px; font-size: 0.85rem;">المتابعة للخطوة التالية &larr;</button>
                         </div>
                     </div>
 
-                    <!-- Step 4: Password Creation & Final Registration -->
+                    <!-- Step 4: Role & Subject -->
                     <div id="eess-reg-step-4" class="eess-wizard-step">
-                        <p style="font-size: 13px; color: #64748b; margin-bottom: 20px; line-height: 1.6;">الآن تعيين كلمة مرور آمنة لحسابك وإكمال إنشاء الحساب.</p>
+                        <p style="font-size: 13px; color: #64748b; margin-bottom: 15px; line-height: 1.6;">الخطوة الرابعة: اختر الرتبة الوظيفية والمادة المسندة.</p>
+                        <div class="eess-form-group" style="margin-bottom: 14px;">
+                            <label style="display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px;">الرتبة الوظيفية المطلوب تسجيلها *</label>
+                            <select id="eess-reg-role" class="eess-form-input" onchange="eessOnRegRoleChange()" style="height: 42px; padding: 0 10px; font-size: 13px; font-weight: 700;">
+                                <option value="sm_teacher">معلم (Teacher)</option>
+                                <option value="sm_coordinator">منسق مادة (Subject Coordinator)</option>
+                                <option value="sm_hod">رئيس قسم (Department Head)</option>
+                                <option value="sm_supervisor">مشرف تربوي (Educational Supervisor)</option>
+                                <option value="sm_principal">مدير المدرسة (School Manager)</option>
+                                <option value="sm_clinic">ممرض عيادة</option>
+                            </select>
+                        </div>
+                        <div class="eess-form-group" id="eess-reg-subject-box" style="margin-bottom: 14px;">
+                            <label style="display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px;">المادة الدراسية المسندة *</label>
+                            <select id="eess-reg-subject" class="eess-form-input" style="height: 42px; padding: 0 10px; font-size: 13px; font-weight: 700;">
+                                <option value="">-- اختر المادة --</option>
+                                ' . $subject_opts . '
+                            </select>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                            <button type="button" onclick="eessGoToRegStep(3)" class="eess-btn-reset-pwd" style="width: auto; height: 38px; padding: 0 16px; font-size: 0.85rem; background: #64748b !important;">&rarr; السابق</button>
+                            <button type="button" onclick="eessGoToRegStep(5)" class="eess-btn-login" style="width: auto; height: 38px; padding: 0 20px; font-size: 0.85rem;">المتابعة للخطوة الأخيرة &larr;</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Review & Password Creation -->
+                    <div id="eess-reg-step-5" class="eess-wizard-step">
+                        <p style="font-size: 13px; color: #64748b; margin-bottom: 15px; line-height: 1.6;">الخطوة الخامسة: أنشئ كلمة المرور وراجع البيانات قبل الإرسال.</p>
+
+                        <!-- Summary Card -->
+                        <div id="eess-reg-summary-card" style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; margin-bottom: 15px; font-size: 11px; line-height: 1.7; color: #334155;"></div>
+
                         <div style="display: flex; gap: 12px; margin-bottom: 16px;">
                             <div class="eess-form-group" style="flex: 1; margin-bottom: 0;">
                                 <div class="eess-float-container eess-password-wrapper">
-                                    <input type="password" id="eess-reg-pass" class="eess-float-input" placeholder=" ">
+                                    <input type="password" id="eess-reg-pass" class="eess-float-input" placeholder=" " maxlength="40">
                                     <label for="eess-reg-pass" class="eess-float-label">كلمة المرور *</label>
                                     <button type="button" class="eess-toggle-eye" onclick="eessTogglePassVisibility(\'eess-reg-pass\', this)">
                                         <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
@@ -1857,7 +1891,7 @@ class SM_Public {
                             </div>
                             <div class="eess-form-group" style="flex: 1; margin-bottom: 0;">
                                 <div class="eess-float-container eess-password-wrapper">
-                                    <input type="password" id="eess-reg-pass-conf" class="eess-float-input" placeholder=" ">
+                                    <input type="password" id="eess-reg-pass-conf" class="eess-float-input" placeholder=" " maxlength="40">
                                     <label for="eess-reg-pass-conf" class="eess-float-label">تأكيد كلمة المرور *</label>
                                     <button type="button" class="eess-toggle-eye" onclick="eessTogglePassVisibility(\'eess-reg-pass-conf\', this)">
                                         <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
@@ -1865,14 +1899,16 @@ class SM_Public {
                                 </div>
                             </div>
                         </div>
-                        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-                            <button type="button" onclick="eessGoToRegStep(3)" class="eess-btn-reset-pwd" style="width: auto; min-width: 90px; height: 36px; padding: 0 16px; font-size: 0.85rem; background-color: #8b1e1e !important;">السابق</button>
-                            <button type="button" onclick="eessRegisterSubmitFinal()" class="eess-btn-login" style="width: auto; min-width: 120px; height: 36px; padding: 0 18px; font-size: 0.85rem;">تأكيد وإرسال</button>
+
+                        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                            <button type="button" onclick="eessGoToRegStep(4)" class="eess-btn-reset-pwd" style="width: auto; height: 38px; padding: 0 16px; font-size: 0.85rem; background: #64748b !important;">&rarr; السابق</button>
+                            <button type="button" id="btn-submit-reg-final" onclick="eessRegisterSubmitFinal()" class="eess-btn-login" style="width: auto; height: 38px; padding: 0 20px; font-size: 0.85rem; background: #16a34a !important;">إرسال طلب التسجيل للإدارة</button>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </div>';
+        })() . '
 
         <!-- Custom JS Client logic for Password Recovery and Registration -->
         <script>
@@ -2131,145 +2167,112 @@ class SM_Public {
             }
         }
 
-        // Institution & School Filter Logic
-        function eessOnRegInstitutionChange() {
-            const instSelect = document.getElementById(\'eess-reg-institution\');
-            const schoolSelect = document.getElementById(\'eess-reg-school\');
-            if (!instSelect || !schoolSelect) return;
-
-            const instId = instSelect.value;
-            let firstMatchFound = false;
-
-            for (let i = 0; i < schoolSelect.options.length; i++) {
-                const opt = schoolSelect.options[i];
-                const optInst = opt.getAttribute(\'data-inst\');
-                if (!optInst || optInst === instId) {
-                    opt.style.display = \'block\';
-                    if (!firstMatchFound) {
-                        opt.selected = true;
-                        firstMatchFound = true;
-                    }
-                } else {
-                    opt.style.display = \'none\';
-                }
+        function eessOnRegRoleChange() {
+            const role = document.getElementById(\'eess-reg-role\').value;
+            const subBox = document.getElementById(\'eess-reg-subject-box\');
+            if (role === \'sm_teacher\' || role === \'sm_coordinator\' || role === \'sm_hod\') {
+                subBox.style.display = \'block\';
+            } else {
+                subBox.style.display = \'none\';
             }
         }
 
-        // Wizard navigation
+        // Registration Wizard navigation
         function eessGoToRegStep(stepNum) {
             document.getElementById(\'eess-register-msg\').style.display = \'none\';
-            for (let i = 1; i <= 4; i++) {
+
+            // Validation per step
+            if (stepNum > 1) {
+                const fn = document.getElementById(\'eess-reg-first-name\').value.trim();
+                const ln = document.getElementById(\'eess-reg-last-name\').value.trim();
+                const dob = document.getElementById(\'eess-reg-dob\').value;
+                const nat = document.getElementById(\'eess-reg-nationality\').value;
+                if (!fn || !ln || !dob || !nat) {
+                    eessShowRegMsg(\'يرجى تعبئة كافة حقول البيانات الشخصية (الاسم، الميلاد، الجنسية).\', true);
+                    return;
+                }
+            }
+
+            if (stepNum > 2) {
+                const email = document.getElementById(\'eess-reg-email\').value.trim();
+                const phone = document.getElementById(\'eess-reg-phone\').value.trim();
+                if (!email || !email.includes(\'@\') || !phone) {
+                    eessShowRegMsg(\'يرجى كتابة بريد إلكتروني صحيح ورقم الهاتف.\', true);
+                    return;
+                }
+            }
+
+            if (stepNum > 3) {
+                const empNum = document.getElementById(\'eess-reg-emp-num\').value.trim();
+                const inst = document.getElementById(\'eess-reg-institution\').value;
+                if (!empNum || !inst) {
+                    eessShowRegMsg(\'يرجى كتابة الرقم الوظيفي واختيار المؤسسة/المدرسة.\', true);
+                    return;
+                }
+            }
+
+            if (stepNum > 4) {
+                const role = document.getElementById(\'eess-reg-role\').value;
+                const subj = document.getElementById(\'eess-reg-subject\').value;
+                if (!role) {
+                    eessShowRegMsg(\'يرجى اختيار الرتبة الوظيفية.\', true);
+                    return;
+                }
+                if ((role === \'sm_teacher\' || role === \'sm_coordinator\' || role === \'sm_hod\') && !subj) {
+                    eessShowRegMsg(\'يرجى تحديد المادة الدراسية المسندة.\', true);
+                    return;
+                }
+            }
+
+            // Update Summary on Step 5
+            if (stepNum === 5) {
+                const fn = document.getElementById(\'eess-reg-first-name\').value.trim();
+                const ln = document.getElementById(\'eess-reg-last-name\').value.trim();
+                const email = document.getElementById(\'eess-reg-email\').value.trim();
+                const empNum = document.getElementById(\'eess-reg-emp-num\').value.trim();
+                const inst = document.getElementById(\'eess-reg-institution\').value;
+                const roleText = document.getElementById(\'eess-reg-role\').options[document.getElementById(\'eess-reg-role\').selectedIndex].text;
+                const subj = document.getElementById(\'eess-reg-subject\').value;
+
+                document.getElementById(\'eess-reg-summary-card\').innerHTML = `
+                    <div><strong>الاسم الكامل:</strong> ${fn} ${ln}</div>
+                    <div><strong>البريد الإلكتروني:</strong> ${email}</div>
+                    <div><strong>الرقم الوظيفي:</strong> ${empNum}</div>
+                    <div><strong>المؤسسة/المدرسة:</strong> ${inst}</div>
+                    <div><strong>الرتبة الوظيفية:</strong> ${roleText} ${subj ? \' (مادة: \' + subj + \')\' : \'\'}</div>
+                `;
+            }
+
+            for (let i = 1; i <= 5; i++) {
                 document.getElementById(\'eess-reg-step-\' + i).className = i === stepNum ? \'eess-wizard-step active\' : \'eess-wizard-step\';
 
                 const node = document.getElementById(\'node-\' + i);
-                node.className = \'eess-step-node\';
-                if (i === stepNum) {
-                    node.classList.add(\'active\');
-                } else if (i < stepNum) {
-                    node.classList.add(\'completed\');
-                    node.innerText = \'✓\';
-                } else {
-                    node.innerText = i;
+                if (node) {
+                    node.className = \'eess-step-node\';
+                    if (i === stepNum) {
+                        node.classList.add(\'active\');
+                    } else if (i < stepNum) {
+                        node.classList.add(\'completed\');
+                        node.innerText = \'✓\';
+                    } else {
+                        node.innerText = i;
+                    }
                 }
             }
         }
 
-        // Step 1: Send OTP to Email
-        function eessRegisterStep1Next() {
-            const firstName = document.getElementById(\'eess-reg-first-name\').value.trim();
-            const lastName = document.getElementById(\'eess-reg-last-name\').value.trim();
-            const email = document.getElementById(\'eess-reg-email\').value.trim();
-
-            if (!firstName || !lastName) {
-                eessShowRegMsg(\'يرجى إدخال الاسم الأول واسم العائلة.\', true);
-                return;
-            }
-            if (!email) {
-                eessShowRegMsg(\'يرجى إدخال البريد الإلكتروني الرسمي.\', true);
-                return;
-            }
-
-            eessShowRegMsg(\'جاري إرسال رمز التفعيل OTP لبريدك الإلكتروني...\', false);
-
-            const data = new FormData();
-            data.append(\'action\', \'eess_register_otp\');
-            data.append(\'email\', email);
-
-            fetch(\'' . admin_url('admin-ajax.php') . '\', { method: \'POST\', body: data })
-            .then(res => res.json())
-            .then(res => {
-                if (res.success) {
-                    eessGoToRegStep(2);
-                    eessShowRegMsg(res.data, false);
-                } else {
-                    eessShowRegMsg(res.data, true);
-                }
-            })
-            .catch(err => {
-                eessShowRegMsg(\'فشل الاتصال بالخادم عند إرسال رمز OTP.\', true);
-            });
-        }
-
-        // Step 2: Verify OTP
-        function eessRegisterStep2VerifyOTP() {
-            const email = document.getElementById(\'eess-reg-email\').value.trim();
-            const otp = document.getElementById(\'eess-reg-otp\').value.trim();
-
-            if (!otp || otp.length !== 6) {
-                eessShowRegMsg(\'يرجى كتابة رمز التفعيل OTP المكون من 6 أرقام.\', true);
-                return;
-            }
-
-            eessShowRegMsg(\'جاري التحقق من رمز OTP...\', false);
-
-            const data = new FormData();
-            data.append(\'action\', \'eess_register_verify_otp\');
-            data.append(\'email\', email);
-            data.append(\'otp\', otp);
-
-            fetch(\'' . admin_url('admin-ajax.php') . '\', { method: \'POST\', body: data })
-            .then(res => res.json())
-            .then(res => {
-                if (res.success) {
-                    eessOnRegInstitutionChange();
-                    eessGoToRegStep(3);
-                    eessShowRegMsg(res.data, false);
-                } else {
-                    eessShowRegMsg(res.data, true);
-                }
-            })
-            .catch(err => {
-                eessShowRegMsg(\'حدث خطأ في الاتصال بالخادم.\', true);
-            });
-        }
-
-        // Step 3: Validate Employee Number & Job Title / Institution
-        function eessRegisterStep3Next() {
-            const empNum = document.getElementById(\'eess-reg-emp-num\').value.trim();
-            const role = document.getElementById(\'eess-reg-role\').value;
-            const school = document.getElementById(\'eess-reg-school\').value;
-
-            if (!empNum) {
-                eessShowRegMsg(\'يرجى كتابة الرقم الوظيفي.\', true);
-                return;
-            }
-            if (!role || !school) {
-                eessShowRegMsg(\'يرجى تحديد المسمى الوظيفي والمدرسة.\', true);
-                return;
-            }
-
-            eessGoToRegStep(4);
-        }
-
-        // Step 4: Final Submit & Account Creation
+        // Final Submit
         function eessRegisterSubmitFinal() {
             const firstName = document.getElementById(\'eess-reg-first-name\').value.trim();
             const lastName = document.getElementById(\'eess-reg-last-name\').value.trim();
+            const dob = document.getElementById(\'eess-reg-dob\').value;
+            const nationality = document.getElementById(\'eess-reg-nationality\').value;
             const email = document.getElementById(\'eess-reg-email\').value.trim();
-            const otp = document.getElementById(\'eess-reg-otp\').value.trim();
+            const phone = document.getElementById(\'eess-reg-phone\').value.trim();
             const empNum = document.getElementById(\'eess-reg-emp-num\').value.trim();
+            const institution = document.getElementById(\'eess-reg-institution\').value;
             const role = document.getElementById(\'eess-reg-role\').value;
-            const school = document.getElementById(\'eess-reg-school\').value;
+            const subject = document.getElementById(\'eess-reg-subject\').value;
             const pass = document.getElementById(\'eess-reg-pass\').value;
             const conf = document.getElementById(\'eess-reg-pass-conf\').value;
 
@@ -2281,39 +2284,46 @@ class SM_Public {
                 eessShowRegMsg(\'كلمتا المرور غير متطابقتين.\', true);
                 return;
             }
-            if (pass.length < 6) {
-                eessShowRegMsg(\'كلمة المرور يجب أن لا تقل عن 6 أحرف.\', true);
-                return;
-            }
 
-            eessShowRegMsg(\'جاري إنشاء الحساب...\', false);
+            const btn = document.getElementById(\'btn-submit-reg-final\');
+            btn.disabled = true;
+            btn.innerText = \'جاري إرسال طلب التسجيل...\';
 
             const data = new FormData();
             data.append(\'action\', \'eess_register_submit\');
             data.append(\'first_name\', firstName);
             data.append(\'last_name\', lastName);
+            data.append(\'dob\', dob);
+            data.append(\'nationality\', nationality);
             data.append(\'email\', email);
+            data.append(\'phone\', phone);
             data.append(\'emp_num\', empNum);
+            data.append(\'institution\', institution);
+            data.append(\'school\', institution);
+            data.append(\'role\', role);
+            data.append(\'subject\', subject);
             data.append(\'password\', pass);
             data.append(\'password_conf\', conf);
-            data.append(\'role\', role);
-            data.append(\'school\', school);
-            data.append(\'otp\', otp);
 
             fetch(\'' . admin_url('admin-ajax.php') . '\', { method: \'POST\', body: data })
             .then(res => res.json())
             .then(res => {
                 if (res.success) {
-                    eessShowRegMsg(res.data, false);
+                    eessShowRegMsg(res.data || \'تم إرسال طلب التسجيل بنجاح، وهو الآن قيد مراجعة وإعتماد الإدارة.\', false);
                     setTimeout(() => {
                         eessCloseRegisterModal();
-                    }, 3500);
+                        location.reload();
+                    }, 2500);
                 } else {
+                    btn.disabled = false;
+                    btn.innerText = \'إرسال طلب التسجيل للإدارة\';
                     eessShowRegMsg(res.data, true);
                 }
             })
             .catch(err => {
-                eessShowRegMsg(\'فشل الاتصال بالخادم لإنشاء الحساب.\', true);
+                btn.disabled = false;
+                btn.innerText = \'إرسال طلب التسجيل للإدارة\';
+                eessShowRegMsg(\'حدث خطأ أثناء الاتصال بالخادم.\', true);
             });
         }
         </script>
@@ -5698,91 +5708,48 @@ class SM_Public {
         ));
     }
 
-    // Registration Wizard OTP generator
-    public function ajax_register_otp() {
-        $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
-        if (empty($email) || !is_email($email)) {
-            wp_send_json_error('يرجى إدخال بريد إلكتروني صحيح.');
-        }
-
-        if (email_exists($email)) {
-            wp_send_json_error('عفواً، هذا البريد الإلكتروني مستخدم بالفعل ومسجل بالنظام.');
-        }
-
-        // Cryptographically secure 6-digit OTP
-        try {
-            $otp = sprintf('%06d', random_int(100000, 999999));
-        } catch (Exception $e) {
-            $otp = sprintf('%06d', rand(100000, 999999));
-        }
-
-        // Session-isolated OTP storage
-        set_transient('eess_register_otp_' . md5($email), $otp, 15 * MINUTE_IN_SECONDS);
-        delete_transient('eess_register_otp_verified_' . md5($email));
-
-        $title = 'رمز التفعيل الآمن - الخدمات التعليمية الإلكترونية (EESS)';
-        $body = '
-        <p style="font-size: 14px; color: #334155; line-height: 1.6;">مرحباً بك،</p>
-        <p style="font-size: 14px; color: #334155; line-height: 1.6;">يسعدنا انضمامك إلى <strong>الخدمات التعليمية الإلكترونية (EESS)</strong>.</p>
-        <p style="font-size: 14px; color: #334155; line-height: 1.6;">رمز التحقق والتفعيل الآمن (OTP) الخاص ببريدك الإلكتروني هو:</p>
-        <div style="text-align: center; margin: 25px 0;">
-            <span style="display: inline-block; background: #000000; color: #ffffff; padding: 14px 35px; font-size: 26px; font-weight: 800; letter-spacing: 6px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">' . $otp . '</span>
-        </div>
-        <p style="color: #64748b; font-size: 12px; line-height: 1.5;">ملاحظة: هذا الرمز خاص ببريدك الإلكتروني فقط وهو صالح لمدة 15 دقيقة واستخدام واحد فقط. يرجى عدم مشاركته مع أي شخص.</p>
-        ';
-
-        $sent = $this->send_branded_email($email, $title, 'رمز تفعيل البريد الإلكتروني', $body);
-        if ($sent) {
-            wp_send_json_success('تم إرسال رمز التفعيل (OTP) بنجاح إلى بريدك الإلكتروني.');
-        } else {
-            // Fallback for unconfigured local mail transport so registration flow functions
-            wp_send_json_success('تم توليد وتأكيد رمز التفعيل (OTP) الخاص ببريدك الإلكتروني بنجاح.');
-        }
-    }
-
-    // Registration Wizard OTP Verifier Step
-    public function ajax_register_verify_otp() {
-        $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
-        $otp   = isset($_POST['otp']) ? sanitize_text_field($_POST['otp']) : '';
-
-        if (empty($email) || empty($otp)) {
-            wp_send_json_error('جميع الحقول مطلوبة للتحقق.');
-        }
-
-        $saved_otp = get_transient('eess_register_otp_' . md5($email));
-        if ($saved_otp === false || $saved_otp !== $otp) {
-            wp_send_json_error('رمز التحقق (OTP) غير صحيح أو انتهت صلاحيته.');
-        }
-
-        // Mark session as verified for 30 minutes
-        set_transient('eess_register_otp_verified_' . md5($email), 'yes', 30 * MINUTE_IN_SECONDS);
-
-        wp_send_json_success('تم التحقق من بريدك الإلكتروني بنجاح.');
-    }
-
-    // Registration Wizard Submit
+    // Registration Wizard Submit Without OTP
     public function ajax_register_submit() {
-        $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
-        $emp_num = isset($_POST['emp_num']) ? sanitize_text_field($_POST['emp_num']) : '';
-        $password = isset($_POST['password']) ? $_POST['password'] : '';
-        $password_conf = isset($_POST['password_conf']) ? $_POST['password_conf'] : '';
-        $role = isset($_POST['role']) ? sanitize_text_field($_POST['role']) : '';
-        $school = isset($_POST['school']) ? sanitize_text_field($_POST['school']) : '';
-        $otp = isset($_POST['otp']) ? sanitize_text_field($_POST['otp']) : '';
-        $first_name = isset($_POST['first_name']) ? sanitize_text_field($_POST['first_name']) : '';
-        $last_name = isset($_POST['last_name']) ? sanitize_text_field($_POST['last_name']) : '';
+        $first_name  = sanitize_text_field($_POST['first_name'] ?? '');
+        $last_name   = sanitize_text_field($_POST['last_name'] ?? '');
+        $dob         = sanitize_text_field($_POST['dob'] ?? '');
+        $nationality = sanitize_text_field($_POST['nationality'] ?? '');
+        $email       = sanitize_email($_POST['email'] ?? '');
+        $phone       = sanitize_text_field($_POST['phone'] ?? '');
+        $emp_num     = sanitize_text_field($_POST['emp_num'] ?? '');
+        $institution = sanitize_text_field($_POST['institution'] ?? '');
+        $school      = sanitize_text_field($_POST['school'] ?? '');
+        $role        = sanitize_text_field($_POST['role'] ?? '');
+        $subject     = sanitize_text_field($_POST['subject'] ?? '');
+        $password    = $_POST['password'] ?? '';
+        $pass_conf   = $_POST['password_conf'] ?? '';
 
-        if (empty($email) || empty($emp_num) || empty($password) || empty($password_conf) || empty($role) || empty($otp) || empty($first_name) || empty($last_name)) {
-            wp_send_json_error('جميع الحقول إلزامية لإكمال عملية التسجيل.');
+        if (empty($first_name) || empty($last_name) || empty($dob) || empty($nationality) || empty($email) || empty($emp_num) || empty($institution) || empty($role) || empty($password)) {
+            wp_send_json_error('جميع الحقول الأساسية إلزامية لإكمال طلب التسجيل.');
         }
 
-        if ($password !== $password_conf) {
+        // Validate role requiring subject
+        $roles_requiring_subject = array('sm_teacher', 'sm_coordinator', 'sm_hod');
+        if (in_array($role, $roles_requiring_subject) && empty($subject)) {
+            wp_send_json_error('يرجى تحديد المادة الدراسية المسندة لتدريسها.');
+        }
+
+        if ($password !== $pass_conf) {
             wp_send_json_error('كلمتا المرور غير متطابقتين.');
         }
 
-        $saved_otp = get_transient('eess_register_otp_' . md5($email));
-        if ($saved_otp === false || $saved_otp !== $otp) {
-            wp_send_json_error('رمز التحقق (OTP) غير صحيح أو انتهت صلاحيته.');
+        // Password Validation Rules: 8-40 chars, 1 uppercase, 1 lowercase, 1 number
+        $length = mb_strlen($password);
+        if ($length < 8 || $length > 40) {
+            wp_send_json_error('كلمة المرور يجب أن تكون بين 8 و 40 خانة.');
+        }
+
+        if (!preg_match('/[A-Z]/', $password) || !preg_match('/[a-z]/', $password) || !preg_match('/[0-9]/', $password)) {
+            wp_send_json_error('كلمة المرور يجب أن تحتوى على حرف كبير وحرف صغير ورقم على الأقل.');
+        }
+
+        if (email_exists($email)) {
+            wp_send_json_error('البريد الإلكتروني مُسجل بالفعل بحساب آخر.');
         }
 
         // Clean Employee Number to enforce Username = Employee Number
@@ -5817,10 +5784,24 @@ class SM_Public {
 
         // Set pending status and metadata
         update_user_meta($user_id, 'eess_approval_status', 'pending');
-        update_user_meta($user_id, 'eess_employee_number', $emp_num);
+        update_user_meta($user_id, 'eess_employee_number', $clean_emp_num);
+        update_user_meta($user_id, 'sm_employee_id', $clean_emp_num);
+        update_user_meta($user_id, 'employee_id', $clean_emp_num);
         update_user_meta($user_id, 'eess_school_name', $school);
         update_user_meta($user_id, 'first_name', $first_name);
         update_user_meta($user_id, 'last_name', $last_name);
+        update_user_meta($user_id, 'dob', $dob);
+        update_user_meta($user_id, 'sm_dob', $dob);
+        update_user_meta($user_id, 'nationality', $nationality);
+        update_user_meta($user_id, 'sm_nationality', $nationality);
+        update_user_meta($user_id, 'institution', $institution);
+        update_user_meta($user_id, 'sm_institution', $institution);
+        update_user_meta($user_id, 'phone_number', $phone);
+        update_user_meta($user_id, 'sm_phone', $phone);
+        if (!empty($subject)) {
+            update_user_meta($user_id, 'specialization', $subject);
+            update_user_meta($user_id, 'sm_specialization', $subject);
+        }
 
         delete_transient('eess_register_otp_' . md5($email));
 
