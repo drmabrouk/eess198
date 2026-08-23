@@ -1367,34 +1367,102 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                         </div>
                         <div id="design-settings" class="sm-internal-tab" style="display:none;">
                             <form method="post">
-                                <?php wp_nonce_field('sm_admin_action', 'sm_admin_nonce'); $appearance = SM_Settings::get_appearance(); ?>
-                                <h4 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px;">إعدادات الألوان والمظهر</h4>
-                                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-top:20px;">
-                                    <div class="sm-form-group"><label class="sm-label">اللون الأساسي (#F63049):</label><input type="color" name="primary_color" value="<?php echo esc_attr($appearance['primary_color'] ?? '#F63049'); ?>" class="sm-input"></div>
-                                    <div class="sm-form-group"><label class="sm-label">اللون الثانوي (#D02752):</label><input type="color" name="secondary_color" value="<?php echo esc_attr($appearance['secondary_color'] ?? '#D02752'); ?>" class="sm-input"></div>
-                                    <div class="sm-form-group"><label class="sm-label">لون التمييز (#8A244B):</label><input type="color" name="accent_color" value="<?php echo esc_attr($appearance['accent_color'] ?? '#8A244B'); ?>" class="sm-input"></div>
-                                    <div class="sm-form-group"><label class="sm-label">لون الهيدر (#111F35):</label><input type="color" name="dark_color" value="<?php echo esc_attr($appearance['dark_color'] ?? '#111F35'); ?>" class="sm-input"></div>
-                                    <div class="sm-form-group"><label class="sm-label">حجم الخط (بكسل):</label><input type="text" name="font_size" value="<?php echo esc_attr($appearance['font_size'] ?? '15px'); ?>" class="sm-input"></div>
-                                    <div class="sm-form-group"><label class="sm-label">نصف قطر الزوايا (بكسل):</label><input type="text" name="border_radius" value="<?php echo esc_attr($appearance['border_radius'] ?? '12px'); ?>" class="sm-input"></div>
+                                <?php wp_nonce_field('sm_admin_action', 'sm_admin_nonce'); $app = SM_Settings::get_appearance(); ?>
+                                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 20px;">
+                                    <h4 style="margin:0; font-weight: 800; font-size: 16px; color: #0f172a;">لوحة التحكم المركزية بالهوية البصرية وتصميم المنظومة</h4>
+                                    <button type="submit" name="sm_reset_appearance" onclick="return confirm('هل أنت متأكد من إعادة ضبط مظهر النظام كاملاً للقيم الافتراضية الأصلية؟')" class="sm-btn" style="background: #f1f5f9; color: #dc2626 !important; border: 1px solid #fecdd3; font-size: 12px; height: 34px;">
+                                        🔄 إعادة ضبط النظام المعتمد
+                                    </button>
                                 </div>
-                                <h4 style="margin-top:20px; border-bottom:1px solid #eee; padding-bottom:10px;">مكونات واجهة المستخدم</h4>
-                                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-top:20px;">
-                                    <div class="sm-form-group">
-                                        <label class="sm-label">نمط الجداول:</label>
-                                        <select name="table_style" class="sm-select">
-                                            <option value="modern" <?php selected($appearance['table_style'] ?? '', 'modern'); ?>>عصري - بدون حدود</option>
-                                            <option value="classic" <?php selected($appearance['table_style'] ?? '', 'classic'); ?>>كلاسيكي - بحدود كاملة</option>
-                                        </select>
+
+                                <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; align-items: start;">
+                                    <div>
+                                        <!-- Section 1: Primary Colors -->
+                                        <h5 style="margin: 0 0 12px 0; font-size: 13.5px; font-weight: 800; color: #881337; border-bottom: 1px solid #fee2e2; padding-bottom: 6px;">1. ألوان الهوية الرئيسية والإجراءات (Primary Colors)</h5>
+                                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 20px;">
+                                            <div class="sm-form-group"><label class="sm-label">اللون العنابي الأساسي (إضافة / نشط):</label><input type="color" name="primary_color" value="<?php echo esc_attr($app['primary_color']); ?>" class="sm-input" style="height: 38px;"></div>
+                                            <div class="sm-form-group"><label class="sm-label">لون الحوام الداكن (Primary Hover):</label><input type="color" name="primary_hover" value="<?php echo esc_attr($app['primary_hover']); ?>" class="sm-input" style="height: 38px;"></div>
+                                            <div class="sm-form-group"><label class="sm-label">لون الحذف والخطورة (Danger Red):</label><input type="color" name="danger_color" value="<?php echo esc_attr($app['danger_color']); ?>" class="sm-input" style="height: 38px;"></div>
+                                            <div class="sm-form-group"><label class="sm-label">لون الحذف عند الحوام (Danger Hover):</label><input type="color" name="danger_hover" value="<?php echo esc_attr($app['danger_hover']); ?>" class="sm-input" style="height: 38px;"></div>
+                                        </div>
+
+                                        <!-- Section 2: Complete Grayscale System -->
+                                        <h5 style="margin: 0 0 12px 0; font-size: 13.5px; font-weight: 800; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">2. التدرج الرمادي الشامل (Grayscale System)</h5>
+                                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px;">
+                                            <div><label class="sm-label" style="font-size:10px;">Gray 50</label><input type="color" name="gray_50" value="<?php echo esc_attr($app['gray_50']); ?>" class="sm-input" style="height:32px; padding:0;"></div>
+                                            <div><label class="sm-label" style="font-size:10px;">Gray 100</label><input type="color" name="gray_100" value="<?php echo esc_attr($app['gray_100']); ?>" class="sm-input" style="height:32px; padding:0;"></div>
+                                            <div><label class="sm-label" style="font-size:10px;">Gray 200</label><input type="color" name="gray_200" value="<?php echo esc_attr($app['gray_200']); ?>" class="sm-input" style="height:32px; padding:0;"></div>
+                                            <div><label class="sm-label" style="font-size:10px;">Gray 300</label><input type="color" name="gray_300" value="<?php echo esc_attr($app['gray_300']); ?>" class="sm-input" style="height:32px; padding:0;"></div>
+                                            <div><label class="sm-label" style="font-size:10px;">Gray 400</label><input type="color" name="gray_400" value="<?php echo esc_attr($app['gray_400']); ?>" class="sm-input" style="height:32px; padding:0;"></div>
+                                            <div><label class="sm-label" style="font-size:10px;">Gray 500</label><input type="color" name="gray_500" value="<?php echo esc_attr($app['gray_500']); ?>" class="sm-input" style="height:32px; padding:0;"></div>
+                                            <div><label class="sm-label" style="font-size:10px;">Gray 600</label><input type="color" name="gray_600" value="<?php echo esc_attr($app['gray_600']); ?>" class="sm-input" style="height:32px; padding:0;"></div>
+                                            <div><label class="sm-label" style="font-size:10px;">Gray 700</label><input type="color" name="gray_700" value="<?php echo esc_attr($app['gray_700']); ?>" class="sm-input" style="height:32px; padding:0;"></div>
+                                            <div><label class="sm-label" style="font-size:10px;">Gray 800</label><input type="color" name="gray_800" value="<?php echo esc_attr($app['gray_800']); ?>" class="sm-input" style="height:32px; padding:0;"></div>
+                                            <div><label class="sm-label" style="font-size:10px;">Gray 900</label><input type="color" name="gray_900" value="<?php echo esc_attr($app['gray_900']); ?>" class="sm-input" style="height:32px; padding:0;"></div>
+                                        </div>
+
+                                        <!-- Section 3: Pastel Status Colors -->
+                                        <h5 style="margin: 0 0 12px 0; font-size: 13.5px; font-weight: 800; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">3. ألوان الحالات الهادئة (Pastel Status Colors)</h5>
+                                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;">
+                                            <div><label class="sm-label" style="font-size:11px;">خلفية خطأ (Pastel Red):</label><input type="color" name="pastel_red_bg" value="<?php echo esc_attr($app['pastel_red_bg']); ?>" class="sm-input" style="height:32px; padding:0;"></div>
+                                            <div><label class="sm-label" style="font-size:11px;">نص خطأ (Red Text):</label><input type="color" name="pastel_red_text" value="<?php echo esc_attr($app['pastel_red_text']); ?>" class="sm-input" style="height:32px; padding:0;"></div>
+                                            <div><label class="sm-label" style="font-size:11px;">خلفية نجاح (Pastel Green):</label><input type="color" name="pastel_green_bg" value="<?php echo esc_attr($app['pastel_green_bg']); ?>" class="sm-input" style="height:32px; padding:0;"></div>
+                                            <div><label class="sm-label" style="font-size:11px;">نص نجاح (Green Text):</label><input type="color" name="pastel_green_text" value="<?php echo esc_attr($app['pastel_green_text']); ?>" class="sm-input" style="height:32px; padding:0;"></div>
+                                        </div>
+
+                                        <!-- Section 4: Component Radii -->
+                                        <h5 style="margin: 0 0 12px 0; font-size: 13.5px; font-weight: 800; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">4. انحناء الحواف المعتمد (UI Component Radii)</h5>
+                                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 20px;">
+                                            <div class="sm-form-group"><label class="sm-label">حواف الأزرار (Buttons):</label><input type="text" name="button_radius" value="<?php echo esc_attr($app['button_radius']); ?>" class="sm-input" placeholder="9999px"></div>
+                                            <div class="sm-form-group"><label class="sm-label">حواف الكروت (Cards):</label><input type="text" name="card_radius" value="<?php echo esc_attr($app['card_radius']); ?>" class="sm-input" placeholder="20px"></div>
+                                        </div>
                                     </div>
-                                    <div class="sm-form-group">
-                                        <label class="sm-label">نمط الأزرار:</label>
-                                        <select name="button_style" class="sm-select">
-                                            <option value="flat" <?php selected($appearance['button_style'] ?? '', 'flat'); ?>>مسطح (Flat)</option>
-                                            <option value="gradient" <?php selected($appearance['button_style'] ?? '', 'gradient'); ?>>متدرج (Gradient)</option>
-                                        </select>
+
+                                    <!-- Live Interactive Preview Box -->
+                                    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 16px; padding: 20px; position: sticky; top: 20px;">
+                                        <h5 style="margin: 0 0 14px 0; font-weight: 800; font-size: 14px; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px;">👁️ المعاينة الحية للهوية البصرية</h5>
+
+                                        <div style="display: flex; flex-direction: column; gap: 14px;">
+                                            <!-- Buttons Preview -->
+                                            <div>
+                                                <span style="font-size: 11px; font-weight: 700; color: #64748b; display: block; margin-bottom: 6px;">أزرار الإجراءات:</span>
+                                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                                    <button type="button" class="sm-btn" style="background: <?php echo esc_attr($app['primary_color']); ?>; border-radius: 9999px !important; font-size: 11px; padding: 6px 14px; color: #fff;">+ إضافة طالب</button>
+                                                    <button type="button" class="sm-btn" style="background: #000; border-radius: 9999px !important; font-size: 11px; padding: 6px 14px; color: #fff;">حفظ التغييرات</button>
+                                                    <button type="button" class="sm-btn" style="background: <?php echo esc_attr($app['danger_color']); ?>; border-radius: 9999px !important; font-size: 11px; padding: 6px 14px; color: #fff;">حذف السجل</button>
+                                                </div>
+                                            </div>
+
+                                            <!-- Badges Preview -->
+                                            <div>
+                                                <span style="font-size: 11px; font-weight: 700; color: #64748b; display: block; margin-bottom: 6px;">كبسولات الحالات (Badges):</span>
+                                                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                                    <span style="padding: 3px 10px; border-radius: 12px; background: <?php echo esc_attr($app['pastel_green_bg']); ?>; color: <?php echo esc_attr($app['pastel_green_text']); ?>; font-weight: 800; font-size: 10.5px;">نشط / معتمد</span>
+                                                    <span style="padding: 3px 10px; border-radius: 12px; background: <?php echo esc_attr($app['pastel_yellow_bg']); ?>; color: <?php echo esc_attr($app['pastel_yellow_text']); ?>; font-weight: 800; font-size: 10.5px;">معلق</span>
+                                                    <span style="padding: 3px 10px; border-radius: 12px; background: <?php echo esc_attr($app['pastel_red_bg']); ?>; color: <?php echo esc_attr($app['pastel_red_text']); ?>; font-weight: 800; font-size: 10.5px;">مخالفة جسيمة</span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Table Preview -->
+                                            <div style="border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden;">
+                                                <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                                                    <thead>
+                                                        <tr style="background: #212121; color: #ffffff;">
+                                                            <th style="padding: 6px 10px; text-align: right;">الطالب</th>
+                                                            <th style="padding: 6px 10px; text-align: center;">الحالة</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr style="background: #ffffff; border-bottom: 1px solid #eee;"><td style="padding: 6px 10px;">علي أحمد</td><td style="padding: 6px 10px; text-align: center;">منتظم</td></tr>
+                                                        <tr style="background: #f8f8f8;"><td style="padding: 6px 10px;">محمد خليل</td><td style="padding: 6px 10px; text-align: center;">غائب</td></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <button type="submit" name="sm_save_appearance" class="sm-btn" style="width:auto;">حفظ تصميم النظام</button>
+
+                                <button type="submit" name="sm_save_appearance" class="sm-btn" style="width:auto; background: #881337; margin-top: 20px;">حفظ وتطبيق تصميم المنظومة الآن</button>
                             </form>
                         </div>
 
