@@ -1,22 +1,9 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <div class="sm-assignments-container" dir="rtl" style="font-family: 'Cairo', sans-serif;">
 
-    <!-- Top Action Bar & Homework Multi-Filter Search Engine -->
-    <div style="background: #ffffff; padding: 20px; border-radius: 16px; border: 1px solid #cbd5e1; box-shadow: 0 2px 8px rgba(0,0,0,0.02); margin-bottom: 20px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
-                <span class="dashicons dashicons-search" style="color: #881337; font-size: 18px; width: 18px; height: 18px; margin: 0;"></span>
-                <span>محرك البحث والتصفية المتقدم للواجبات المدرسية</span>
-            </h3>
-            <?php if (in_array('sm_teacher', (array)wp_get_current_user()->roles) || current_user_can('manage_options')): ?>
-                <button type="button" onclick="document.getElementById('add-assignment-modal').style.display='flex'" class="sm-btn" style="height: 38px; padding: 0 20px; font-weight: 800; font-size: 12.5px; background: #881337; color: white !important; border-radius: 9999px !important; display: inline-flex; align-items: center; gap: 6px; border: none; cursor: pointer;">
-                    <span class="dashicons dashicons-plus-alt" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
-                    <span>إضافة واجب جديد</span>
-                </button>
-            <?php endif; ?>
-        </div>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+    <!-- Homework Multi-Filter Search Card -->
+    <div style="background: #ffffff; padding: 18px 22px; border-radius: 16px; border: 1px solid #cbd5e1; box-shadow: 0 2px 8px rgba(0,0,0,0.02); margin-bottom: 20px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; align-items: end;">
             <div>
                 <label style="font-size: 11.5px; font-weight: 700; color: #475569; margin-bottom: 4px; display: block;">البحث المباشر</label>
                 <input type="text" id="eess-homework-search" onkeyup="eessFilterHomework()" class="sm-input" placeholder="عنوان الواجب، المدرس، المادة، الطالب..." style="height: 38px; border-radius: 9999px !important; border: 1px solid #cbd5e1; width: 100%; font-size: 12.5px; padding: 0 14px;">

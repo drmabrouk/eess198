@@ -133,111 +133,61 @@ if ($is_reviewer) {
         </div>
     </div>
 
-    <!-- TEACHER TAB: WIZARD & PLAN EDITOR -->
+    <!-- TEACHER TAB: SUBMITTED PLANS HISTORY -->
     <div id="panel-teacher-dashboard" class="term-plan-panel" style="display: block;">
-
-        <!-- Setup Header Form -->
-        <div style="background: #ffffff; padding: 22px 26px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
-            <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 800; color: #0f172a;">إعداد الخطة الدراسية وتحديد المواعيد الأكاديمية</h3>
-
-            <form id="eess-term-plan-setup-form">
-                <?php wp_nonce_field('sm_term_plan_action', 'sm_nonce'); ?>
-                <input type="hidden" name="plan_id" id="tp_plan_id" value="0">
-
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 16px;">
-                    <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">العام الأكاديمي:</label>
-                        <input type="text" name="academic_year" id="tp_academic_year" class="sm-input" value="<?php echo esc_attr($active_academic_year); ?>" required style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px;">
-                    </div>
-
-                    <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">المادة الدراسية:</label>
-                        <select name="subject" id="tp_subject" class="sm-select" required style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 13px;">
-                            <option value="">-- اختر المادة --</option>
-                            <?php foreach ($unique_subjects as $subj): ?>
-                                <option value="<?php echo esc_attr($subj); ?>"><?php echo esc_html($subj); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">الصف الدراسي:</label>
-                        <select name="grade" id="tp_grade" class="sm-select" required style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 13px;">
-                            <option value="">-- اختر الصف --</option>
-                            <?php
-                            $academic = SM_Settings::get_academic_structure();
-                            foreach ($academic['active_grades'] as $g) {
-                                echo "<option value='الصف $g'>الصف $g</option>";
-                            }
-                            ?>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">عدد الحصص الأسبوعية:</label>
-                        <input type="number" name="weekly_lessons" id="tp_weekly_lessons" class="sm-input" min="1" max="10" value="2" required style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px;">
-                    </div>
-
-                    <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">نظام الفصول الأكاديمية:</label>
-                        <select name="num_terms" id="tp_num_terms" class="sm-select" onchange="onNumTermsChanged(this.value)" style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 13px;">
-                            <option value="3" selected>ثلاثة فصول دراسية (Term 1, 2, 3)</option>
-                            <option value="2">فصلان دراسيان (Term 1, 2)</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">الفصل المُراد تخطيطه:</label>
-                        <select name="term_number" id="tp_term_number" class="sm-select" onchange="onTermNumberSelected(this.value)" style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 13px;">
-                            <option value="1">الفصل الدراسي الأول (Term 1)</option>
-                            <option value="2">الفصل الدراسي الثاني (Term 2)</option>
-                            <option value="3">الفصل الدراسي الثالث (Term 3)</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">تاريخ بداية الفصل:</label>
-                        <input type="date" name="start_date" id="tp_start_date" onchange="calculateWeeksAuto()" class="sm-input" required style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 12.5px;">
-                    </div>
-
-                    <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">تاريخ نهاية الفصل:</label>
-                        <input type="date" name="end_date" id="tp_end_date" onchange="calculateWeeksAuto()" class="sm-input" required style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 12.5px;">
-                    </div>
-                </div>
-
-                <!-- Auto calculated weeks notice -->
-                <div style="background: #f0f9ff; border: 1px solid #bae6fd; padding: 12px 18px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                    <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #0369a1; font-weight: 700;">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        <span>إجمالي الأسابيع المحسوبة تلقائياً: <strong id="tp_calc_weeks_badge" style="font-size: 15px; color: #2563eb;">0 أسبوعاً</strong></span>
-                    </div>
-                    <button type="button" onclick="generateWeeklyPlanningFields()" class="sm-btn" style="background: #2563eb; color: #ffffff; height: 38px; border-radius: 10px; padding: 0 20px; font-weight: 800; border: none; cursor: pointer;">
-                        توليد وتحديث هيكل الأسابيع تلقائياً
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Weekly Planning Editor Form -->
-        <div id="tp_weekly_editor_container" style="background: #ffffff; padding: 24px 28px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.02); display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 14px; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
-                <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #0f172a;">التوزيع الأسبوعي للدروس والمناهج</h3>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span id="tp_autosave_indicator" style="font-size: 12px; color: #16a34a; font-weight: 700; display: none;">
-                        ✓ تم الحفظ التلقائي كمسودة
-                    </span>
-                    <button type="button" onclick="saveTermPlanDraft('draft')" class="sm-btn" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; height: 38px; border-radius: 10px; padding: 0 16px; font-weight: 700; cursor: pointer;">
-                        حفظ كمسودة
-                    </button>
-                    <button type="button" onclick="saveTermPlanDraft('submitted')" class="sm-btn" style="background: #16a34a; color: #ffffff; height: 38px; border-radius: 10px; padding: 0 20px; font-weight: 800; border: none; cursor: pointer;">
-                        رفع الخطة النهائية للاعتماد
-                    </button>
-                </div>
+        <div style="background: #ffffff; padding: 24px 28px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #0f172a;">سجل وأرشيف الخطط الفصلية والسنوية الخاصة بي</h3>
+                <button type="button" onclick="eessOpenPlanSetupWizard()" class="sm-btn" style="background: #881337; color: #fff; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                    <span class="dashicons dashicons-plus-alt" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
+                    <span>إنشاء خطة جديدة</span>
+                </button>
             </div>
 
-            <div id="tp_weeks_grid" style="display: flex; flex-direction: column; gap: 16px;">
-                <!-- Generated dynamically via JS -->
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: separate; border-spacing: 0; text-align: right;">
+                    <thead>
+                        <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0;">الفصل الدراسي</th>
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0;">المادة والصف</th>
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0;">تاريخ الفترة</th>
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0; text-align: center;">نسبة إنجاز الترم</th>
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0; text-align: center;">الحالة</th>
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0; text-align: center;">الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($teacher_plans)): ?>
+                            <tr>
+                                <td colspan="6" style="padding: 40px; text-align: center; color: #94a3b8;">لا توجد خطط فصلية أو سنوية مسجلة لك حالياً. اضغط "إعداد وخطة المدرس" للبدء.</td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($teacher_plans as $tp):
+                                $s_bg = '#f1f5f9'; $s_col = '#64748b'; $s_lbl = 'مسودة';
+                                if ($tp->status === 'submitted') { $s_bg = '#e0f2fe'; $s_col = '#0369a1'; $s_lbl = 'مرفوعة للمراجعة'; }
+                                elseif ($tp->status === 'approved') { $s_bg = '#dcfce7'; $s_col = '#15803d'; $s_lbl = 'معتمدة'; }
+                                elseif ($tp->status === 'returned') { $s_bg = '#fee2e2'; $s_col = '#b91c1c'; $s_lbl = 'طلب تعديل'; }
+                            ?>
+                                <tr style="border-bottom: 1px solid #f1f5f9;">
+                                    <td style="padding: 12px 16px; font-weight: 800; color: #0f172a;">الفصل الدراسي <?php echo intval($tp->term_number); ?></td>
+                                    <td style="padding: 12px 16px; font-size: 13px; color: #334155;"><?php echo esc_html($tp->subject . ' - ' . $tp->grade); ?></td>
+                                    <td style="padding: 12px 16px; font-size: 12px; color: #64748b;"><?php echo esc_html($tp->start_date . ' إلى ' . $tp->end_date); ?></td>
+                                    <td style="padding: 12px 16px; text-align: center; font-weight: 800; color: #2563eb;"><?php echo intval($tp->completion_pct); ?>%</td>
+                                    <td style="padding: 12px 16px; text-align: center;">
+                                        <span style="padding: 3px 10px; border-radius: 8px; background: <?php echo $s_bg; ?>; color: <?php echo $s_col; ?>; font-weight: 800; font-size: 11.5px;">
+                                            <?php echo $s_lbl; ?>
+                                        </span>
+                                    </td>
+                                    <td style="padding: 12px 16px; text-align: center;">
+                                        <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=term_plan&plan_id=' . $tp->id); ?>" target="_blank" class="sm-btn" style="background: #0284c7; color: #fff !important; height: 32px; padding: 0 14px; border-radius: 8px; font-size: 11.5px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                            🖨️ طباعة
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

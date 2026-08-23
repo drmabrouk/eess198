@@ -573,8 +573,8 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                 </div>
 
                 <div style="display: flex; align-items: flex-end; gap: 8px;">
-                    <button type="submit" class="sm-btn" style="height: 38px; font-size:12.5px; padding:0 20px; width:100%; background: #881337; border-radius: 9999px !important; color: white !important; font-weight: 800; border: none; cursor: pointer;">تطبيق الفلترة</button>
-                    <a href="<?php echo home_url('/lesson-prep'); ?>" class="sm-btn sm-btn-outline" style="height: 38px; font-size:12px; padding:0 16px; border-radius: 9999px !important; border: 1px solid #cbd5e1; color: #475569; display:flex; align-items:center; justify-content:center; text-decoration:none; font-weight:700;">إعادة ضبط</a>
+                    <button type="submit" class="sm-btn" style="height: 38px; font-size:12.5px; padding:0 20px; width:100%; background: #881337; border-radius: 9999px !important; color: white !important; font-weight: 800; border: none; cursor: pointer; white-space: nowrap !important;">تطبيق الفلترة</button>
+                    <a href="<?php echo home_url('/lesson-prep'); ?>" class="sm-btn sm-btn-outline" style="height: 38px; font-size:12px; padding:0 16px; border-radius: 9999px !important; border: 1px solid #cbd5e1; color: #475569; display:flex; align-items:center; justify-content:center; text-decoration:none; font-weight:700; white-space: nowrap !important;">إعادة ضبط</a>
                 </div>
             </form>
 
