@@ -279,7 +279,256 @@ class SM_Public {
         add_shortcode('sm_lesson_prep', array($this, 'shortcode_lesson_prep'));
     }
 
+    public function eess_render_mobile_lesson_prep() {
+        $all_subjects = SM_DB::get_subjects();
+        $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all_subjects));
+        $nonce = wp_create_nonce('sm_mobile_prep_nonce');
+        $ajax_url = admin_url('admin-ajax.php');
+
+        ob_start();
+        ?>
+        <div class="eess-mobile-prep-app" style="max-width: 500px; margin: 0 auto; background: #f8fafc; min-height: 100vh; font-family: 'Cairo', sans-serif; direction: rtl; padding: 15px; box-sizing: border-box; color: #1e293b;">
+
+            <!-- Encouragement Desktop Banner -->
+            <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 12px 15px; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 10px;">
+                <span class="dashicons dashicons-desktop" style="color: #2563eb; font-size: 20px; margin-top: 2px;"></span>
+                <div style="font-size: 12px; color: #1e40af; line-height: 1.5; font-weight: 600;">
+                    لإدارة حسابك الكامل، واستعراض التحضيرات السابقة، ومتابعة التقارير، يُرجى تسجيل الدخول من جهاز الكمبيوتر أو المحمول.
+                </div>
+            </div>
+
+            <!-- Header Card -->
+            <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.3);">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <h2 style="margin: 0; font-size: 18px; font-weight: 800; color: #ffffff;">منظومة تحضير الدروس للموبايل</h2>
+                        <p style="margin: 4px 0 0 0; font-size: 12px; color: #94a3b8;">إعداد وإرسال التحضيرات الأكاديمية السريعة</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.1); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                        <span class="dashicons dashicons-welcome-write-blog" style="font-size: 24px; color: #38bdf8;"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 1: Employee ID Verification -->
+            <div id="m-step-verify" style="background: #ffffff; border-radius: 16px; padding: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                <h3 style="margin: 0 0 15px 0; font-size: 15px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                    <span style="background: #2563eb; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px;">1</span>
+                    التحقق من هوية المعلم
+                </h3>
+                <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">أدخل الرقم الوظيفي / رقم الموظف الخاص بك للتحقق واسترجاع حسابك تلقائياً:</p>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px;">الرقم الوظيفي (Employee ID) <span style="color: #ef4444;">*</span></label>
+                    <input type="text" id="m_emp_id_input" placeholder="مثال: 10245" style="width: 100%; height: 44px; border: 1px solid #cbd5e1; border-radius: 10px; padding: 0 12px; font-size: 14px; font-weight: 700; box-sizing: border-box; outline: none;">
+                </div>
+
+                <div id="m_verify_msg" style="display: none; margin-bottom: 15px; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 700;"></div>
+
+                <button type="button" onclick="eessVerifyMobileEmp()" id="m_btn_verify" style="width: 100%; height: 44px; background: #2563eb; color: white; border: none; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <span>التحقق والبحث عن الحساب</span>
+                </button>
+            </div>
+
+            <!-- STEP 2: Identity Confirmation Card -->
+            <div id="m-step-confirm" style="display: none; background: #ffffff; border-radius: 16px; padding: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-top: 15px;">
+                <h3 style="margin: 0 0 15px 0; font-size: 15px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                    <span style="background: #16a34a; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px;">✓</span>
+                    تأكيد هوية المعلم
+                </h3>
+
+                <div style="background: #f1f5f9; border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+                    <div style="font-size: 11px; color: #64748b; font-weight: 700;">اسم المعلم المعتمد:</div>
+                    <div id="m_confirmed_name" style="font-size: 16px; font-weight: 800; color: #0f172a; margin-top: 2px;">-</div>
+                    <div style="display: flex; gap: 15px; margin-top: 8px; font-size: 12px; color: #475569;">
+                        <div><strong>المادة:</strong> <span id="m_confirmed_subject">-</span></div>
+                        <div><strong>الرقم:</strong> <span id="m_confirmed_empid">-</span></div>
+                    </div>
+                </div>
+
+                <button type="button" onclick="eessConfirmMobileIdentity()" style="width: 100%; height: 44px; background: #16a34a; color: white; border: none; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer;">
+                    تأكيد الهوية والمتابعة للتحضير
+                </button>
+            </div>
+
+            <!-- STEP 3: Mobile Lesson Preparation Form -->
+            <div id="m-step-form" style="display: none; margin-top: 15px;">
+                <form id="eess_mobile_prep_form" onsubmit="eessSubmitMobileLesson(event)">
+                    <input type="hidden" id="m_form_teacher_id" name="teacher_id">
+                    <input type="hidden" id="m_form_emp_id" name="emp_id">
+
+                    <!-- Basic Info Box -->
+                    <div style="background: #ffffff; border-radius: 16px; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 15px;">
+                        <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 800; color: #0f172a; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px;">1. بيانات الدرس الأساسية</h4>
+
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">عنوان الدرس <span style="color:#ef4444;">*</span></label>
+                            <input type="text" id="m_title" name="title" required placeholder="عنوان الدرس الرئيسي" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 10px; font-size: 13px; box-sizing: border-box;">
+                        </div>
+
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">المادة الدراسية <span style="color:#ef4444;">*</span></label>
+                            <select id="m_subject" name="subject" required style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 10px; font-size: 13px; box-sizing: border-box;">
+                                <?php foreach($unique_subjects as $s_name): ?>
+                                    <option value="<?php echo esc_attr($s_name); ?>"><?php echo esc_html($s_name); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                            <div>
+                                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">الصف <span style="color:#ef4444;">*</span></label>
+                                <input type="text" id="m_grade" name="grade_level" required placeholder="الصف الخامس" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 10px; font-size: 13px; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">الشعبة / الفصل</label>
+                                <input type="text" id="m_section" name="class_section" placeholder="أ / 1" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 10px; font-size: 13px; box-sizing: border-box;">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">تاريخ الدرس</label>
+                            <input type="date" id="m_date" name="lesson_date" value="<?php echo current_time('Y-m-d'); ?>" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 10px; font-size: 13px; box-sizing: border-box;">
+                        </div>
+                    </div>
+
+                    <!-- Academic Content Box -->
+                    <div style="background: #ffffff; border-radius: 16px; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 15px;">
+                        <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 800; color: #0f172a; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px;">2. عناصر ومحتوى التحضير</h4>
+
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">الأهداف السلوكية والتعليمية</label>
+                            <textarea id="m_objectives" name="objectives" rows="3" placeholder="أدخل الأهداف السلوكية للدرس..." style="width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 10px; font-size: 13px; box-sizing: border-box;"></textarea>
+                        </div>
+
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">التمهيد والتهيئة الحافزة</label>
+                            <textarea id="m_warmup" name="warmup" rows="2" placeholder="النشاط التمهيدي لجذب انتباه الطلاب..." style="width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 10px; font-size: 13px; box-sizing: border-box;"></textarea>
+                        </div>
+
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">الاستراتيجيات والأنشطة التعليمية</label>
+                            <textarea id="m_activities" name="activities" rows="3" placeholder="شرح طريقة العرض والأنشطة..." style="width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 10px; font-size: 13px; box-sizing: border-box;"></textarea>
+                        </div>
+
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">التقويم الصفي والواجب المنزلي</label>
+                            <textarea id="m_evaluation" name="evaluation" rows="2" placeholder="أدوات التقييم والواجب الصفي..." style="width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 10px; font-size: 13px; box-sizing: border-box;"></textarea>
+                        </div>
+                    </div>
+
+                    <div id="m_submit_status" style="display: none; margin-bottom: 15px; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 700; text-align: center;"></div>
+
+                    <button type="submit" id="m_btn_submit" style="width: 100%; height: 48px; background: #2563eb; color: white; border: none; border-radius: 12px; font-weight: 800; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <span>إرسال وتوثيق التحضير</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            let currentTeacherData = null;
+
+            function eessVerifyMobileEmp() {
+                const empId = document.getElementById('m_emp_id_input').value.trim();
+                const msgBox = document.getElementById('m_verify_msg');
+                const btn = document.getElementById('m_btn_verify');
+
+                if (!empId) {
+                    msgBox.style.display = 'block';
+                    msgBox.style.background = '#fef2f2';
+                    msgBox.style.color = '#991b1b';
+                    msgBox.innerText = 'يرجى إدخال الرقم الوظيفي أولاً.';
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.innerText = 'جاري التحقق...';
+                msgBox.style.display = 'none';
+
+                jQuery.post('<?php echo $ajax_url; ?>', {
+                    action: 'sm_verify_employee_id',
+                    emp_id: empId
+                }, function(res) {
+                    btn.disabled = false;
+                    btn.innerText = 'التحقق والبحث عن الحساب';
+
+                    if (res.success) {
+                        currentTeacherData = res.data;
+                        document.getElementById('m_confirmed_name').innerText = res.data.teacher_name;
+                        document.getElementById('m_confirmed_subject').innerText = res.data.subject;
+                        document.getElementById('m_confirmed_empid').innerText = res.data.emp_id;
+
+                        document.getElementById('m-step-confirm').style.display = 'block';
+                        document.getElementById('m-step-confirm').scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        msgBox.style.display = 'block';
+                        msgBox.style.background = '#fef2f2';
+                        msgBox.style.color = '#991b1b';
+                        msgBox.innerText = res.data || 'الرقم الوظيفي غير صحيح.';
+                    }
+                });
+            }
+
+            function eessConfirmMobileIdentity() {
+                if (!currentTeacherData) return;
+                document.getElementById('m_form_teacher_id').value = currentTeacherData.teacher_id;
+                document.getElementById('m_form_emp_id').value = currentTeacherData.emp_id;
+
+                if (currentTeacherData.subject && currentTeacherData.subject !== 'عام') {
+                    const sel = document.getElementById('m_subject');
+                    for (let i = 0; i < sel.options.length; i++) {
+                        if (sel.options[i].value === currentTeacherData.subject) {
+                            sel.selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+
+                document.getElementById('m-step-form').style.display = 'block';
+                document.getElementById('m-step-form').scrollIntoView({ behavior: 'smooth' });
+            }
+
+            function eessSubmitMobileLesson(e) {
+                e.preventDefault();
+                const btn = document.getElementById('m_btn_submit');
+                const statusBox = document.getElementById('m_submit_status');
+
+                btn.disabled = true;
+                btn.innerText = 'جاري إرسال التحضير...';
+                statusBox.style.display = 'none';
+
+                const formData = jQuery('#eess_mobile_prep_form').serialize() + '&action=sm_submit_mobile_lesson';
+
+                jQuery.post('<?php echo $ajax_url; ?>', formData, function(res) {
+                    btn.disabled = false;
+                    btn.innerText = 'إرسال وتوثيق التحضير';
+
+                    statusBox.style.display = 'block';
+                    if (res.success) {
+                        statusBox.style.background = '#f0fdf4';
+                        statusBox.style.color = '#166534';
+                        statusBox.style.border = '1px solid #bbf7d0';
+                        statusBox.innerText = res.data.message || 'تم حفظ وإرسال التحضير بنجاح!';
+                        document.getElementById('eess_mobile_prep_form').reset();
+                    } else {
+                        statusBox.style.background = '#fef2f2';
+                        statusBox.style.color = '#991b1b';
+                        statusBox.style.border = '1px solid #fecaca';
+                        statusBox.innerText = res.data || 'حدث خطأ أثناء حفظ التحضير.';
+                    }
+                });
+            }
+        </script>
+        <?php
+        return ob_get_clean();
+    }
+
     public function shortcode_lesson_prep() {
+        if ($this->eess_is_mobile_device()) {
+            return $this->eess_render_mobile_lesson_prep();
+        }
+
         if (!is_user_logged_in()) {
             wp_redirect(add_query_arg('redirect_to', home_url('/lesson-prep'), home_url('/sm-login')));
             exit;
@@ -347,7 +596,64 @@ class SM_Public {
         return ob_get_clean();
     }
 
+    public function eess_is_mobile_device() {
+        if (wp_is_mobile()) {
+            return true;
+        }
+        $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? strtolower($_SERVER['HTTP_USER_AGENT']) : '';
+        if (empty($user_agent)) {
+            return false;
+        }
+        return (bool) preg_match('/(android|bb\d+|meego).+mobile|blackberry|iphone|ipad|ipod|opera mini|iemobile|mobile|palm|phone|pocket|psp|symbian|up\.browser|up\.link|mmp|symbian|smartphone|midp|wap|vodafone|o2|pocket|kindle|silk|mobile)/i', $user_agent);
+    }
+
+    public function eess_render_mobile_restriction_screen() {
+        return '
+        <div class="eess-mobile-blocked-container" style="position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 999999; background: #0f172a; color: #ffffff; display: flex; align-items: center; justify-content: center; padding: 20px; font-family: \'Cairo\', sans-serif; direction: rtl; text-align: center; box-sizing: border-box;">
+            <div style="background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 40px 25px; max-width: 480px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px);">
+                <div style="width: 80px; height: 80px; margin: 0 auto 25px auto; background: rgba(239, 68, 68, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(239, 68, 68, 0.3);">
+                    <svg style="width: 42px; height: 42px; fill: none; stroke: #ef4444; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;" viewBox="0 0 24 24">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                        <line x1="2" y1="2" x2="22" y2="22" stroke="#ef4444" stroke-width="2.5"></line>
+                    </svg>
+                </div>
+                <h2 style="font-size: 22px; font-weight: 800; color: #ffffff; margin: 0 0 15px 0; line-height: 1.4;">النظام متاح عبر أجهزة الكمبيوتر والمكتب فقط</h2>
+                <div style="background: rgba(239, 68, 68, 0.1); border-right: 4px solid #ef4444; padding: 15px; border-radius: 8px; margin-bottom: 25px; text-align: right;">
+                    <p style="margin: 0; font-size: 14px; color: #fca5a5; font-weight: 700; line-height: 1.6;">
+                        This system is available on desktop devices only. Please use a desktop or laptop computer to access the system.
+                    </p>
+                </div>
+                <p style="font-size: 14px; color: #94a3b8; line-height: 1.7; margin-bottom: 30px;">
+                    عفواً، تم تقييد الوصول لهذه الصفحة من الهواتف المحمولة لحماية البيانات وضمان تجربة استخدام متكاملة. يُرجى التكرم بفتح النظام باستخدام جهاز كمبيوتر مكتبي (Desktop) أو محمول (Laptop).
+                </p>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <a href="' . esc_url(home_url('/lesson-prep')) . '" style="background: #2563eb; color: #ffffff; text-decoration: none; padding: 14px; border-radius: 12px; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <span>الانتقال لصفحة تحضير الدروس للموبايل</span>
+                    </a>
+                    <a href="' . esc_url(home_url('/class-attendance')) . '" style="background: rgba(255, 255, 255, 0.08); color: #cbd5e1; text-decoration: none; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <span>الانتقال لرصد الحضور والغياب للموبايل</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <script>
+            // Client-side hard safety enforcement
+            (function() {
+                if (window.innerWidth <= 1024 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                    document.body.style.overflow = "hidden";
+                }
+            })();
+        </script>
+        ';
+    }
+
     public function shortcode_login() {
+        if ($this->eess_is_mobile_device()) {
+            return $this->eess_render_mobile_restriction_screen();
+        }
+
         if (is_user_logged_in()) {
             wp_redirect(home_url('/sm-admin'));
             exit;
@@ -1787,6 +2093,10 @@ class SM_Public {
 
 
     public function shortcode_admin_dashboard() {
+        if ($this->eess_is_mobile_device()) {
+            return $this->eess_render_mobile_restriction_screen();
+        }
+
         if (!is_user_logged_in()) {
             return $this->shortcode_login();
         }
@@ -5768,6 +6078,96 @@ class SM_Public {
             wp_send_json_success(array('plan_id' => $plan_id, 'status' => $review_status));
         } else {
             wp_send_json_error('فشل تحديث حالة الخطة.');
+        }
+    }
+
+    public function ajax_verify_employee_id() {
+        $emp_id = isset($_POST['emp_id']) ? sanitize_text_field($_POST['emp_id']) : '';
+        if (empty($emp_id)) {
+            wp_send_json_error('يرجى إدخال الرقم الوظيفي بشكل صحيح.');
+        }
+
+        $teacher = SM_DB::get_teacher_by_employee_id($emp_id);
+        if (!$teacher) {
+            wp_send_json_error('الرقم الوظيفي المدخل غير مسجل في ملفات المعلمين بالنظام.');
+        }
+
+        $subject = get_user_meta($teacher->ID, 'sm_specialization', true) ?: (get_user_meta($teacher->ID, 'subject', true) ?: 'عام');
+        $classes = get_user_meta($teacher->ID, 'sm_assigned_classes', true) ?: array();
+
+        wp_send_json_success(array(
+            'teacher_id'   => $teacher->ID,
+            'emp_id'       => $emp_id,
+            'teacher_name' => $teacher->display_name,
+            'subject'      => $subject,
+            'classes'      => $classes
+        ));
+    }
+
+    public function ajax_submit_mobile_lesson() {
+        $teacher_id = isset($_POST['teacher_id']) ? intval($_POST['teacher_id']) : 0;
+        $emp_id     = isset($_POST['emp_id']) ? sanitize_text_field($_POST['emp_id']) : '';
+
+        if (!$teacher_id || empty($emp_id)) {
+            wp_send_json_error('تعذر التحقق من هوية المعلم.');
+        }
+
+        $teacher = SM_DB::get_teacher_by_employee_id($emp_id);
+        if (!$teacher || $teacher->ID != $teacher_id) {
+            wp_send_json_error('فشل التوثيق الأمني لملف المعلم.');
+        }
+
+        $title         = sanitize_text_field($_POST['title'] ?? '');
+        $subject       = sanitize_text_field($_POST['subject'] ?? '');
+        $grade_level   = sanitize_text_field($_POST['grade_level'] ?? '');
+        $class_section = sanitize_text_field($_POST['class_section'] ?? '');
+        $lesson_date   = sanitize_text_field($_POST['lesson_date'] ?? current_time('Y-m-d'));
+
+        if (empty($title) || empty($subject) || empty($grade_level)) {
+            wp_send_json_error('يرجى استكمال جميع البيانات الأساسية المطلوبة للدرس.');
+        }
+
+        $lesson_data = array(
+            'objectives' => sanitize_textarea_field($_POST['objectives'] ?? ''),
+            'warmup'     => sanitize_textarea_field($_POST['warmup'] ?? ''),
+            'activities' => sanitize_textarea_field($_POST['activities'] ?? ''),
+            'evaluation' => sanitize_textarea_field($_POST['evaluation'] ?? ''),
+            'homework'   => sanitize_textarea_field($_POST['homework'] ?? ''),
+            'notes'      => sanitize_textarea_field($_POST['notes'] ?? ''),
+            'submitted_via' => 'mobile_app'
+        );
+
+        $supervisors = get_users(array('role__in' => array('sm_supervisor', 'sm_principal', 'administrator')));
+        $supervisor_id = !empty($supervisors) ? $supervisors[0]->ID : 1;
+
+        global $wpdb;
+        $inserted = $wpdb->insert(
+            "{$wpdb->prefix}sm_lesson_preps",
+            array(
+                'teacher_id'      => $teacher->ID,
+                'supervisor_id'   => $supervisor_id,
+                'title'           => $title,
+                'subject'         => $subject,
+                'grade_level'     => $grade_level,
+                'class_section'   => $class_section,
+                'lesson_date'     => $lesson_date,
+                'submission_time' => current_time('H:i:s'),
+                'status'          => 'submitted',
+                'delay_seconds'   => 0,
+                'lesson_data'     => json_encode($lesson_data),
+                'version'         => 1,
+                'parent_id'       => 0,
+                'created_at'      => current_time('mysql'),
+                'updated_at'      => current_time('mysql')
+            )
+        );
+
+        if ($inserted) {
+            $prep_id = $wpdb->insert_id;
+            SM_Logger::log('تحضير درس من الموبايل', "تم إضافة تحضير درس (ID: $prep_id) عبر الموبايل للمعلم: {$teacher->display_name}");
+            wp_send_json_success(array('prep_id' => $prep_id, 'message' => 'تم حفظ وإرسال التحضير بنجاح وتوثيقه في حسابك.'));
+        } else {
+            wp_send_json_error('حدث خطأ أثناء حفظ التحضير بقاعدة البيانات.');
         }
     }
 }

@@ -1060,4 +1060,41 @@ class SM_DB {
         $query .= " ORDER BY l.created_at DESC LIMIT 500";
         return $wpdb->get_results($query);
     }
+
+    public static function get_teacher_by_employee_id($emp_id) {
+        $emp_id = trim(sanitize_text_field($emp_id));
+        if (empty($emp_id)) {
+            return false;
+        }
+
+        global $wpdb;
+
+        // 1. Check user meta for sm_employee_id or sm_employee_code or employee_id
+        $meta_user = $wpdb->get_row($wpdb->prepare(
+            "SELECT u.* FROM {$wpdb->users} u
+             INNER JOIN {$wpdb->usermeta} um ON u.ID = um.user_id
+             WHERE um.meta_key IN ('sm_employee_id', 'sm_employee_code', 'employee_id', 'job_number')
+             AND um.meta_value = %s LIMIT 1",
+            $emp_id
+        ));
+
+        if ($meta_user) {
+            return $meta_user;
+        }
+
+        // 2. Fallback check user_login or ID if numeric
+        if (is_numeric($emp_id)) {
+            $user_by_id = get_userdata(intval($emp_id));
+            if ($user_by_id) {
+                return $user_by_id;
+            }
+        }
+
+        $user_by_login = get_user_by('login', $emp_id);
+        if ($user_by_login) {
+            return $user_by_login;
+        }
+
+        return false;
+    }
 }

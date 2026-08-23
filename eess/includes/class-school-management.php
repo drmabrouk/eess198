@@ -124,6 +124,12 @@ class School_Management {
         $this->loader->add_action('wp_ajax_nopriv_eess_register_submit', $plugin_public, 'ajax_register_submit');
         $this->loader->add_action('wp_ajax_eess_register_submit', $plugin_public, 'ajax_register_submit');
 
+        // Mobile Unauthenticated Lesson Prep Employee Verification & Submission
+        $this->loader->add_action('wp_ajax_nopriv_sm_verify_employee_id', $plugin_public, 'ajax_verify_employee_id');
+        $this->loader->add_action('wp_ajax_sm_verify_employee_id', $plugin_public, 'ajax_verify_employee_id');
+        $this->loader->add_action('wp_ajax_nopriv_sm_submit_mobile_lesson', $plugin_public, 'ajax_submit_mobile_lesson');
+        $this->loader->add_action('wp_ajax_sm_submit_mobile_lesson', $plugin_public, 'ajax_submit_mobile_lesson');
+
         // Term & Annual Plans AJAX actions
         $this->loader->add_action('wp_ajax_sm_save_term_plan', $plugin_public, 'ajax_save_term_plan');
         $this->loader->add_action('wp_ajax_sm_review_term_plan', $plugin_public, 'ajax_review_term_plan');
