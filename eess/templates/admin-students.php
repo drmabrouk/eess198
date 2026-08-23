@@ -1,46 +1,50 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <?php
-$is_admin = current_user_can('شؤون_الطلاب');
+$is_admin = current_user_can('شؤون_الطلاب') || current_user_can('manage_options');
 $import_results = get_transient('sm_import_results_' . get_current_user_id());
 if ($import_results) {
     delete_transient('sm_import_results_' . get_current_user_id());
 }
+
+// Data query & stats
+global $wpdb;
+$students_list = is_array($students) ? $students : array();
+$total_students_count = count($students_list);
 ?>
-<div class="sm-content-wrapper" dir="rtl" style="font-family: 'Cairo', sans-serif !important;">
-    <!-- Standardized header is rendered globally in public-admin-panel.php, so we omit any local headers here -->
+<div class="sm-content-wrapper" dir="rtl" style="font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; color: #1e293b;">
 
     <?php if ($import_results): ?>
-        <div style="background: #fff; border-radius: 12px; border: 1px solid var(--sm-border-color); margin-bottom: 30px; overflow: hidden; box-shadow: var(--sm-shadow);">
-            <div style="background: var(--sm-bg-light); padding: 15px 25px; border-bottom: 1px solid var(--sm-border-color); display: flex; justify-content: space-between; align-items: center;">
-                <h4 style="margin:0; color: var(--sm-dark-color); font-weight: 800;">تقرير استيراد الطلاب الأخير</h4>
-                <span style="font-size: 12px; color: #718096;">إجمالي السجلات المعالجة: <?php echo $import_results['total']; ?></span>
+        <div style="background: #fff; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 24px; overflow: hidden; box-shadow: 0 4px 18px rgba(0,0,0,0.02);">
+            <div style="background: #f8fafc; padding: 16px 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                <h4 style="margin:0; color: #0f172a; font-weight: 800; font-size: 15px;">تقرير استيراد الطلاب الأخير</h4>
+                <span style="font-size: 12px; color: #64748b; font-weight: 700;">إجمالي السجلات المعالجة: <?php echo $import_results['total']; ?></span>
             </div>
-            <div style="padding: 25px;">
-                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 25px;">
-                    <div style="background: #f0fff4; padding: 15px; border-radius: 8px; border: 1px solid #c6f6d5; text-align: center;">
-                        <div style="font-size: 20px; font-weight: 800; color: #2f855a;"><?php echo $import_results['success'] - ($import_results['duplicate'] ?? 0); ?></div>
-                        <div style="font-size: 11px; color: #38a169;">سجلات جديدة</div>
+            <div style="padding: 24px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div style="background: #f0fff4; padding: 14px; border-radius: 12px; border: 1px solid #c6f6d5; text-align: center;">
+                        <div style="font-size: 22px; font-weight: 800; color: #2f855a;"><?php echo $import_results['success'] - ($import_results['duplicate'] ?? 0); ?></div>
+                        <div style="font-size: 11.5px; color: #38a169; font-weight: 700;">سجلات جديدة</div>
                     </div>
-                    <div style="background: #e6fffa; padding: 15px; border-radius: 8px; border: 1px solid #b2f5ea; text-align: center;">
-                        <div style="font-size: 20px; font-weight: 800; color: #2c7a7b;"><?php echo $import_results['generated'] ?? 0; ?></div>
-                        <div style="font-size: 11px; color: #319795;">أكواد تم توليدها</div>
+                    <div style="background: #e6fffa; padding: 14px; border-radius: 12px; border: 1px solid #b2f5ea; text-align: center;">
+                        <div style="font-size: 22px; font-weight: 800; color: #2c7a7b;"><?php echo $import_results['generated'] ?? 0; ?></div>
+                        <div style="font-size: 11.5px; color: #319795; font-weight: 700;">أكواد تم توليدها</div>
                     </div>
-                    <div style="background: #ebf8ff; padding: 15px; border-radius: 8px; border: 1px solid #bee3f8; text-align: center;">
-                        <div style="font-size: 20px; font-weight: 800; color: #2b6cb0;"><?php echo $import_results['duplicate'] ?? 0; ?></div>
-                        <div style="font-size: 11px; color: #3182ce;">سجلات مكررة</div>
+                    <div style="background: #ebf8ff; padding: 14px; border-radius: 12px; border: 1px solid #bee3f8; text-align: center;">
+                        <div style="font-size: 22px; font-weight: 800; color: #2b6cb0;"><?php echo $import_results['duplicate'] ?? 0; ?></div>
+                        <div style="font-size: 11.5px; color: #3182ce; font-weight: 700;">سجلات مكررة</div>
                     </div>
-                    <div style="background: #fffaf0; padding: 15px; border-radius: 8px; border: 1px solid #feebc8; text-align: center;">
-                        <div style="font-size: 20px; font-weight: 800; color: #c05621;"><?php echo $import_results['warning']; ?></div>
-                        <div style="font-size: 11px; color: #dd6b20;">تنبيهات</div>
+                    <div style="background: #fffaf0; padding: 14px; border-radius: 12px; border: 1px solid #feebc8; text-align: center;">
+                        <div style="font-size: 22px; font-weight: 800; color: #c05621;"><?php echo $import_results['warning']; ?></div>
+                        <div style="font-size: 11.5px; color: #dd6b20; font-weight: 700;">تنبيهات</div>
                     </div>
-                    <div style="background: #fff5f5; padding: 15px; border-radius: 8px; border: 1px solid #fed7d7; text-align: center;">
-                        <div style="font-size: 20px; font-weight: 800; color: #c53030;"><?php echo $import_results['error']; ?></div>
-                        <div style="font-size: 11px; color: #e53e3e;">أخطاء</div>
+                    <div style="background: #fff5f5; padding: 14px; border-radius: 12px; border: 1px solid #fed7d7; text-align: center;">
+                        <div style="font-size: 22px; font-weight: 800; color: #c53030;"><?php echo $import_results['error']; ?></div>
+                        <div style="font-size: 11.5px; color: #e53e3e; font-weight: 700;">أخطاء</div>
                     </div>
                 </div>
 
                 <?php if (!empty($import_results['details'])): ?>
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; max-height: 250px; overflow-y: auto;">
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; max-height: 220px; overflow-y: auto;">
                         <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: right;">
                             <thead>
                                 <tr style="background: #edf2f7; position: sticky; top: 0;">
@@ -71,84 +75,177 @@ if ($import_results) {
         </div>
     <?php endif; ?>
 
-    <div style="background: white; padding: 25px; border: 1px solid var(--sm-border-color); border-radius: var(--sm-radius); margin-bottom: 20px; box-shadow: var(--sm-shadow);">
-        <form method="get" style="display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr auto; gap: 15px; align-items: end;">
-            <input type="hidden" name="page" value="<?php echo esc_attr($_GET['page']); ?>">
+    <!-- 1. Header Banner Card (Duplicates Student Discipline Records Design) -->
+    <div style="background: #ffffff; padding: 22px 28px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.02); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <div style="width: 52px; height: 52px; background: #ebf8ff; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: #2563eb; border: 1px solid #bee3f8; flex-shrink: 0;">
+                <svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+            </div>
+            <div>
+                <h2 style="margin: 0 0 4px 0; font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.3px;">
+                    إدارة شؤون الطلاب — Student Affairs
+                </h2>
+                <p style="margin: 0; font-size: 13px; color: #64748b; font-weight: 500;">
+                    المركز الرئيسي لإدارة بيانات الطلاب، الملفات الأكاديمية والشخصية، السجلات المدرسية، واستيراد وتصدير ملفات البيانات المعتمدة
+                </p>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <!-- Export / Print Reports Dropdown -->
+            <div style="position: relative; display: inline-block;">
+                <button type="button" onclick="const d = document.getElementById('eess-students-export-dropdown'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; event.stopPropagation();" class="eess-hdr-btn" style="background: #f8fafc !important; color: #334155 !important; border: 1px solid #cbd5e1 !important; border-radius: 12px; padding: 0 16px; height: 42px; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+                    <svg width="18" height="18" fill="none" stroke="#334155" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    <span style="color: #334155 !important;">تصدير التقارير</span>
+                    <svg width="12" height="12" fill="none" stroke="#334155" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+
+                <div id="eess-students-export-dropdown" style="display: none; position: absolute; left: 0; top: 115%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px; width: 240px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 99999; padding: 6px 0; text-align: right;">
+                    <div style="padding: 6px 16px; font-size: 11px; color: #94a3b8; font-weight: 800; border-bottom: 1px solid #f1f5f9;">تصدير واستيراد البيانات (Excel/CSV)</div>
+                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_export_students_csv&nonce=' . wp_create_nonce('sm_admin_action')); ?>" style="display: block; padding: 10px 16px; color: #334155; font-size: 12px; font-weight: 600; text-decoration: none; border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">📊 تصدير جميع الطلاب (Excel/CSV)</a>
+                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_download_student_import_template'); ?>" target="_blank" style="display: block; padding: 10px 16px; color: #334155; font-size: 12px; font-weight: 600; text-decoration: none; border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">📥 تحميل نموذج الاستيراد الرسمى (11 عمود)</a>
+
+                    <div style="padding: 6px 16px; font-size: 11px; color: #94a3b8; font-weight: 800; border-bottom: 1px solid #f1f5f9;">طباعة البطاقات والتقارير</div>
+                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=id_card'); ?>" target="_blank" style="display: block; padding: 10px 16px; color: #16a34a; font-size: 12px; font-weight: 700; text-decoration: none; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">🖨️ طباعة بطاقات الهوية الأكاديمية</a>
+                </div>
+            </div>
+
+            <!-- Secondary Action: Import -->
+            <button type="button" onclick="const f=document.getElementById('csv-import-form'); f.style.display = f.style.display==='none'?'block':'none';" class="eess-hdr-btn" style="background: #f8fafc !important; color: #334155 !important; border: 1px solid #cbd5e1 !important; border-radius: 12px; padding: 0 16px; height: 42px; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+                <svg width="18" height="18" fill="none" stroke="#334155" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                <span style="color: #334155 !important;">استيراد</span>
+            </button>
+
+            <!-- Primary Action: Add Student -->
+            <?php if ($is_admin): ?>
+            <button type="button" onclick="document.getElementById('add-single-student-modal').style.display='flex'" class="sm-btn sm-btn-custom" style="background: #2563eb; color: #ffffff; border: none; border-radius: 12px; padding: 0 20px; height: 42px; font-weight: 800; font-size: 13.5px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); transition: all 0.2s;" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+                <svg width="18" height="18" fill="none" stroke="#ffffff" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                <span>إضافة طالب جديد</span>
+            </button>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- 2. Search & Filtering Card -->
+    <div style="background: #ffffff; padding: 20px 24px; border: 1px solid #e2e8f0; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
+        <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: end;">
+            <input type="hidden" name="page" value="<?php echo esc_attr($_GET['page'] ?? 'sm-dashboard'); ?>">
             <input type="hidden" name="sm_tab" value="students">
 
-            <div class="sm-form-group" style="margin-bottom:0;">
-                <label class="sm-label" style="font-size:12px; font-weight:bold;">اسم الطالب:</label>
-                <input type="text" name="student_search" class="sm-input" value="<?php echo esc_attr(isset($_GET['student_search']) ? $_GET['student_search'] : ''); ?>" placeholder="بحث بالاسم أو الكود..." style="height:36px; font-size:12px;">
-            </div>
-            
-            <div class="sm-form-group" style="margin-bottom:0;">
-                <label class="sm-label" style="font-size:12px; font-weight:bold;">الصف:</label>
-                <select name="class_filter" class="sm-select" style="height:36px; font-size:12px; padding:0 10px;">
-                    <option value="">كل الصفوف</option>
-                    <?php 
-                    global $wpdb;
-                    $academic = SM_Settings::get_academic_structure();
-                    foreach ($academic['active_grades'] as $grade_num) {
-                        $grade_label = 'الصف ' . $grade_num;
-                        echo '<option value="' . esc_attr($grade_label) . '" ' . selected(isset($_GET['class_filter']) && $_GET['class_filter'] == $grade_label, true, false) . '>' . esc_html($grade_label) . '</option>';
-                    }
-                    ?>
-                </select>
+            <!-- Student Search -->
+            <div>
+                <label style="display: block; margin-bottom: 6px; font-size: 12.5px; font-weight: 700; color: #334155;">
+                    اسم الطالب / الكود
+                </label>
+                <div style="position: relative;">
+                    <input type="text" name="student_search" value="<?php echo esc_attr($_GET['student_search'] ?? ''); ?>" placeholder="بحث بالاسم، الكود، الهوية..." style="width: 100%; height: 42px; padding: 0 38px 0 14px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 13px; outline: none; background: #f8fafc; transition: all 0.2s;" onfocus="this.style.borderColor='#2563eb'; this.style.background='#fff';" onblur="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';">
+                    <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; display: flex; align-items: center;">
+                        <svg width="16" height="16" fill="none" stroke="#94a3b8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </span>
+                </div>
             </div>
 
-            <div class="sm-form-group" style="margin-bottom:0;">
-                <label class="sm-label" style="font-size:12px; font-weight:bold;">الشعبة:</label>
-                <input type="text" name="section_filter" class="sm-input" value="<?php echo esc_attr(isset($_GET['section_filter']) ? $_GET['section_filter'] : ''); ?>" placeholder="مثال: أ" list="existing-sections" style="height:36px; font-size:12px;">
-                <datalist id="existing-sections">
-                    <?php
-                    $sections = $wpdb->get_col("SELECT DISTINCT section FROM {$wpdb->prefix}sm_students WHERE section != '' ORDER BY section ASC");
-                    foreach ($sections as $sec) echo "<option value='".esc_attr($sec)."'>";
-                    ?>
-                </datalist>
+            <!-- Grade Filter -->
+            <div>
+                <label style="display: block; margin-bottom: 6px; font-size: 12.5px; font-weight: 700; color: #334155;">
+                    الصف الدراسي
+                </label>
+                <div style="position: relative;">
+                    <select name="class_filter" style="width: 100%; height: 42px; padding: 0 38px 0 26px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 13px; outline: none; background: #f8fafc; appearance: none; -webkit-appearance: none; cursor: pointer; transition: all 0.2s;" onfocus="this.style.borderColor='#2563eb'; this.style.background='#fff';" onblur="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';">
+                        <option value="">جميع الصفوف</option>
+                        <?php
+                        $academic = SM_Settings::get_academic_structure();
+                        foreach ($academic['active_grades'] as $grade_num) {
+                            $grade_label = 'الصف ' . $grade_num;
+                            echo '<option value="' . esc_attr($grade_label) . '" ' . selected(isset($_GET['class_filter']) && $_GET['class_filter'] == $grade_label, true, false) . '>' . esc_html($grade_label) . '</option>';
+                        }
+                        ?>
+                    </select>
+                    <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; display: flex; align-items: center;">
+                        <svg width="16" height="16" fill="none" stroke="#94a3b8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                    </span>
+                    <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; font-size: 9px;">▼</span>
+                </div>
             </div>
 
-            <div class="sm-form-group" style="margin-bottom:0;">
-                <label class="sm-label" style="font-size:12px; font-weight:bold;">المعلم المربّي:</label>
-                <select name="teacher_filter" class="sm-select" style="height:36px; font-size:12px; padding:0 10px;">
-                    <option value="">كل المعلمين</option>
-                    <?php
-                    $teachers = get_users(array('role' => 'sm_teacher'));
-                    foreach ($teachers as $t) {
-                        echo '<option value="' . $t->ID . '" ' . selected(isset($_GET['teacher_filter']) && $_GET['teacher_filter'] == $t->ID, true, false) . '>' . esc_html($t->display_name) . '</option>';
-                    }
-                    ?>
-                </select>
+            <!-- Section Filter -->
+            <div>
+                <label style="display: block; margin-bottom: 6px; font-size: 12.5px; font-weight: 700; color: #334155;">
+                    الشعبة / الفصل
+                </label>
+                <div style="position: relative;">
+                    <input type="text" name="section_filter" value="<?php echo esc_attr($_GET['section_filter'] ?? ''); ?>" placeholder="مثال: أ" list="existing-sections" style="width: 100%; height: 42px; padding: 0 38px 0 14px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 13px; outline: none; background: #f8fafc; transition: all 0.2s;" onfocus="this.style.borderColor='#2563eb'; this.style.background='#fff';" onblur="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';">
+                    <datalist id="existing-sections">
+                        <?php
+                        $sections = $wpdb->get_col("SELECT DISTINCT section FROM {$wpdb->prefix}sm_students WHERE section != '' ORDER BY section ASC");
+                        foreach ($sections as $sec) echo "<option value='".esc_attr($sec)."'>";
+                        ?>
+                    </datalist>
+                    <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; display: flex; align-items: center;">
+                        <svg width="16" height="16" fill="none" stroke="#94a3b8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    </span>
+                </div>
             </div>
 
-            <button type="submit" class="sm-btn" style="height: 36px; font-size:12px; padding: 0 20px;">تصفية</button>
+            <!-- Teacher Filter -->
+            <div>
+                <label style="display: block; margin-bottom: 6px; font-size: 12.5px; font-weight: 700; color: #334155;">
+                    المعلم المربّي
+                </label>
+                <div style="position: relative;">
+                    <select name="teacher_filter" style="width: 100%; height: 42px; padding: 0 38px 0 26px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 13px; outline: none; background: #f8fafc; appearance: none; -webkit-appearance: none; cursor: pointer; transition: all 0.2s;" onfocus="this.style.borderColor='#2563eb'; this.style.background='#fff';" onblur="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';">
+                        <option value="">جميع المعلمين</option>
+                        <?php
+                        $teachers = get_users(array('role' => 'sm_teacher'));
+                        foreach ($teachers as $t) {
+                            echo '<option value="' . $t->ID . '" ' . selected(isset($_GET['teacher_filter']) && $_GET['teacher_filter'] == $t->ID, true, false) . '>' . esc_html($t->display_name) . '</option>';
+                        }
+                        ?>
+                    </select>
+                    <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; display: flex; align-items: center;">
+                        <svg width="16" height="16" fill="none" stroke="#94a3b8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    </span>
+                    <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; font-size: 9px;">▼</span>
+                </div>
+            </div>
+
+            <!-- Apply Filters Button -->
+            <div>
+                <button type="submit" class="sm-btn" style="background: #2563eb; color: #ffffff; border: none; border-radius: 12px; height: 42px; padding: 0 22px; font-weight: 800; font-size: 13.5px; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); transition: all 0.2s;" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                    <span>تطبيق الفلترة</span>
+                </button>
+            </div>
         </form>
     </div>
 
     <!-- Chunked File Upload Progress Form & Documentation -->
-    <div id="csv-import-form" style="display:none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; margin-bottom: 30px; box-shadow: var(--sm-shadow);">
+    <div id="csv-import-form" style="display:none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 25px; margin-bottom: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px;">
-            <h4 style="margin:0; color:var(--sm-dark-color); font-weight: 800;">استيراد ذكي لملف الطلاب الشامل (Excel / CSV)</h4>
+            <h4 style="margin:0; color:#0f172a; font-weight: 800; font-size: 16px;">استيراد ذكي لملف الطلاب الشامل (Excel / CSV)</h4>
             <a href="<?php echo admin_url('admin-ajax.php?action=sm_download_student_import_template'); ?>" target="_blank" class="sm-btn" style="background: #2563eb; color: white !important; font-size: 11px; padding: 6px 16px; width: auto; height: 32px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
                 📥 تحميل نموذج الاستيراد المعتمد (11 عمود)
             </a>
         </div>
 
-        <p style="font-size:12px; color:#718096; line-height:1.6; margin-bottom:15px;">
+        <p style="font-size:12.5px; color:#64748b; line-height:1.6; margin-bottom:15px;">
             يرجى اختيار ملف الطلاب المعتمد بصيغة CSV/Excel. يدعم النظام بنظام الدفعات (Chunking) لمعالجة الملفات الضخمة وتحديث بيانات الطلاب الحاليين تلقائياً عند مطابقة الكود أو الهوية.
         </p>
 
         <!-- Official Column Structure Documentation Card -->
-        <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
-            <div style="font-size: 12px; font-weight: 800; color: #1e293b; margin-bottom: 10px;">📋 دليل ترتيب أعمدة نموذج الاستيراد الرسمي (الأعمدة من A إلى K):</div>
+        <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+            <div style="font-size: 12.5px; font-weight: 800; color: #1e293b; margin-bottom: 10px;">📋 دليل ترتيب أعمدة نموذج الاستيراد الرسمي (الأعمدة من A إلى K):</div>
             <div style="max-height: 180px; overflow-y: auto;">
-                <table style="width: 100%; border-collapse: collapse; font-size: 11px; text-align: right;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 11.5px; text-align: right;">
                     <thead>
                         <tr style="background: #f1f5f9; position: sticky; top: 0; color: #334155;">
-                            <th style="padding: 6px 10px; border-bottom: 1px solid #cbd5e1; width: 50px;">العمود</th>
-                            <th style="padding: 6px 10px; border-bottom: 1px solid #cbd5e1;">اسم الحقل</th>
-                            <th style="padding: 6px 10px; border-bottom: 1px solid #cbd5e1; width: 90px;">الحالة</th>
-                            <th style="padding: 6px 10px; border-bottom: 1px solid #cbd5e1;">الصيغة التوضيحية</th>
-                            <th style="padding: 6px 10px; border-bottom: 1px solid #cbd5e1;">مثال</th>
+                            <th style="padding: 8px 10px; border-bottom: 1px solid #cbd5e1; width: 50px;">العمود</th>
+                            <th style="padding: 8px 10px; border-bottom: 1px solid #cbd5e1;">اسم الحقل</th>
+                            <th style="padding: 8px 10px; border-bottom: 1px solid #cbd5e1; width: 90px;">الحالة</th>
+                            <th style="padding: 8px 10px; border-bottom: 1px solid #cbd5e1;">الصيغة التوضيحية</th>
+                            <th style="padding: 8px 10px; border-bottom: 1px solid #cbd5e1;">مثال</th>
                         </tr>
                     </thead>
                     <tbody style="color: #475569;">
@@ -178,88 +275,173 @@ if ($import_results) {
                 <span id="import-percentage">0%</span>
             </div>
             <div style="background:#edf2f7; border-radius:50px; height:12px; overflow:hidden;">
-                <div id="import-progress-bar" style="background:var(--sm-primary-color); width:0%; height:100%; transition:0.3s;"></div>
+                <div id="import-progress-bar" style="background:#2563eb; width:0%; height:100%; transition:0.3s;"></div>
             </div>
         </div>
     </div>
 
     <!-- Dynamic Bulk Actions Toolbar (initially hidden, shows ONLY when checkboxes are checked) -->
-    <div id="student-bulk-actions-toolbar" style="display: none; gap: 10px; margin-bottom: 15px; align-items: center; background: #f8fafc; padding: 10px 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
-        <span style="font-size: 12px; font-weight: 700; color: #4a5568;">الإجراءات الجماعية للطلاب المحددين:</span>
-        <button onclick="bulkDeleteSelected()" class="sm-btn" style="background: #e53e3e; font-size: 11px; padding: 5px 15px; width: auto; height: 28px;">حذف المحدد</button>
+    <div id="student-bulk-actions-toolbar" style="display: none; gap: 10px; margin-bottom: 15px; align-items: center; background: #fff5f5; padding: 12px 20px; border-radius: 12px; border: 1px solid #fed7d7;">
+        <span style="font-size: 12.5px; font-weight: 700; color: #c53030;">الإجراءات الجماعية للطلاب المحددين:</span>
+        <button onclick="bulkDeleteSelected()" class="sm-btn" style="background: #dc2626; font-size: 11.5px; padding: 5px 16px; width: auto; height: 32px; border-radius: 8px;">حذف المحدد نهائياً</button>
     </div>
 
-    <div class="sm-table-container">
-        <table class="sm-table">
-            <thead>
-                <tr>
-                    <th style="width: 40px; text-align: center;"><input type="checkbox" onclick="toggleAllStudents(this)"></th>
-                    <th>الكود الأكاديمي</th>
-                    <th>اسم الطالب الكامل</th>
-                    <th>الصف الدراسي</th>
-                    <th>المعلم المربّي</th>
-                    <th>النقاط</th>
-                    <th style="text-align: left;">الإجراءات</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($students)): ?>
-                    <tr>
-                        <td colspan="7" style="text-align: center; color: var(--sm-text-gray); padding: 40px;">لا يوجد طلاب يطابقون شروط البحث حالياً.</td>
+    <!-- 3. Records Table Card -->
+    <div style="background: #ffffff; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0,0,0,0.02); overflow: hidden; margin-bottom: 24px;">
+
+        <!-- Table Top Control Bar -->
+        <div style="padding: 18px 24px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; background: #ffffff;">
+            <!-- Left Header Info -->
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-weight: 800; font-size: 15px; color: #0f172a;">قائمة الطلاب المسجلين</span>
+                <span style="display: inline-flex; align-items: center; padding: 4px 12px; background: #ebf8ff; color: #2563eb; border-radius: 12px; font-size: 12px; font-weight: 800;">
+                    <?php echo $total_students_count; ?> طالب
+                </span>
+            </div>
+
+            <!-- Right Info -->
+            <div style="font-size: 12.5px; color: #64748b; font-weight: 600;">
+                السجلات الأكاديمية والشخصية المعتمدة
+            </div>
+        </div>
+
+        <!-- Table Responsive Wrapper -->
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: separate; border-spacing: 0; text-align: right;">
+                <thead>
+                    <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                        <th style="width: 40px; text-align: center; padding: 14px 10px; border-bottom: 2px solid #e2e8f0;"><input type="checkbox" onclick="toggleAllStudents(this)"></th>
+                        <th style="padding: 14px 18px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0; width: 30%;">بيانات الطالب والهوية</th>
+                        <th style="padding: 14px 18px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0; width: 22%;">التسكين الأكاديمي والمدرسة</th>
+                        <th style="padding: 14px 18px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0; width: 18%;">المعلم المربّي</th>
+                        <th style="padding: 14px 18px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0; text-align: center; width: 10%;">النقاط السلوكية</th>
+                        <th style="padding: 14px 18px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0; text-align: center; width: 20%;">الإجراءات والخيارات</th>
                     </tr>
-                <?php else: ?>
-                    <?php foreach ($students as $student): ?>
-                        <tr id="stu-row-<?php echo $student->id; ?>">
-                            <td style="text-align: center;"><input type="checkbox" class="student-checkbox" value="<?php echo $student->id; ?>" onchange="updateStudentBulkToolbar()"></td>
-                            <td style="font-family: 'Rubik', sans-serif; font-weight: 700; color: var(--sm-primary-color);"><?php echo esc_html($student->student_code); ?></td>
-                            <td>
-                                <div style="display:flex; align-items:center; gap:10px;">
-                                    <?php if ($student->photo_url): ?>
-                                        <img src="<?php echo esc_url($student->photo_url); ?>" style="width: 40px; height: 40px; border-radius: 50% !important; object-fit: cover; border: 2px solid var(--sm-border-color);">
-                                    <?php else: ?>
-                                        <div style="background:#f1f5f9; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#cbd5e1; border:1px solid #e2e8f0;">
-                                            <span class="dashicons dashicons-admin-users" style="font-size:20px; width:20px; height:20px;"></span>
-                                        </div>
-                                    <?php endif; ?>
-                                    <div>
-                                        <div style="font-weight: 800; font-size:13px;"><?php echo esc_html($student->name); ?></div>
-                                        <div style="font-size: 11px; color:#718096;"><?php echo esc_html($student->parent_email); ?></div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div style="font-weight: 700; font-size:13px;"><?php echo esc_html(SM_Settings::format_grade_name($student->class_name, $student->section)); ?></div>
-                                <?php if (!empty($student->nationality)): ?>
-                                    <div style="font-size: 10px; color: #a0aec0;"><?php echo esc_html($student->nationality); ?></div>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <?php
-                                $teacher = $student->teacher_id ? get_userdata($student->teacher_id) : null;
-                                echo $teacher ? esc_html($teacher->display_name) : '<span style="color:#cbd5e1; font-style:italic;">غير معيّن</span>';
-                                ?>
-                            </td>
-                            <td>
-                                <span class="sm-badge <?php echo $student->behavior_points > 10 ? 'sm-badge-high' : ($student->behavior_points > 4 ? 'sm-badge-medium' : 'sm-badge-low'); ?>" style="font-size:11px; font-weight:800;">
-                                    <?php echo intval($student->behavior_points); ?> نقطة
-                                </span>
-                            </td>
-                            <td>
-                                <div style="display: flex; gap: 6px; justify-content: flex-end;">
-                                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_print_student_full_report&student_id=' . $student->id); ?>" target="_blank" class="sm-btn" style="background: #16a34a; color: white !important; font-size: 11px; padding: 4px 10px; width: auto; height: 28px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">🖨️ التقرير الشامل</a>
-                                    <button onclick="viewSmStudent(<?php echo htmlspecialchars(json_encode($student)); ?>)" class="sm-btn" style="background:var(--sm-secondary-color); font-size:11px; padding: 4px 10px; width: auto; height: 28px;">الملف السلوكي</button>
-                                    <?php if ($is_admin): ?>
-                                        <button onclick="showStudentCreds('<?php echo esc_js($student->student_code); ?>', '<?php echo esc_js(get_user_meta($student->parent_user_id, 'sm_temp_pass', true)); ?>', '<?php echo esc_js($student->name); ?>', <?php echo $student->id; ?>)" class="sm-btn" style="background:#2d3748; font-size:11px; padding: 4px 10px; width: auto; height: 28px;">حساب الدخول</button>
-                                        <button onclick='editSmStudent(<?php echo json_encode($student); ?>)' class="sm-btn" style="background:#2563eb; color:#ffffff !important; font-size:11px; padding: 4px 10px; width: auto; height: 28px; font-weight:700;">تعديل الطالب</button>
-                                        <button onclick="confirmDeleteStudent(<?php echo $student->id; ?>, '<?php echo esc_js($student->name); ?>')" class="sm-btn" style="background:#e53e3e; font-size:11px; padding: 4px 10px; width: auto; height: 28px;">حذف</button>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
+                </thead>
+                <tbody>
+                    <?php if (empty($students_list)): ?>
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: #94a3b8; padding: 50px 20px; font-weight: 700;">لا يوجد طلاب يطابقون شروط البحث حالياً في قاعدة البيانات.</td>
                         </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                    <?php else: ?>
+                        <?php foreach ($students_list as $student): ?>
+                            <tr id="stu-row-<?php echo $student->id; ?>" style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                                <td style="text-align: center; padding: 14px 10px;"><input type="checkbox" class="student-checkbox" value="<?php echo $student->id; ?>" onchange="updateStudentBulkToolbar()"></td>
+
+                                <!-- Student Cell (Matching Discipline Design with Circular Image, Name, Code & National ID Badges) -->
+                                <td style="padding: 14px 18px;">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <?php if (!empty($student->photo_url)): ?>
+                                            <img src="<?php echo esc_url($student->photo_url); ?>" style="width: 44px; height: 44px; border-radius: 50% !important; object-fit: cover; border: 2px solid #e2e8f0; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                                        <?php else: ?>
+                                            <div style="background: #f1f5f9; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #94a3b8; border: 1px solid #e2e8f0; font-size: 20px;">
+                                                👤
+                                            </div>
+                                        <?php endif; ?>
+                                        <div style="line-height: 1.4;">
+                                            <div style="font-weight: 800; font-size: 14px; color: #0f172a;"><?php echo esc_html($student->name); ?></div>
+                                            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap;">
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; background: #e0f2fe; color: #0369a1; border-radius: 6px; font-size: 10.5px; font-weight: 800; font-family: monospace;">
+                                                    كود: <?php echo esc_html($student->student_code); ?>
+                                                </span>
+                                                <?php if (!empty($student->national_id)): ?>
+                                                    <span style="display: inline-flex; align-items: center; padding: 2px 8px; background: #f1f5f9; color: #475569; border-radius: 6px; font-size: 10.5px; font-weight: 700; font-family: monospace;">
+                                                        هوية: <?php echo esc_html($student->national_id); ?>
+                                                    </span>
+                                                <?php endif; ?>
+                                                <?php if (!empty($student->nationality)): ?>
+                                                    <span style="display: inline-flex; align-items: center; padding: 2px 6px; background: #fef3c7; color: #92400e; border-radius: 6px; font-size: 10px; font-weight: 700;">
+                                                        <?php echo esc_html($student->nationality); ?>
+                                                    </span>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Placement Cell -->
+                                <td style="padding: 14px 18px;">
+                                    <div style="font-weight: 700; font-size: 12.5px; color: #334155; margin-bottom: 4px;">
+                                        <?php echo esc_html($student->school_name ?? 'المدرسة الرئيسية'); ?>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; background: #f1f5f9; color: #334155; border-radius: 6px; font-size: 11px; font-weight: 800;">
+                                            <?php echo esc_html($student->class_name); ?>
+                                        </span>
+                                        <?php if (!empty($student->section)): ?>
+                                            <span style="display: inline-flex; align-items: center; padding: 2px 8px; background: #e2e8f0; color: #0f172a; border-radius: 6px; font-size: 11px; font-weight: 800;">
+                                                شعبة <?php echo esc_html($student->section); ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+
+                                <!-- Teacher Cell -->
+                                <td style="padding: 14px 18px;">
+                                    <?php
+                                    $teacher = $student->teacher_id ? get_userdata($student->teacher_id) : null;
+                                    if ($teacher): ?>
+                                        <div style="font-weight: 700; font-size: 12.5px; color: #0f172a;"><?php echo esc_html($teacher->display_name); ?></div>
+                                        <div style="font-size: 11px; color: #94a3b8;"><?php echo esc_html($teacher->user_email); ?></div>
+                                    <?php else: ?>
+                                        <span style="color: #cbd5e1; font-style: italic; font-size: 12px;">غير معيّن</span>
+                                    <?php endif; ?>
+                                </td>
+
+                                <!-- Behavior Points Cell -->
+                                <td style="padding: 14px 18px; text-align: center;">
+                                    <span style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 800; background: <?php echo $student->behavior_points > 10 ? '#fee2e2' : ($student->behavior_points > 4 ? '#fef3c7' : '#dcfce7'); ?>; color: <?php echo $student->behavior_points > 10 ? '#dc2626' : ($student->behavior_points > 4 ? '#d97706' : '#15803d'); ?>;">
+                                        <?php echo intval($student->behavior_points); ?> نقطة
+                                    </span>
+                                </td>
+
+                                <!-- Standardized Circular Action Buttons (WhatsApp, Print, Edit, Delete, Details) -->
+                                <td style="padding: 14px 18px; text-align: center;">
+                                    <div style="display: flex; items-center; justify-content: center; gap: 6px;">
+                                        <!-- Report PDF Button -->
+                                        <a href="<?php echo admin_url('admin-ajax.php?action=sm_print_student_full_report&student_id=' . $student->id); ?>" target="_blank" title="التقرير الشامل (PDF)" style="width: 36px; height: 36px; border-radius: 50%; background: #dcfce7; color: #16a34a; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                            🖨️
+                                        </a>
+
+                                        <!-- Behavioral Profile Drawer -->
+                                        <button type="button" onclick="viewSmStudent(<?php echo htmlspecialchars(json_encode($student)); ?>)" title="الملف السلوكي والتحليلي" style="width: 36px; height: 36px; border-radius: 50%; background: #e0f2fe; color: #0284c7; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                            📋
+                                        </button>
+
+                                        <?php if ($is_admin): ?>
+                                            <!-- Credentials Button -->
+                                            <button type="button" onclick="showStudentCreds('<?php echo esc_js($student->student_code); ?>', '<?php echo esc_js(get_user_meta($student->parent_user_id, 'sm_temp_pass', true)); ?>', '<?php echo esc_js($student->name); ?>', <?php echo $student->id; ?>)" title="حساب الدخول الأكاديمي" style="width: 36px; height: 36px; border-radius: 50%; background: #f1f5f9; color: #334155; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                                🔑
+                                            </button>
+
+                                            <!-- Edit Student Button -->
+                                            <button type="button" onclick='editSmStudent(<?php echo json_encode($student); ?>)' title="تعديل الطالب" style="width: 36px; height: 36px; border-radius: 50%; background: #dbeafe; color: #2563eb; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                                ✏️
+                                            </button>
+
+                                            <!-- Delete Student Button -->
+                                            <button type="button" onclick="confirmDeleteStudent(<?php echo $student->id; ?>, '<?php echo esc_js($student->name); ?>')" title="حذف الطالب نهائياً" style="width: 36px; height: 36px; border-radius: 50%; background: #fee2e2; color: #dc2626; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                                🗑️
+                                            </button>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer Info -->
+        <div style="padding: 16px 24px; border-top: 1px solid #f1f5f9; background: #ffffff; display: flex; align-items: center; justify-content: space-between;">
+            <div style="font-size: 13px; color: #64748b; font-weight: 600;">
+                عرض إجمالي <span style="color: #0f172a; font-weight: 800;"><?php echo $total_students_count; ?></span> طالب في المنظومة
+            </div>
+            <div style="font-size: 12px; color: #94a3b8; font-weight: 600;">
+                تاريخ المزامنة: <?php echo date('Y-m-d'); ?>
+            </div>
+        </div>
     </div>
 
     <!-- ADD STUDENT MODAL -->
@@ -425,8 +607,6 @@ if ($import_results) {
         document.getElementById('edit-next-btn').style.display = stepNum < 3 ? 'inline-flex' : 'none';
         document.getElementById('edit-submit-btn').style.display = stepNum === 3 ? 'inline-flex' : 'none';
     }
-    function prevStepVal() { return currentEditStep - 1; }
-    function nextStepVal() { return currentEditStep + 1; }
 
     function updateStudentBulkToolbar() {
         const selected = document.querySelectorAll('.student-checkbox:checked').length;
@@ -524,6 +704,14 @@ if ($import_results) {
     }
 
     (function() {
+        // Close export dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('eess-students-export-dropdown');
+            if (dropdown && dropdown.style.display === 'block') {
+                dropdown.style.display = 'none';
+            }
+        });
+
         // Show Credentials
         window.showStudentCreds = function(user, pass, name, id) {
             document.getElementById('cred-username').innerText = user;
@@ -637,7 +825,6 @@ if ($import_results) {
         }
 
         // Override editSmStudent default handler to incorporate Wizard reset
-        const originalEditSmStudent = window.editSmStudent;
         window.editSmStudent = function(s) {
             document.getElementById('edit_stu_id').value = s.id;
             document.getElementById('edit_stu_name').value = s.name;
