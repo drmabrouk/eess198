@@ -1097,4 +1097,22 @@ class SM_DB {
 
         return false;
     }
+
+    public static function get_schools() {
+        if (class_exists('EESS_Org_Helper')) {
+            return EESS_Org_Helper::get_schools();
+        }
+        global $wpdb;
+        return $wpdb->get_results("SELECT * FROM {$wpdb->prefix}eess_schools ORDER BY name ASC");
+    }
+
+    public static function get_confiscated_items() {
+        global $wpdb;
+        return $wpdb->get_results("SELECT * FROM {$wpdb->prefix}sm_records WHERE confiscated_item != '' AND confiscated_item IS NOT NULL ORDER BY incident_date DESC");
+    }
+
+    public static function get_expired_items_count() {
+        global $wpdb;
+        return (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sm_records WHERE confiscated_item != '' AND confiscated_item IS NOT NULL AND status = 'expired'");
+    }
 }
