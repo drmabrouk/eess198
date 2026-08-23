@@ -283,8 +283,43 @@ class SM_Activator {
             KEY status (status)
         ) $charset_collate;";
 
+        // System Announcements Table
+        $sql_announcements = "CREATE TABLE {$wpdb->prefix}sm_system_announcements (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            title varchar(255) NOT NULL,
+            details text NOT NULL,
+            target_roles text NOT NULL,
+            type varchar(50) DEFAULT 'info' NOT NULL,
+            display_duration int(11) DEFAULT 10 NOT NULL,
+            display_frequency int(11) DEFAULT 1 NOT NULL,
+            is_welcome int(11) DEFAULT 0 NOT NULL,
+            status varchar(20) DEFAULT 'active' NOT NULL,
+            created_by bigint(20) NOT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            PRIMARY KEY  (id),
+            KEY status (status)
+        ) $charset_collate;";
+
+        // User Announcement Activity Logs Table
+        $sql_user_announcements = "CREATE TABLE {$wpdb->prefix}sm_user_announcements (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            announcement_id bigint(20) NOT NULL,
+            user_id bigint(20) NOT NULL,
+            status varchar(20) DEFAULT 'pending' NOT NULL,
+            view_count int(11) DEFAULT 0 NOT NULL,
+            viewed_at datetime DEFAULT NULL,
+            closed_at datetime DEFAULT NULL,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+            PRIMARY KEY  (id),
+            KEY announcement_id (announcement_id),
+            KEY user_id (user_id),
+            KEY status (status)
+        ) $charset_collate;";
+
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
+        dbDelta($sql_announcements);
+        dbDelta($sql_user_announcements);
 
         self::add_custom_roles();
         self::seed_demo_data();

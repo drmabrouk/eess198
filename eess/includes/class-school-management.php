@@ -130,6 +130,14 @@ class School_Management {
         $this->loader->add_action('wp_ajax_nopriv_sm_submit_mobile_lesson', $plugin_public, 'ajax_submit_mobile_lesson');
         $this->loader->add_action('wp_ajax_sm_submit_mobile_lesson', $plugin_public, 'ajax_submit_mobile_lesson');
 
+        // System Announcements & Notifications AJAX actions
+        $this->loader->add_action('wp_ajax_sm_create_system_announcement', $plugin_public, 'ajax_create_system_announcement');
+        $this->loader->add_action('wp_ajax_sm_get_pending_announcements', $plugin_public, 'ajax_get_pending_announcements');
+        $this->loader->add_action('wp_ajax_nopriv_sm_get_pending_announcements', $plugin_public, 'ajax_get_pending_announcements');
+        $this->loader->add_action('wp_ajax_sm_mark_announcement_viewed', $plugin_public, 'ajax_mark_announcement_viewed');
+        $this->loader->add_action('wp_ajax_sm_mark_announcement_closed', $plugin_public, 'ajax_mark_announcement_closed');
+        $this->loader->add_action('wp_ajax_sm_reset_user_announcement', $plugin_public, 'ajax_reset_user_announcement');
+
         // Term & Annual Plans AJAX actions
         $this->loader->add_action('wp_ajax_sm_save_term_plan', $plugin_public, 'ajax_save_term_plan');
         $this->loader->add_action('wp_ajax_sm_review_term_plan', $plugin_public, 'ajax_review_term_plan');
