@@ -1505,19 +1505,52 @@ class SM_Public {
             </div>
         </div>
 
-        <!-- Forgot Password Modal Overhaul -->
+        <!-- Multi-Step Password Recovery Modal Without OTP -->
+        ' . (function() {
+            $schools_list = SM_DB::get_schools();
+            $subjects_list = SM_DB::get_subjects();
+            $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $subjects_list));
+            $nationalities = array('إماراتي', 'سعودي', 'مصري', 'أردني', 'سوري', 'عماني', 'كويتي', 'بحريني', 'قطري', 'عراقي', 'يمني', 'سوداني', 'مغربي', 'جزائري', 'تونسية', 'لبناني', 'فلسطيني', 'جنسية أخرى');
+
+            $schools_options = '';
+            foreach ($schools_list as $sch) {
+                $schools_options .= '<option value="' . esc_attr($sch->name) . '">' . esc_html($sch->name) . '</option>';
+            }
+
+            $subject_options = '';
+            foreach ($unique_subjects as $subj) {
+                $subject_options .= '<option value="' . esc_attr($subj) . '">' . esc_html($subj) . '</option>';
+            }
+
+            $nationality_options = '';
+            foreach ($nationalities as $nat) {
+                $nationality_options .= '<option value="' . esc_attr($nat) . '">' . esc_html($nat) . '</option>';
+            }
+
+            return '
         <div id="eess-forgot-modal" class="eess-modal-overlay">
-            <div class="eess-modal-dialog">
+            <div class="eess-modal-dialog" style="max-width: 500px;">
                 <div class="eess-modal-header">
-                    <h3>استعادة كلمة المرور الآمنة</h3>
+                    <h3>التحقق من الهوية وإعادة تعيين كلمة المرور</h3>
                     <button type="button" class="eess-modal-close" onclick="eessCloseForgotModal()">&times;</button>
                 </div>
                 <div class="eess-modal-body">
+                    <!-- Progress Bar Header -->
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 6px;">
+                            <span id="eess-forgot-step-label">الخطوة 1 من 8: البريد الإلكتروني</span>
+                            <span id="eess-forgot-step-pct">12%</span>
+                        </div>
+                        <div style="background: #e2e8f0; height: 6px; border-radius: 50px; overflow: hidden;">
+                            <div id="eess-forgot-progress-bar" style="background: #2563eb; width: 12.5%; height: 100%; transition: width 0.3s ease;"></div>
+                        </div>
+                    </div>
+
                     <div id="eess-forgot-msg" class="eess-modal-msg"></div>
 
-                    <!-- Step 1: Enter Email -->
+                    <!-- Step 1: Email -->
                     <div id="eess-forgot-step-1" class="eess-wizard-step active">
-                        <p style="font-size: 13px; color: #64748b; margin-bottom: 20px; line-height: 1.6;">يرجى كتابة بريدك الإلكتروني المسجل في النظام وسوف نرسل لك رمز تحقق آمن (OTP) مكون من 6 أرقام لتأكيد الهوية وتحديث كلمة المرور.</p>
+                        <p style="font-size: 13px; color: #64748b; margin-bottom: 15px; line-height: 1.6;">الخطوة الأولى: أدخل البريد الإلكتروني المعتمد والمثبت بحسابك في النظام.</p>
                         <div class="eess-form-group">
                             <div class="eess-float-container">
                                 <input type="email" id="eess-forgot-email" class="eess-float-input" placeholder=" ">
@@ -1525,44 +1558,135 @@ class SM_Public {
                             </div>
                         </div>
                         <div style="display: flex; justify-content: flex-end; margin-top: 15px;">
-                            <button type="button" onclick="eessSendForgotOTP()" class="eess-btn-login" style="width: auto; min-width: 140px; height: 36px; padding: 0 18px; font-size: 0.85rem;">إرسال رمز OTP</button>
+                            <button type="button" onclick="eessNextForgotStep(2)" class="eess-btn-login" style="width: auto; height: 38px; padding: 0 20px; font-size: 0.85rem;">المتابعة للخطوة التالية &larr;</button>
                         </div>
                     </div>
 
-                    <!-- Step 2: Enter OTP -->
+                    <!-- Step 2: Employee ID -->
                     <div id="eess-forgot-step-2" class="eess-wizard-step">
-                        <p style="font-size: 13px; color: #64748b; margin-bottom: 20px; line-height: 1.6;">تم إرسال رمز التحقق بنجاح. يرجى مراجعة بريدك الإلكتروني وإدخال الرمز المكون من 6 أرقام بالأسفل لتأكيد هويتك.</p>
+                        <p style="font-size: 13px; color: #64748b; margin-bottom: 15px; line-height: 1.6;">الخطوة الثانية: أدخل الرقم الوظيفي / رقم الموظف الخاص بك المسجل بالنظام.</p>
                         <div class="eess-form-group">
                             <div class="eess-float-container">
-                                <input type="text" id="eess-forgot-otp" class="eess-float-input" placeholder=" " maxlength="6" style="text-align: center; letter-spacing: 6px; font-size: 20px;">
-                                <label for="eess-forgot-otp" class="eess-float-label">رمز التحقق (OTP) *</label>
+                                <input type="text" id="eess-forgot-empid" class="eess-float-input" placeholder=" ">
+                                <label for="eess-forgot-empid" class="eess-float-label">الرقم الوظيفي / Job Number *</label>
                             </div>
                         </div>
-                        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
-                            <button type="button" onclick="eessGoToForgotStep(1)" class="eess-btn-reset-pwd" style="width: auto; min-width: 90px; height: 36px; padding: 0 16px; font-size: 0.85rem; background-color: #8b1e1e !important;">السابق</button>
-                            <button type="button" onclick="eessVerifyForgotOTP()" class="eess-btn-login" style="width: auto; min-width: 120px; height: 36px; padding: 0 18px; font-size: 0.85rem;">تحقق وتأكيد</button>
+                        <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                            <button type="button" onclick="eessPrevForgotStep(1)" class="eess-btn-reset-pwd" style="width: auto; height: 38px; padding: 0 16px; font-size: 0.85rem; background: #64748b !important;">&rarr; السابق</button>
+                            <button type="button" onclick="eessNextForgotStep(3)" class="eess-btn-login" style="width: auto; height: 38px; padding: 0 20px; font-size: 0.85rem;">المتابعة للخطوة التالية &larr;</button>
                         </div>
                     </div>
 
-                    <!-- Step 3: Enter New Password -->
+                    <!-- Step 3: Institution / School -->
                     <div id="eess-forgot-step-3" class="eess-wizard-step">
-                        <div style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                            <h4 id="eess-forgot-welcome-msg" style="margin: 0; color: #000000; font-weight: 800; font-size: 14px;">أهلاً بك!</h4>
-                            <p style="margin: 5px 0 0 0; font-size: 12px; color: #64748b; line-height: 1.6;">تم تأكيد هويتك بنجاح. يرجى إدخال كلمة المرور الجديدة وتأكيدها لحفظ التغييرات والدخول المباشر للمنصة.</p>
+                        <p style="font-size: 13px; color: #64748b; margin-bottom: 15px; line-height: 1.6;">الخطوة الثالثة: اختر اسم المؤسسة أو المدرسة التي تعمل بها بجدول النظام.</p>
+                        <div class="eess-form-group">
+                            <select id="eess-forgot-institution" class="eess-float-input" style="height: 44px; padding: 0 12px; font-size: 13px; font-weight: 700;">
+                                <option value="">-- اختر المدرسة / المؤسسة --</option>
+                                <option value="خدمات الأنظمة الإلكترونية التعليمية (EESS)">خدمات الأنظمة الإلكترونية التعليمية (EESS)</option>
+                                ' . $schools_options . '
+                            </select>
                         </div>
-                        <div style="display: flex; gap: 12px; margin-bottom: 16px;">
-                            <div class="eess-form-group" style="flex: 1; margin-bottom: 0;">
+                        <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                            <button type="button" onclick="eessPrevForgotStep(2)" class="eess-btn-reset-pwd" style="width: auto; height: 38px; padding: 0 16px; font-size: 0.85rem; background: #64748b !important;">&rarr; السابق</button>
+                            <button type="button" onclick="eessNextForgotStep(4)" class="eess-btn-login" style="width: auto; height: 38px; padding: 0 20px; font-size: 0.85rem;">المتابعة للخطوة التالية &larr;</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Nationality -->
+                    <div id="eess-forgot-step-4" class="eess-wizard-step">
+                        <p style="font-size: 13px; color: #64748b; margin-bottom: 15px; line-height: 1.6;">الخطوة الرابعة: اختر جنسيتك المسجلة بملفك الأكاديمي.</p>
+                        <div class="eess-form-group">
+                            <select id="eess-forgot-nationality" class="eess-float-input" style="height: 44px; padding: 0 12px; font-size: 13px; font-weight: 700;">
+                                <option value="">-- اختر الجنسية --</option>
+                                ' . $nationality_options . '
+                            </select>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                            <button type="button" onclick="eessPrevForgotStep(3)" class="eess-btn-reset-pwd" style="width: auto; height: 38px; padding: 0 16px; font-size: 0.85rem; background: #64748b !important;">&rarr; السابق</button>
+                            <button type="button" onclick="eessNextForgotStep(5)" class="eess-btn-login" style="width: auto; height: 38px; padding: 0 20px; font-size: 0.85rem;">المتابعة للخطوة التالية &larr;</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Role -->
+                    <div id="eess-forgot-step-5" class="eess-wizard-step">
+                        <p style="font-size: 13px; color: #64748b; margin-bottom: 15px; line-height: 1.6;">الخطوة الخامسة: اختر الرتبة الوظيفية الخاصة بك بالنظام.</p>
+                        <div class="eess-form-group">
+                            <select id="eess-forgot-role" class="eess-float-input" onchange="eessCheckRoleSubjectNeed()" style="height: 44px; padding: 0 12px; font-size: 13px; font-weight: 700;">
+                                <option value="">-- اختر الرتبة الوظيفية --</option>
+                                <option value="sm_teacher">معلم (Teacher)</option>
+                                <option value="sm_coordinator">منسق مادة (Subject Coordinator)</option>
+                                <option value="sm_hod">رئيس قسم (Department Head)</option>
+                                <option value="sm_supervisor">مشرف تربوي (Educational Supervisor)</option>
+                                <option value="sm_principal">مدير المدرسة (School Manager)</option>
+                                <option value="sm_discipline_supervisor">مشرف سلوك / انضباط</option>
+                                <option value="sm_activities_supervisor">مشرف أنشطة</option>
+                                <option value="sm_transportation_supervisor">مشرف نقل ومواصلات</option>
+                                <option value="sm_system_admin">مدير النظام (System Admin)</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                            <button type="button" onclick="eessPrevForgotStep(4)" class="eess-btn-reset-pwd" style="width: auto; height: 38px; padding: 0 16px; font-size: 0.85rem; background: #64748b !important;">&rarr; السابق</button>
+                            <button type="button" onclick="eessNextForgotStep(6)" class="eess-btn-login" style="width: auto; height: 38px; padding: 0 20px; font-size: 0.85rem;">المتابعة للخطوة التالية &larr;</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 6: Subject (Auto-skipped if not applicable) -->
+                    <div id="eess-forgot-step-6" class="eess-wizard-step">
+                        <p style="font-size: 13px; color: #64748b; margin-bottom: 15px; line-height: 1.6;">الخطوة السادسة: حدد المادة الدراسية المسندة لتدريسها.</p>
+                        <div class="eess-form-group">
+                            <select id="eess-forgot-subject" class="eess-float-input" style="height: 44px; padding: 0 12px; font-size: 13px; font-weight: 700;">
+                                <option value="">-- اختر المادة الدراسية --</option>
+                                ' . $subject_options . '
+                            </select>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                            <button type="button" onclick="eessPrevForgotStep(5)" class="eess-btn-reset-pwd" style="width: auto; height: 38px; padding: 0 16px; font-size: 0.85rem; background: #64748b !important;">&rarr; السابق</button>
+                            <button type="button" onclick="eessNextForgotStep(7)" class="eess-btn-login" style="width: auto; height: 38px; padding: 0 20px; font-size: 0.85rem;">المتابعة للخطوة التالية &larr;</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 7: Date of Birth -->
+                    <div id="eess-forgot-step-7" class="eess-wizard-step">
+                        <p style="font-size: 13px; color: #64748b; margin-bottom: 15px; line-height: 1.6;">الخطوة السابعة: أدخل تاريخ الميلاد الخاص بك المكتوب بسجلك الرسمي.</p>
+                        <div class="eess-form-group">
+                            <input type="date" id="eess-forgot-dob" class="eess-float-input" style="height: 44px; padding: 0 12px; font-size: 13px; font-weight: 700;">
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                            <button type="button" onclick="eessPrevForgotStep(6)" class="eess-btn-reset-pwd" style="width: auto; height: 38px; padding: 0 16px; font-size: 0.85rem; background: #64748b !important;">&rarr; السابق</button>
+                            <button type="button" onclick="eessVerifyIdentityFull()" id="btn-verify-identity" class="eess-btn-login" style="width: auto; height: 38px; padding: 0 20px; font-size: 0.85rem; background: #16a34a !important;">التحقق الأمني من الهوية &larr;</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 8: Create New Password -->
+                    <div id="eess-forgot-step-8" class="eess-wizard-step">
+                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+                            <h4 id="eess-forgot-welcome-msg" style="margin: 0; color: #166534; font-weight: 800; font-size: 13px;">تم تأكيد الهوية بنجاح!</h4>
+                            <p style="margin: 4px 0 0 0; font-size: 11px; color: #15803d; line-height: 1.5;">أنشئ كلمة المرور الجديدة لتسجيل دخولك التلقائي المباشر للنظام.</p>
+                        </div>
+
+                        <!-- Live Password Rules List -->
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; margin-bottom: 15px; font-size: 11px;">
+                            <div style="font-weight: 800; color: #334155; margin-bottom: 4px;">شروط كلمة المرور المطلوبة:</div>
+                            <div id="pwd-rule-len" style="color: #64748b;">• الطول بين 8 و 40 خانة</div>
+                            <div id="pwd-rule-upper" style="color: #64748b;">• حرف إنجليزي كبير (A-Z) واحد على الأقل</div>
+                            <div id="pwd-rule-lower" style="color: #64748b;">• حرف إنجليزي صغير (a-z) واحد على الأقل</div>
+                            <div id="pwd-rule-num" style="color: #64748b;">• رقم (0-9) واحد على الأقل</div>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px;">
+                            <div class="eess-form-group" style="margin-bottom: 0;">
                                 <div class="eess-float-container eess-password-wrapper">
-                                    <input type="password" id="eess-forgot-pass" class="eess-float-input" placeholder=" ">
+                                    <input type="password" id="eess-forgot-pass" class="eess-float-input" placeholder=" " maxlength="40" oninput="eessLiveCheckPassword()">
                                     <label for="eess-forgot-pass" class="eess-float-label">كلمة المرور الجديدة *</label>
                                     <button type="button" class="eess-toggle-eye" onclick="eessTogglePassVisibility(\'eess-forgot-pass\', this)">
                                         <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
                                     </button>
                                 </div>
                             </div>
-                            <div class="eess-form-group" style="flex: 1; margin-bottom: 0;">
+                            <div class="eess-form-group" style="margin-bottom: 0;">
                                 <div class="eess-float-container eess-password-wrapper">
-                                    <input type="password" id="eess-forgot-pass-conf" class="eess-float-input" placeholder=" ">
+                                    <input type="password" id="eess-forgot-pass-conf" class="eess-float-input" placeholder=" " maxlength="40" oninput="eessLiveCheckPassword()">
                                     <label for="eess-forgot-pass-conf" class="eess-float-label">تأكيد كلمة المرور *</label>
                                     <button type="button" class="eess-toggle-eye" onclick="eessTogglePassVisibility(\'eess-forgot-pass-conf\', this)">
                                         <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
@@ -1570,8 +1694,9 @@ class SM_Public {
                                 </div>
                             </div>
                         </div>
-                        <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
-                            <button type="button" onclick="eessResetPassword()" class="eess-btn-login" style="width: auto; min-width: 160px; height: 36px; padding: 0 18px; font-size: 0.85rem;">تحديث كلمة المرور والدخول</button>
+
+                        <div style="display: flex; justify-content: flex-end;">
+                            <button type="button" onclick="eessSetNewPasswordAndLogin()" id="btn-save-new-pass" class="eess-btn-login" style="width: 100%; height: 42px; font-size: 0.9rem; background: #2563eb !important;">حفظ كلمة المرور والدخول المباشر للنظام</button>
                         </div>
                     </div>
 
@@ -1581,7 +1706,8 @@ class SM_Public {
                     </div>
                 </div>
             </div>
-        </div>
+        </div>';
+        })() . '
 
         <!-- Help & Support Modal -->
         <div id="eess-support-modal" class="eess-modal-overlay">
@@ -1796,81 +1922,183 @@ class SM_Public {
             document.getElementById(\'eess-register-modal\').style.display = \'none\';
         }
 
-        // Recovery navigation
+        let eessVerifiedResetToken = \'\';
+
+        // Recovery Step Wizard Navigation & Validation
+        function eessCheckRoleSubjectNeed() {
+            const role = document.getElementById(\'eess-forgot-role\').value;
+            // Role requires subject if teacher, coordinator, HOD
+            return (role === \'sm_teacher\' || role === \'sm_coordinator\' || role === \'sm_hod\');
+        }
+
         function eessGoToForgotStep(stepNum) {
             document.getElementById(\'eess-forgot-msg\').style.display = \'none\';
-            for (let i = 1; i <= 3; i++) {
-                document.getElementById(\'eess-forgot-step-\' + i).style.display = i === stepNum ? \'block\' : \'none\';
+
+            // Auto skip step 6 (Subject) if role does not require subject
+            if (stepNum === 6 && !eessCheckRoleSubjectNeed()) {
+                stepNum = 7;
             }
+
+            for (let i = 1; i <= 8; i++) {
+                const el = document.getElementById(\'eess-forgot-step-\' + i);
+                if (el) el.style.display = (i === stepNum) ? \'block\' : \'none\';
+            }
+
+            // Update Progress Bar & Header
+            const stepLabels = {
+                1: \'الخطوة 1 من 8: البريد الإلكتروني\',
+                2: \'الخطوة 2 من 8: الرقم الوظيفي\',
+                3: \'الخطوة 3 من 8: المؤسسة / المدرسة\',
+                4: \'الخطوة 4 من 8: الجنسية\',
+                5: \'الخطوة 5 من 8: الرتبة الوظيفية\',
+                6: \'الخطوة 6 من 8: المادة الدراسية\',
+                7: \'الخطوة 7 من 8: تاريخ الميلاد\',
+                8: \'الخطوة 8 من 8: تعيين كلمة المرور الجديدة\'
+            };
+
+            const pct = Math.round((stepNum / 8) * 100);
+            document.getElementById(\'eess-forgot-step-label\').innerText = stepLabels[stepNum] || \'\';
+            document.getElementById(\'eess-forgot-step-pct\').innerText = pct + \'%\';
+            document.getElementById(\'eess-forgot-progress-bar\').style.width = pct + \'%\';
         }
 
-        // Send OTP
-        function eessSendForgotOTP() {
-            const email = document.getElementById(\'eess-forgot-email\').value;
-            if (!email) {
-                eessShowForgotMsg(\'يرجى إدخال البريد الإلكتروني.\', true);
-                return;
-            }
-            eessShowForgotMsg(\'جاري إرسال رمز التحقق...\', false);
+        function eessNextForgotStep(nextStep) {
+            document.getElementById(\'eess-forgot-msg\').style.display = \'none\';
 
-            const data = new FormData();
-            data.append(\'action\', \'eess_forgot_otp\');
-            data.append(\'email\', email);
-
-            fetch(\'' . admin_url('admin-ajax.php') . '\', { method: \'POST\', body: data })
-            .then(res => res.json())
-            .then(res => {
-                if (res.success) {
-                    eessGoToForgotStep(2);
-                    eessShowForgotMsg(res.data, false);
-                } else {
-                    eessShowForgotMsg(res.data, true);
+            // Validate Current Step Before Advancing
+            if (nextStep === 2) {
+                const email = document.getElementById(\'eess-forgot-email\').value.trim();
+                if (!email || !email.includes(\'@\')) {
+                    eessShowForgotMsg(\'يرجى إدخال بريد إلكتروني صحيح.\', true);
+                    return;
                 }
-            });
+            } else if (nextStep === 3) {
+                const empId = document.getElementById(\'eess-forgot-empid\').value.trim();
+                if (!empId) {
+                    eessShowForgotMsg(\'يرجى إدخال الرقم الوظيفي الخاص بك.\', true);
+                    return;
+                }
+            } else if (nextStep === 4) {
+                const inst = document.getElementById(\'eess-forgot-institution\').value;
+                if (!inst) {
+                    eessShowForgotMsg(\'يرجى اختيار المؤسسة أو المدرسة التابع لها.\', true);
+                    return;
+                }
+            } else if (nextStep === 5) {
+                const nat = document.getElementById(\'eess-forgot-nationality\').value;
+                if (!nat) {
+                    eessShowForgotMsg(\'يرجى اختيار الجنسية المسجلة.\', true);
+                    return;
+                }
+            } else if (nextStep === 6) {
+                const role = document.getElementById(\'eess-forgot-role\').value;
+                if (!role) {
+                    eessShowForgotMsg(\'يرجى اختيار الرتبة الوظيفية.\', true);
+                    return;
+                }
+            } else if (nextStep === 7) {
+                if (eessCheckRoleSubjectNeed()) {
+                    const subj = document.getElementById(\'eess-forgot-subject\').value;
+                    if (!subj) {
+                        eessShowForgotMsg(\'يرجى تحديد المادة الدراسية المسندة لك.\', true);
+                        return;
+                    }
+                }
+            }
+
+            eessGoToForgotStep(nextStep);
         }
 
-        // Verify OTP
-        function eessVerifyForgotOTP() {
-            const email = document.getElementById(\'eess-forgot-email\').value;
-            const otp = document.getElementById(\'eess-forgot-otp\').value;
-            if (!otp) {
-                eessShowForgotMsg(\'يرجى كتابة الرمز.\', true);
+        function eessPrevForgotStep(prevStep) {
+            document.getElementById(\'eess-forgot-msg\').style.display = \'none\';
+            if (prevStep === 6 && !eessCheckRoleSubjectNeed()) {
+                prevStep = 5;
+            }
+            eessGoToForgotStep(prevStep);
+        }
+
+        // Complete Verification Without OTP
+        function eessVerifyIdentityFull() {
+            const dob = document.getElementById(\'eess-forgot-dob\').value;
+            if (!dob) {
+                eessShowForgotMsg(\'يرجى اختيار تاريخ الميلاد المسجل بالنظام.\', true);
                 return;
             }
 
+            const btn = document.getElementById(\'btn-verify-identity\');
+            btn.disabled = true;
+            btn.innerText = \'جاري التحقق الأمني...\';
+
             const data = new FormData();
-            data.append(\'action\', \'eess_forgot_verify\');
-            data.append(\'email\', email);
-            data.append(\'otp\', otp);
+            data.append(\'action\', \'eess_forgot_verify_identity\');
+            data.append(\'email\', document.getElementById(\'eess-forgot-email\').value.trim());
+            data.append(\'emp_id\', document.getElementById(\'eess-forgot-empid\').value.trim());
+            data.append(\'institution\', document.getElementById(\'eess-forgot-institution\').value);
+            data.append(\'nationality\', document.getElementById(\'eess-forgot-nationality\').value);
+            data.append(\'role\', document.getElementById(\'eess-forgot-role\').value);
+            data.append(\'subject\', document.getElementById(\'eess-forgot-subject\').value);
+            data.append(\'dob\', dob);
 
             fetch(\'' . admin_url('admin-ajax.php') . '\', { method: \'POST\', body: data })
             .then(res => res.json())
             .then(res => {
+                btn.disabled = false;
+                btn.innerText = \'التحقق الأمني من الهوية ←\';
+
                 if (res.success) {
+                    eessVerifiedResetToken = res.data.reset_token;
                     document.getElementById(\'eess-forgot-welcome-msg\').innerText = \'أهلاً بك يا \' + res.data.display_name + \'!\';
-                    eessGoToForgotStep(3);
+                    eessGoToForgotStep(8);
                 } else {
                     eessShowForgotMsg(res.data, true);
                 }
             });
         }
 
-        // Reset password
-        function eessResetPassword() {
-            const email = document.getElementById(\'eess-forgot-email\').value;
-            const otp = document.getElementById(\'eess-forgot-otp\').value;
+        // Live Password Rules Check
+        function eessLiveCheckPassword() {
+            const pass = document.getElementById(\'eess-forgot-pass\').value;
+
+            const lenOk = pass.length >= 8 && pass.length <= 40;
+            const upperOk = /[A-Z]/.test(pass);
+            const lowerOk = /[a-z]/.test(pass);
+            const numOk = /[0-9]/.test(pass);
+
+            document.getElementById(\'pwd-rule-len\').style.color = lenOk ? \'#16a34a\' : \'#64748b\';
+            document.getElementById(\'pwd-rule-len\').innerText = (lenOk ? \'✓ \' : \'• \') + \'الطول بين 8 و 40 خانة\';
+
+            document.getElementById(\'pwd-rule-upper\').style.color = upperOk ? \'#16a34a\' : \'#64748b\';
+            document.getElementById(\'pwd-rule-upper\').innerText = (upperOk ? \'✓ \' : \'• \') + \'حرف إنجليزي كبير (A-Z) واحد على الأقل\';
+
+            document.getElementById(\'pwd-rule-lower\').style.color = lowerOk ? \'#16a34a\' : \'#64748b\';
+            document.getElementById(\'pwd-rule-lower\').innerText = (lowerOk ? \'✓ \' : \'• \') + \'حرف إنجليزي صغير (a-z) واحد على الأقل\';
+
+            document.getElementById(\'pwd-rule-num\').style.color = numOk ? \'#16a34a\' : \'#64748b\';
+            document.getElementById(\'pwd-rule-num\').innerText = (numOk ? \'✓ \' : \'• \') + \'رقم (0-9) واحد على الأقل\';
+        }
+
+        // Set Password & Auto-login
+        function eessSetNewPasswordAndLogin() {
             const pass = document.getElementById(\'eess-forgot-pass\').value;
             const conf = document.getElementById(\'eess-forgot-pass-conf\').value;
 
             if (!pass || !conf) {
-                eessShowForgotMsg(\'يرجى ملء كلمتي المرور.\', true);
+                eessShowForgotMsg(\'يرجى كتابة كلمة المرور وتأكيدها.\', true);
                 return;
             }
 
+            if (pass !== conf) {
+                eessShowForgotMsg(\'كلمتا المرور غير متطابقتين.\', true);
+                return;
+            }
+
+            const btn = document.getElementById(\'btn-save-new-pass\');
+            btn.disabled = true;
+            btn.innerText = \'جاري الحفظ وتوثيق الدخول...\';
+
             const data = new FormData();
-            data.append(\'action\', \'eess_forgot_reset\');
-            data.append(\'email\', email);
-            data.append(\'otp\', otp);
+            data.append(\'action\', \'eess_forgot_set_password\');
+            data.append(\'reset_token\', eessVerifiedResetToken);
             data.append(\'password\', pass);
             data.append(\'password_conf\', conf);
 
@@ -1878,11 +2106,13 @@ class SM_Public {
             .then(res => res.json())
             .then(res => {
                 if (res.success) {
-                    eessShowForgotMsg(\'تم تحديث كلمة المرور بنجاح. جاري تحويلك للوحة التحكم...\', false);
+                    eessShowForgotMsg(res.data.message || \'تم الحفظ وتوثيق دخولك بنجاح!\', false);
                     setTimeout(() => {
-                        window.location.href = res.data.redirect;
-                    }, 1500);
+                        window.location.href = res.data.redirect_url || \'' . home_url('/sm-admin') . '\';
+                    }, 1000);
                 } else {
+                    btn.disabled = false;
+                    btn.innerText = \'حفظ كلمة المرور والدخول المباشر للنظام\';
                     eessShowForgotMsg(res.data, true);
                 }
             });
@@ -5135,101 +5365,155 @@ class SM_Public {
         return $user;
     }
 
-    // Forgot Password OTP Generator
-    public function ajax_forgot_otp() {
-        $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
-        if (empty($email)) {
-            wp_send_json_error('يرجى إدخال البريد الإلكتروني.');
+    // Multi-Step Identity Verification Without OTP
+    public function ajax_forgot_verify_identity() {
+        // Rate Limiting Protection (Max 5 attempts per 15 mins)
+        $ip_address = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        $rate_key   = 'eess_forgot_attempts_' . md5($ip_address);
+        $attempts   = (int) get_transient($rate_key);
+        if ($attempts >= 5) {
+            wp_send_json_error('تمت تجاوز عدد محاولات الاستعادة المسموح بها. يرجى الانتظار لمدة 15 دقيقة قبل المحاولة مجدداً.');
         }
 
+        $email       = sanitize_email($_POST['email'] ?? '');
+        $emp_id      = sanitize_text_field($_POST['emp_id'] ?? '');
+        $institution = sanitize_text_field($_POST['institution'] ?? '');
+        $nationality = sanitize_text_field($_POST['nationality'] ?? '');
+        $role        = sanitize_text_field($_POST['role'] ?? '');
+        $subject     = sanitize_text_field($_POST['subject'] ?? '');
+        $dob         = sanitize_text_field($_POST['dob'] ?? '');
+
+        if (empty($email) || empty($emp_id) || empty($role) || empty($dob)) {
+            set_transient($rate_key, $attempts + 1, 15 * MINUTE_IN_SECONDS);
+            wp_send_json_error('يرجى تعبئة كافة حقول التحقق الأساسية المطلوب تأكيدها.');
+        }
+
+        // 1. Verify User by Email
         $user = get_user_by('email', $email);
         if (!$user) {
-            wp_send_json_error('عفواً، لا يوجد حساب مسجل بهذا البريد الإلكتروني.');
+            set_transient($rate_key, $attempts + 1, 15 * MINUTE_IN_SECONDS);
+            wp_send_json_error('عفواً، البيانات المدخلة غير متطابقة مع بيانات الحساب.');
         }
 
-        $otp = sprintf('%06d', rand(100000, 999999));
-        set_transient('eess_reset_otp_' . md5($email), $otp, 15 * MINUTE_IN_SECONDS);
-
-        $title = 'رمز التحقق لإعادة تعيين كلمة المرور - EESS';
-        $body = '
-        <p>مرحباً بك يا <strong>' . esc_html($user->display_name) . '</strong>،</p>
-        <p>لقد تلقينا طلباً لإعادة تعيين كلمة المرور الخاصة بحسابك على المنصة الإلكترونية.</p>
-        <p>رمز التحقق الآمن (OTP) الخاص بك هو:</p>
-        <div style="text-align: center; margin: 20px 0;">
-            <span style="display: inline-block; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 12px 30px; font-size: 24px; font-weight: 800; letter-spacing: 5px; color: #000000; border-radius: 6px;">' . $otp . '</span>
-        </div>
-        <p style="color: #64748b; font-size: 12px;">ملاحظة: هذا الرمز صالح لمدة 15 دقيقة فقط. يرجى عدم مشاركة هذا الرمز مع أي شخص لضمان أمان حسابك.</p>
-        ';
-
-        $sent = $this->send_branded_email($email, $title, 'رمز استعادة كلمة المرور', $body);
-        if ($sent) {
-            wp_send_json_success('تم إرسال رمز التحقق (OTP) بنجاح إلى بريدك الإلكتروني.');
-        } else {
-            // Fallback for unconfigured local mail transport so verification flow functions
-            wp_send_json_success('تم توليد وتأكيد رمز التحقق (OTP) الخاص بحسابك بنجاح.');
-        }
-    }
-
-    // Forgot Password OTP Verifier
-    public function ajax_forgot_verify() {
-        $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
-        $otp = isset($_POST['otp']) ? sanitize_text_field($_POST['otp']) : '';
-
-        if (empty($email) || empty($otp)) {
-            wp_send_json_error('جميع الحقول مطلوبة.');
+        // 2. Verify Employee ID
+        $clean_emp_id = trim(preg_replace('/^(EMP|EMP-|_)+/i', '', trim($emp_id)));
+        $stored_emp1  = get_user_meta($user->ID, 'sm_employee_id', true);
+        $stored_emp2  = get_user_meta($user->ID, 'employee_id', true);
+        if ($user->user_login !== $clean_emp_id && $stored_emp1 !== $clean_emp_id && $stored_emp2 !== $clean_emp_id && $stored_emp1 !== $emp_id) {
+            set_transient($rate_key, $attempts + 1, 15 * MINUTE_IN_SECONDS);
+            wp_send_json_error('بيانات الرقم الوظيفي غير متطابقة.');
         }
 
-        $saved_otp = get_transient('eess_reset_otp_' . md5($email));
-        if ($saved_otp === false || $saved_otp !== $otp) {
-            wp_send_json_error('رمز التحقق غير صحيح أو انتهت صلاحيته.');
+        // 3. Verify Role
+        $user_roles = (array) $user->roles;
+        if (!in_array($role, $user_roles) && !($role === 'sm_teacher' && in_array('sm_teacher', $user_roles))) {
+            set_transient($rate_key, $attempts + 1, 15 * MINUTE_IN_SECONDS);
+            wp_send_json_error('الرتبة المحددة غير متطابقة مع رتبة الحساب.');
         }
 
-        $user = get_user_by('email', $email);
+        // 4. Verify Institution if provided
+        if (!empty($institution)) {
+            $stored_inst1 = get_user_meta($user->ID, 'institution', true);
+            $stored_inst2 = get_user_meta($user->ID, 'sm_institution', true);
+            if (!empty($stored_inst1) && strcasecmp($stored_inst1, $institution) !== 0 && strcasecmp($stored_inst2, $institution) !== 0) {
+                set_transient($rate_key, $attempts + 1, 15 * MINUTE_IN_SECONDS);
+                wp_send_json_error('اسم المؤسسة أو المدرسة غير متطابق.');
+            }
+        }
+
+        // 5. Verify Nationality if provided
+        if (!empty($nationality)) {
+            $stored_nat1 = get_user_meta($user->ID, 'nationality', true);
+            $stored_nat2 = get_user_meta($user->ID, 'sm_nationality', true);
+            if (!empty($stored_nat1) && strcasecmp($stored_nat1, $nationality) !== 0 && strcasecmp($stored_nat2, $nationality) !== 0) {
+                set_transient($rate_key, $attempts + 1, 15 * MINUTE_IN_SECONDS);
+                wp_send_json_error('بيانات الجنسية غير متطابقة.');
+            }
+        }
+
+        // 6. Verify Subject if applicable
+        $roles_requiring_subject = array('sm_teacher', 'sm_coordinator', 'sm_hod');
+        if (in_array($role, $roles_requiring_subject) && !empty($subject)) {
+            $stored_sub1 = get_user_meta($user->ID, 'sm_specialization', true);
+            $stored_sub2 = get_user_meta($user->ID, 'specialization', true);
+            if (!empty($stored_sub1) && strcasecmp($stored_sub1, $subject) !== 0 && strcasecmp($stored_sub2, $subject) !== 0) {
+                set_transient($rate_key, $attempts + 1, 15 * MINUTE_IN_SECONDS);
+                wp_send_json_error('المادة المحددة غير متطابقة مع مادة المعلم المسجلة.');
+            }
+        }
+
+        // 7. Verify Date of Birth
+        if (!empty($dob)) {
+            $stored_dob1 = get_user_meta($user->ID, 'sm_dob', true);
+            $stored_dob2 = get_user_meta($user->ID, 'dob', true);
+            if (!empty($stored_dob1) && $stored_dob1 !== $dob && $stored_dob2 !== $dob) {
+                set_transient($rate_key, $attempts + 1, 15 * MINUTE_IN_SECONDS);
+                wp_send_json_error('تاريخ الميلاد غير متطابق.');
+            }
+        }
+
+        // Generate verified token for resetting password
+        $reset_token = wp_generate_password(32, false);
+        set_transient('eess_verified_reset_user_' . $reset_token, $user->ID, 15 * MINUTE_IN_SECONDS);
+
+        delete_transient($rate_key);
+
         wp_send_json_success(array(
+            'reset_token'  => $reset_token,
             'display_name' => $user->display_name
         ));
     }
 
-    // Forgot Password Reset & Autologin
-    public function ajax_forgot_reset() {
-        $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
-        $otp = isset($_POST['otp']) ? sanitize_text_field($_POST['otp']) : '';
-        $password = isset($_POST['password']) ? $_POST['password'] : '';
-        $password_conf = isset($_POST['password_conf']) ? $_POST['password_conf'] : '';
+    // Set New Password & Automatic Authentication
+    public function ajax_forgot_set_password() {
+        $reset_token = sanitize_text_field($_POST['reset_token'] ?? '');
+        $password    = $_POST['password'] ?? '';
+        $pass_conf   = $_POST['password_conf'] ?? '';
 
-        if (empty($email) || empty($otp) || empty($password) || empty($password_conf)) {
+        if (empty($reset_token) || empty($password) || empty($pass_conf)) {
             wp_send_json_error('جميع الحقول مطلوبة.');
         }
 
-        if ($password !== $password_conf) {
+        $user_id = get_transient('eess_verified_reset_user_' . $reset_token);
+        if (!$user_id) {
+            wp_send_json_error('انتهت صلاحية جلسة التحقق الآمنة. يرجى إعادة خطوات التحقق من جديد.');
+        }
+
+        if ($password !== $pass_conf) {
             wp_send_json_error('كلمتا المرور غير متطابقتين.');
         }
 
-        if (strlen($password) < 6) {
-            wp_send_json_error('يجب ألا تقل كلمة المرور عن 6 أحرف.');
+        // Password Validation Rules: 8-40 chars, 1 uppercase, 1 lowercase, 1 number
+        $length = mb_strlen($password);
+        if ($length < 8 || $length > 40) {
+            wp_send_json_error('كلمة المرور يجب أن تكون بين 8 و 40 خانة.');
         }
 
-        $saved_otp = get_transient('eess_reset_otp_' . md5($email));
-        if ($saved_otp === false || $saved_otp !== $otp) {
-            wp_send_json_error('انتهت صلاحية الجلسة الآمنة. يرجى البدء من جديد.');
+        if (!preg_match('/[A-Z]/', $password)) {
+            wp_send_json_error('كلمة المرور يجب أن تحتوي على حرف إنجليزي كبير (A-Z) واحد على الأقل.');
         }
 
-        $user = get_user_by('email', $email);
-        if (!$user) {
-            wp_send_json_error('خطأ غير متوقع. لم يتم العثور على المستخدم.');
+        if (!preg_match('/[a-z]/', $password)) {
+            wp_send_json_error('كلمة المرور يجب أن تحتوي على حرف إنجليزي صغير (a-z) واحد على الأقل.');
         }
 
-        // Reset password
-        wp_set_password($password, $user->ID);
-        delete_transient('eess_reset_otp_' . md5($email));
+        if (!preg_match('/[0-9]/', $password)) {
+            wp_send_json_error('كلمة المرور يجب أن تحتوي على رقم (0-9) واحد على الأقل.');
+        }
 
-        // Autologin
-        wp_clear_auth_cookie();
-        wp_set_current_user($user->ID);
-        wp_set_auth_cookie($user->ID);
+        // Save New Password
+        wp_set_password($password, $user_id);
+        delete_transient('eess_verified_reset_user_' . $reset_token);
+
+        // Automatic Authenticate & Login User
+        wp_set_current_user($user_id);
+        wp_set_auth_cookie($user_id, true);
+
+        SM_Logger::log('إعادة تعيين كلمة المرور', "تم تغيير كلمة المرور وتوثيق الدخول التلقائي للمستخدم ID: $user_id");
 
         wp_send_json_success(array(
-            'redirect' => home_url('/sm-admin')
+            'message'      => 'تم حفظ كلمة المرور الجديدة وتوثيق دخولك بنجاح!',
+            'redirect_url' => home_url('/sm-admin')
         ));
     }
 
@@ -5686,6 +5970,9 @@ class SM_Public {
         $department     = sanitize_text_field($_POST['department'] ?? '');
         $specialization = sanitize_text_field($_POST['specialization'] ?? '');
         $official_title = sanitize_text_field($_POST['official_title'] ?? '');
+        $nationality    = sanitize_text_field($_POST['nationality'] ?? '');
+        $dob            = sanitize_text_field($_POST['dob'] ?? '');
+        $institution_name = sanitize_text_field($_POST['institution_name'] ?? '');
 
         if (empty($first_name) || empty($last_name) || empty($email) || empty($employee_id)) {
             wp_send_json_error('يرجى استكمال جميع الحقول الأساسية المطلوبة.');
@@ -5772,6 +6059,12 @@ class SM_Public {
         update_user_meta($user_id, 'specialization', $specialization);
         update_user_meta($user_id, 'sm_specialization', $specialization);
         update_user_meta($user_id, 'official_title', $official_title);
+        update_user_meta($user_id, 'nationality', $nationality);
+        update_user_meta($user_id, 'sm_nationality', $nationality);
+        update_user_meta($user_id, 'dob', $dob);
+        update_user_meta($user_id, 'sm_dob', $dob);
+        update_user_meta($user_id, 'institution', $institution_name);
+        update_user_meta($user_id, 'sm_institution', $institution_name);
 
         // Handle Profile Photo Upload if present
         if (!empty($_FILES['profile_photo']['name'])) {

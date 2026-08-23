@@ -108,13 +108,11 @@ class School_Management {
         $this->loader->add_action('wp_ajax_eess_hr_add_employee', $plugin_public, 'ajax_hr_add_employee');
         $this->loader->add_action('wp_ajax_eess_bulk_import_employees_ajax', $plugin_public, 'ajax_bulk_import_employees');
 
-        // Forgot password AJAX actions
-        $this->loader->add_action('wp_ajax_nopriv_eess_forgot_otp', $plugin_public, 'ajax_forgot_otp');
-        $this->loader->add_action('wp_ajax_eess_forgot_otp', $plugin_public, 'ajax_forgot_otp');
-        $this->loader->add_action('wp_ajax_nopriv_eess_forgot_verify', $plugin_public, 'ajax_forgot_verify');
-        $this->loader->add_action('wp_ajax_eess_forgot_verify', $plugin_public, 'ajax_forgot_verify');
-        $this->loader->add_action('wp_ajax_nopriv_eess_forgot_reset', $plugin_public, 'ajax_forgot_reset');
-        $this->loader->add_action('wp_ajax_eess_forgot_reset', $plugin_public, 'ajax_forgot_reset');
+        // Forgot password AJAX actions (Multi-step Verification Without OTP)
+        $this->loader->add_action('wp_ajax_nopriv_eess_forgot_verify_identity', $plugin_public, 'ajax_forgot_verify_identity');
+        $this->loader->add_action('wp_ajax_eess_forgot_verify_identity', $plugin_public, 'ajax_forgot_verify_identity');
+        $this->loader->add_action('wp_ajax_nopriv_eess_forgot_set_password', $plugin_public, 'ajax_forgot_set_password');
+        $this->loader->add_action('wp_ajax_eess_forgot_set_password', $plugin_public, 'ajax_forgot_set_password');
 
         // Registration wizard AJAX actions
         $this->loader->add_action('wp_ajax_nopriv_eess_register_otp', $plugin_public, 'ajax_register_otp');
