@@ -345,71 +345,41 @@ if (!is_array($timeline)) $timeline = json_decode($timeline, true) ?: array();
             </div>
         </div>
 
-        <!-- Section 5: Disciplinary Records -->
+        <!-- Section 5: Disciplinary Records (Single Unified Un-nested Table) -->
         <div id="wp-disciplinary" class="wp-tab-content" style="display: none;">
-            <h4 style="margin: 0 0 20px 0; font-weight: 800; color: #1e293b; font-size: 1.1rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">⚠️ السجلات التأديبية، التنبيهات والإنذارات الرسمية</h4>
-            <div style="margin-bottom: 30px;">
-                <h5 style="margin: 0 0 10px 0; font-weight: bold; color: #475569;">⚠️ التنبيهات والإنذارات الرسمية</h5>
-                <div class="sm-table-container">
-                    <table class="sm-table" style="margin:0;">
-                        <thead>
-                            <tr>
-                                <th>تاريخ الإصدار</th>
-                                <th>نوع الإنذار / التنبيه</th>
-                                <th>التفاصيل والمسببات</th>
-                                <th>حالة الملف حالياً</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (empty($warning_notices)): ?>
-                                <tr><td colspan="4" style="text-align: center; color: #94a3b8; padding: 20px;">السجل خالي من أي إنذارات أو تنبيهات رسمية.</td></tr>
-                            <?php else: ?>
-                                <?php foreach ($warning_notices as $warn): ?>
-                                    <tr>
-                                        <td><?php echo esc_html($warn['date']); ?></td>
-                                        <td style="font-weight: 700; color: #dc2626;"><?php echo esc_html($warn['subject']); ?></td>
-                                        <td style="font-size: 12px;"><?php echo esc_html($warn['details']); ?></td>
-                                        <td>
-                                            <span style="background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 11px;">
-                                                <?php echo esc_html($warn['status'] ?? 'نشط'); ?>
-                                            </span>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <h4 style="margin: 0 0 20px 0; font-weight: 800; color: #0f172a; font-size: 1.1rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">السجلات التأديبية ومحاضر الانضباط والقرارات</h4>
 
-            <div>
-                <h5 style="margin: 0 0 10px 0; font-weight: bold; color: #475569;">🛑 محاضر مجالس الانضباط والجزاءات</h5>
-                <div class="sm-table-container">
-                    <table class="sm-table" style="margin:0;">
-                        <thead>
-                            <tr>
-                                <th>تاريخ المحضر</th>
-                                <th>المخالفة أو الواقعة</th>
-                                <th>الإجراء الجزائي المعتمد</th>
-                                <th>المسؤول أو جهة القرار</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (empty($disciplinary_records)): ?>
-                                <tr><td colspan="4" style="text-align: center; color: #94a3b8; padding: 20px;">السجل خالي من أي محاضر انضباطية.</td></tr>
-                            <?php else: ?>
-                                <?php foreach ($disciplinary_records as $disc): ?>
-                                    <tr>
-                                        <td><?php echo esc_html($disc['date']); ?></td>
-                                        <td><?php echo esc_html($disc['incident']); ?></td>
-                                        <td style="color: #dc2626; font-weight: bold;"><?php echo esc_html($disc['action']); ?></td>
-                                        <td><?php echo esc_html($disc['supervisor']); ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
+            <div style="border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+                <table style="width: 100%; border-collapse: collapse; text-align: right;">
+                    <thead>
+                        <tr style="background: #212121; color: #ffffff;">
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800;">التاريخ</th>
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800;">نوع الإنذار / المخالفة</th>
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800;">التفاصيل والواقعة</th>
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; text-align: center;">الإجراء / حالة الملف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $all_disc_items = array_merge($warning_notices, $disciplinary_records);
+                        if (empty($all_disc_items)): ?>
+                            <tr><td colspan="4" style="text-align: center; color: #94a3b8; padding: 40px; font-weight: 700;">السجل المعتمد خالي من أي إنذارات أو قرارات انضباطية.</td></tr>
+                        <?php else: ?>
+                            <?php foreach ($all_disc_items as $item): ?>
+                                <tr style="border-bottom: 1px solid #f1f5f9;">
+                                    <td style="padding: 12px 16px; font-weight: 800; color: #0f172a;"><?php echo esc_html($item['date'] ?? '---'); ?></td>
+                                    <td style="padding: 12px 16px; font-weight: 700; color: #dc2626;"><?php echo esc_html($item['subject'] ?? ($item['incident'] ?? 'إشعار انضباطي')); ?></td>
+                                    <td style="padding: 12px 16px; font-size: 12.5px; color: #334155;"><?php echo esc_html($item['details'] ?? ($item['incident'] ?? '---')); ?></td>
+                                    <td style="padding: 12px 16px; text-align: center;">
+                                        <span style="display: inline-block; padding: 3px 10px; border-radius: 12px; background: #fee2e2; color: #b91c1c; font-weight: 800; font-size: 11px;">
+                                            <?php echo esc_html($item['action'] ?? ($item['status'] ?? 'إنذار رسمي')); ?>
+                                        </span>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -608,17 +578,14 @@ if (!is_array($timeline)) $timeline = json_decode($timeline, true) ?: array();
 
         <!-- Left side: Vertical Sidebar Navigation (width: 250px) -->
         <div style="width: 250px; flex-shrink: 0; border-right: 1px solid #cbd5e0; padding-right: 15px; display: flex; flex-direction: column; gap: 8px;">
-            <button onclick="switchEmployeeProfileTab('wp-personal', this)" class="sm-tab-btn sm-active" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 6px; cursor: pointer; transition: 0.2s; background: #334155; color: white;">البيانات الشخصية</button>
-            <button onclick="switchEmployeeProfileTab('wp-employment', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 6px; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">بيانات المباشرة</button>
-            <button onclick="switchEmployeeProfileTab('wp-position', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 6px; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">تفاصيل المنصب والمهام</button>
-            <button onclick="switchEmployeeProfileTab('wp-salaries', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 6px; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">معلومات الرواتب</button>
-            <button onclick="switchEmployeeProfileTab('wp-disciplinary', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 6px; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">السجلات التأديبية</button>
-            <button onclick="switchEmployeeProfileTab('wp-evaluations', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 6px; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">تقييم الأداء</button>
-            <button onclick="switchEmployeeProfileTab('wp-docs', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 6px; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">الوثائق الرسمية</button>
-            <button onclick="switchEmployeeProfileTab('wp-history', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 6px; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">السجل المهني</button>
-            <button onclick="switchEmployeeProfileTab('wp-leaves', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 6px; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">سجل الإجازات</button>
-            <button onclick="switchEmployeeProfileTab('wp-notes', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 6px; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">الملاحظات الإدارية</button>
-            <button onclick="switchEmployeeProfileTab('wp-timeline', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 6px; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">سجل الأنشطة</button>
+            <button onclick="switchEmployeeProfileTab('wp-personal', this)" class="sm-tab-btn sm-active" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: 0.2s; background: #881337; color: white;">المعلومات الشاملة</button>
+            <button onclick="switchEmployeeProfileTab('wp-salaries', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">معلومات الرواتب</button>
+            <button onclick="switchEmployeeProfileTab('wp-disciplinary', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">السجلات التأديبية</button>
+            <button onclick="switchEmployeeProfileTab('wp-evaluations', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">تقييم الأداء</button>
+            <button onclick="switchEmployeeProfileTab('wp-docs', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">الوثائق الرسمية</button>
+            <button onclick="switchEmployeeProfileTab('wp-leaves', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">سجل الإجازات</button>
+            <button onclick="switchEmployeeProfileTab('wp-notes', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">الملاحظات الإدارية</button>
+            <button onclick="switchEmployeeProfileTab('wp-timeline', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">سجل الأنشطة</button>
         </div>
 
     </div>
