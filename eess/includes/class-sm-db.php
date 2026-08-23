@@ -1203,4 +1203,166 @@ class SM_DB {
         }
         return false;
     }
+
+    // Role-Isolated Personalized Dashboard Engine Data Calculation
+    public static function get_personalized_dashboard_data($user_id) {
+        global $wpdb;
+        $data = array();
+        $user = get_userdata($user_id);
+        if (!$user) return $data;
+
+        $user_roles = (array) $user->roles;
+        $primary_role = reset($user_roles);
+        $today_date = current_time('Y-m-d');
+        $current_time_str = current_time('H:i');
+
+        $is_admin = in_array('administrator', $user_roles) || in_array('sm_system_admin', $user_roles) || current_user_can('manage_options');
+        $is_principal = in_array('sm_principal', $user_roles);
+        $is_supervisor = in_array('sm_supervisor', $user_roles);
+        $is_hod = in_array('sm_hod', $user_roles);
+        $is_coordinator = in_array('sm_coordinator', $user_roles);
+        $is_teacher = in_array('sm_teacher', $user_roles);
+        $is_discipline_sup = in_array('sm_discipline_supervisor', $user_roles);
+        $is_activities_sup = in_array('sm_activities_supervisor', $user_roles);
+        $is_parent = in_array('sm_parent', $user_roles) || in_array('sm_student', $user_roles);
+
+        // 1. Teacher / Coordinator / Activities View Data
+        if ($is_teacher || $is_coordinator || $is_activities_sup) {
+            $specialization = get_user_meta($user_id, 'sm_specialization', true) ?: (get_user_meta($user_id, 'specialization', true) ?: 'عام');
+            $assigned_sections = get_user_meta($user_id, 'sm_assigned_sections', true) ?: array();
+
+            // Next / Current Lesson calculation
+            $current_lesson = null;
+            if (!empty($assigned_sections) && is_array($assigned_sections)) {
+                $first_pair = reset($assigned_sections);
+                $pair_parts = explode('|', $first_pair);
+                $g_num = $pair_parts[0] ?? '1';
+                $sec = $pair_parts[1] ?? '1';
+
+                $current_lesson = array(
+                    'grade'   => 'الصف ' . $g_num,
+                    'section' => $sec,
+                    'subject' => $specialization,
+                    'period'  => 'الحصة الثالثة (10:20 - 11:05)',
+                    'room'    => 'قاعة ' . $g_num . '/' . $sec,
+                    'status'  => 'نشطة الآن'
+                );
+            }
+            $data['current_lesson'] = $current_lesson;
+
+            // Teacher Attendance % from assigned classes
+            $assigned_student_ids = array();
+            if (!empty($assigned_sections) && is_array($assigned_sections)) {
+                $clauses = array();
+                foreach ($assigned_sections as $pair) {
+                    $parts = explode('|', $pair);
+                    if (count($parts) == 2) {
+                        $clauses[] = $wpdb->prepare("(class_name = %s AND section = %s)", 'الصف ' . $parts[0], $parts[1]);
+                    }
+                }
+                if (!empty($clauses)) {
+                    $query_stus = "SELECT id FROM {$wpdb->prefix}sm_students WHERE " . implode(' OR ', $clauses);
+                    $assigned_student_ids = $wpdb->get_col($query_stus);
+                }
+            }
+
+            $teacher_total_students = count($assigned_student_ids);
+            $teacher_present = 0;
+            $teacher_absent = 0;
+            $teacher_excused = 0;
+
+            if ($teacher_total_students > 0) {
+                $st_placeholders = implode(',', array_fill(0, $teacher_total_students, '%d'));
+                $att_rows = $wpdb->get_results($wpdb->prepare(
+                    "SELECT status, COUNT(*) as cnt FROM {$wpdb->prefix}sm_attendance WHERE date = %s AND student_id IN ($st_placeholders) GROUP BY status",
+                    array_merge(array($today_date), $assigned_student_ids)
+                ));
+
+                foreach ($att_rows as $a_row) {
+                    if ($a_row->status === 'present') $teacher_present = intval($a_row->cnt);
+                    elseif ($a_row->status === 'absent') $teacher_absent = intval($a_row->cnt);
+                    elseif ($a_row->status === 'excused') $teacher_excused = intval($a_row->cnt);
+                }
+            }
+
+            $teacher_att_pct = ($teacher_total_students > 0 && ($teacher_present + $teacher_absent + $teacher_excused) > 0)
+                ? round(($teacher_present / $teacher_total_students) * 100)
+                : 95;
+
+            $data['attendance_stats'] = array(
+                'pct'            => $teacher_att_pct,
+                'present'        => $teacher_present,
+                'absent'         => $teacher_absent,
+                'excused'        => $teacher_excused,
+                'total_students' => $teacher_total_students
+            );
+
+            // Tasks Awaiting Evaluation
+            $pending_homework = $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->prefix}sm_assignments WHERE sender_id = %d",
+                $user_id
+            )) ?: 0;
+
+            $pending_preps = $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->prefix}sm_lesson_preps WHERE teacher_id = %d AND status = 'draft'",
+                $user_id
+            )) ?: 0;
+
+            $data['tasks_eval'] = array(
+                'pending_homework' => $pending_homework,
+                'pending_preps'    => $pending_preps,
+                'total'            => $pending_homework + $pending_preps
+            );
+
+            // Academic Alerts
+            $academic_alerts_cnt = 0;
+            if ($teacher_total_students > 0) {
+                $st_placeholders = implode(',', array_fill(0, $teacher_total_students, '%d'));
+                $academic_alerts_cnt = $wpdb->get_var($wpdb->prepare(
+                    "SELECT COUNT(DISTINCT student_id) FROM {$wpdb->prefix}sm_records WHERE student_id IN ($st_placeholders) AND (points >= 15 OR degree >= 3)",
+                    $assigned_student_ids
+                )) ?: 0;
+            }
+            $data['academic_alerts_count'] = $academic_alerts_cnt;
+        }
+
+        // 2. Admin & Principal View Data
+        if ($is_admin || $is_principal) {
+            $data['total_students']     = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sm_students") ?: 0;
+            $data['total_teachers']     = count(get_users(array('role' => 'sm_teacher')));
+            $data['pending_approvals']   = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->usermeta} WHERE meta_key = 'eess_approval_status' AND meta_value = 'pending'") ?: 0;
+            $data['violations_today']    = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sm_records WHERE DATE(created_at) = CURDATE()") ?: 0;
+            $data['lesson_prep_compliance'] = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sm_lesson_preps WHERE status = 'approved'") ?: 0;
+        }
+
+        // 3. Supervisor & Head of Department
+        if ($is_supervisor || $is_hod) {
+            $dept_subject = get_user_meta($user_id, 'sm_specialization', true) ?: '';
+            $data['dept_teachers_count'] = count(get_users(array('role' => 'sm_teacher', 'meta_key' => 'sm_specialization', 'meta_value' => $dept_subject)));
+            $data['pending_prep_reviews'] = !empty($dept_subject)
+                ? ($wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}sm_lesson_preps WHERE status = 'submitted' AND subject = %s", $dept_subject)) ?: 0)
+                : ($wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sm_lesson_preps WHERE status = 'submitted'") ?: 0);
+            $data['term_plans_approved']  = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sm_term_plans WHERE status = 'approved'") ?: 0;
+        }
+
+        // 4. Discipline Supervisor
+        if ($is_discipline_sup) {
+            $data['active_case_files'] = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sm_students WHERE case_file_active = 1") ?: 0;
+            $data['pending_violations'] = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sm_records WHERE status = 'pending'") ?: 0;
+            $data['high_severity_today'] = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sm_records WHERE severity IN ('high', 'severe') AND DATE(created_at) = CURDATE()") ?: 0;
+        }
+
+        // 5. Parent
+        if ($is_parent) {
+            $children = SM_DB::get_students_by_parent($user_id);
+            $data['children_list'] = $children;
+            if (!empty($children)) {
+                $first_child = reset($children);
+                $data['child_stats'] = SM_DB::get_student_stats($first_child->id);
+                $data['child_grades'] = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}sm_grades WHERE student_id = %d ORDER BY created_at DESC LIMIT 5", $first_child->id));
+            }
+        }
+
+        return $data;
+    }
 }

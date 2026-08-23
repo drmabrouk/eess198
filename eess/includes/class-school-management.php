@@ -159,6 +159,12 @@ class School_Management {
         // Lesson Prep Quick Actions & Bulk Operations
         $this->loader->add_action('wp_ajax_eess_quick_approve_prep', $plugin_public, 'ajax_quick_approve_prep');
         $this->loader->add_action('wp_ajax_eess_bulk_lesson_action', $plugin_public, 'ajax_bulk_lesson_action');
+
+        // Technical Support & Quick Parent Note AJAX Handlers
+        $this->loader->add_action('wp_ajax_eess_submit_support_request', $plugin_public, 'ajax_submit_support_request');
+        $this->loader->add_action('wp_ajax_eess_update_support_status', $plugin_public, 'ajax_update_support_status');
+        $this->loader->add_action('wp_ajax_eess_delete_support_request', $plugin_public, 'ajax_delete_support_request');
+        $this->loader->add_action('wp_ajax_eess_send_quick_parent_note', $plugin_public, 'ajax_send_quick_parent_note');
     }
 
     public function run() {

@@ -5106,7 +5106,7 @@ class SM_Public {
         $school_info = SM_Settings::get_school_info();
 
         global $wpdb;
-        $violations = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}sm_records WHERE student_id = %d ORDER BY incident_date DESC", $student_id));
+        $violations = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}sm_records WHERE student_id = %d ORDER BY created_at DESC", $student_id));
         $grades     = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}sm_grades WHERE student_id = %d ORDER BY created_at DESC", $student_id));
         ?>
         <!DOCTYPE html>
@@ -7002,5 +7002,29 @@ class SM_Public {
         } else {
             wp_send_json_error('حدث خطأ أثناء حذف السجل.');
         }
+    }
+
+    public function ajax_send_quick_parent_note() {
+        if (!is_user_logged_in()) {
+            wp_send_json_error('عفواً، يجب تسجيل الدخول للتمكن من التواصل مع ولي الأمر.');
+        }
+
+        $user = wp_get_current_user();
+        $student_id = intval($_POST['student_id'] ?? 0);
+        $note = sanitize_textarea_field($_POST['note'] ?? '');
+
+        if (!$student_id || empty($note)) {
+            wp_send_json_error('يرجى اختيار الطالب وكتابة نص الملاحظة.');
+        }
+
+        $student = SM_DB::get_student_by_id($student_id);
+        if (!$student) {
+            wp_send_json_error('الطالب المختار غير موجود.');
+        }
+
+        // Add record log
+        SM_Logger::log('ملاحظة سريعة لولي الأمر', "أرسل المعلم {$user->display_name} ملاحظة لولي أمر الطالب {$student->name}: $note");
+
+        wp_send_json_success(array('message' => 'تم إرسال الملاحظة بنجاح إلى ولي أمر الطالب ' . $student->name));
     }
 }
