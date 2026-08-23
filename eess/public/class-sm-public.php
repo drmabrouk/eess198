@@ -248,20 +248,92 @@ class SM_Public {
         wp_enqueue_script('html5-qrcode', 'https://unpkg.com/html5-qrcode', array(), '2.3.8', true);
         wp_enqueue_style($this->plugin_name, SM_PLUGIN_URL . 'assets/css/sm-public.css', array('dashicons'), $this->version, 'all');
 
-        $appearance = SM_Settings::get_appearance();
+        $app = SM_Settings::get_appearance();
         $custom_css = "
             :root {
-                --sm-primary-color: {$appearance['primary_color']};
-                --sm-secondary-color: {$appearance['secondary_color']};
-                --sm-accent-color: {$appearance['accent_color']};
-                --sm-dark-color: {$appearance['dark_color']};
-                --sm-radius: {$appearance['border_radius']};
+                /* System Design Tokens */
+                --color-primary: {$app['primary_color']};
+                --color-primary-hover: {$app['primary_hover']};
+                --color-danger: {$app['danger_color']};
+                --color-danger-hover: {$app['danger_hover']};
+                --color-black: {$app['black_color']};
+                --color-white: {$app['white_color']};
+
+                --color-gray-50: {$app['gray_50']};
+                --color-gray-100: {$app['gray_100']};
+                --color-gray-200: {$app['gray_200']};
+                --color-gray-300: {$app['gray_300']};
+                --color-gray-400: {$app['gray_400']};
+                --color-gray-500: {$app['gray_500']};
+                --color-gray-600: {$app['gray_600']};
+                --color-gray-700: {$app['gray_700']};
+                --color-gray-800: {$app['gray_800']};
+                --color-gray-900: {$app['gray_900']};
+
+                --color-pastel-red-bg: {$app['pastel_red_bg']};
+                --color-pastel-red-text: {$app['pastel_red_text']};
+                --color-pastel-green-bg: {$app['pastel_green_bg']};
+                --color-pastel-green-text: {$app['pastel_green_text']};
+                --color-pastel-blue-bg: {$app['pastel_blue_bg']};
+                --color-pastel-blue-text: {$app['pastel_blue_text']};
+                --color-pastel-yellow-bg: {$app['pastel_yellow_bg']};
+                --color-pastel-yellow-text: {$app['pastel_yellow_text']};
+                --color-pastel-gray-bg: {$app['pastel_gray_bg']};
+                --color-pastel-gray-text: {$app['pastel_gray_text']};
+
+                --radius-button: {$app['button_radius']};
+                --radius-card: {$app['card_radius']};
+                --radius-field: {$app['field_radius']};
+                --radius-modal: {$app['modal_radius']};
+
+                /* Legacy Compatibility Variables */
+                --sm-primary-color: {$app['primary_color']};
+                --sm-secondary-color: {$app['gray_700']};
+                --sm-accent-color: {$app['primary_color']};
+                --sm-dark-color: {$app['gray_800']};
+                --sm-radius: {$app['card_radius']};
             }
             .sm-content-wrapper, .sm-admin-dashboard, .sm-container,
             .sm-content-wrapper *:not(.dashicons), .sm-admin-dashboard *:not(.dashicons), .sm-container *:not(.dashicons) {
                 font-family: 'Cairo', 'Noto Kufi Arabic', sans-serif !important;
             }
-            .sm-admin-dashboard { font-size: calc({$appearance['font_size']} * 0.93); }
+            .sm-admin-dashboard { font-size: calc({$app['font_size']} * 0.93); }
+
+            /* SYSTEM-WIDE BUTTON RULE: ALL BUTTONS ARE FULLY ROUNDED PILLS */
+            .sm-btn, button.sm-btn, a.sm-btn, input[type='submit'].sm-btn,
+            .sm-btn-custom, .eess-hdr-btn, .pag-btn, .sm-tab-btn {
+                border-radius: {$app['button_radius']} !important;
+            }
+
+            /* GLOBAL SAVE BUTTON RULE: BLACK & WHITE INVERTED INTERACTION */
+            .sm-btn-save, button[name*='save'], button[name*='update'], button[type='submit']:not(.sm-btn-custom):not(.sm-btn-danger) {
+                background-color: var(--color-black) !important;
+                color: var(--color-white) !important;
+                border: 1px solid var(--color-black) !important;
+                border-radius: var(--radius-button) !important;
+            }
+            .sm-btn-save:hover, button[name*='save']:hover, button[name*='update']:hover {
+                background-color: var(--color-white) !important;
+                color: var(--color-black) !important;
+                border: 1px solid var(--color-black) !important;
+            }
+
+            /* GLOBAL DELETE BUTTON RULE: DANGER RED */
+            .sm-btn-danger, .sm-btn-delete, button[name*='delete'], button[onclick*='delete'], button[onclick*='Delete'] {
+                background-color: var(--color-danger) !important;
+                color: var(--color-white) !important;
+                border: none !important;
+                border-radius: var(--radius-button) !important;
+            }
+            .sm-btn-danger:hover, .sm-btn-delete:hover, button[name*='delete']:hover, button[onclick*='delete']:hover, button[onclick*='Delete']:hover {
+                background-color: var(--color-danger-hover) !important;
+            }
+
+            /* GLOBAL UNIFIED TABLE HEADERS */
+            .sm-table th, table th, thead tr th {
+                background-color: var(--color-gray-800) !important;
+                color: var(--color-white) !important;
+            }
         ";
         wp_add_inline_style($this->plugin_name, $custom_css);
     }
@@ -4771,20 +4843,61 @@ class SM_Public {
             }
         }
 
-        // Handle Appearance Settings Save
+        // Handle Appearance Settings Save & Reset
+        if (isset($_POST['sm_reset_appearance']) && wp_verify_nonce($_POST['sm_admin_nonce'], 'sm_admin_action')) {
+            if (current_user_can('إدارة_النظام')) {
+                delete_option('sm_appearance');
+                SM_Logger::log('إعادة ضبط تصميم النظام', "تمت إعادة ضبط الألوان والمظهر للقيم الافتراضية.");
+                wp_redirect(add_query_arg('sm_admin_msg', 'settings_saved', $_SERVER['REQUEST_URI']));
+                exit;
+            }
+        }
+
         if (isset($_POST['sm_save_appearance']) && wp_verify_nonce($_POST['sm_admin_nonce'], 'sm_admin_action')) {
             if (current_user_can('إدارة_النظام')) {
-                SM_Settings::save_appearance(array(
-                    'primary_color' => sanitize_hex_color($_POST['primary_color']),
-                    'secondary_color' => sanitize_hex_color($_POST['secondary_color']),
-                    'accent_color' => sanitize_hex_color($_POST['accent_color']),
-                    'dark_color' => sanitize_hex_color($_POST['dark_color']),
-                    'font_size' => sanitize_text_field($_POST['font_size']),
-                    'border_radius' => sanitize_text_field($_POST['border_radius']),
-                    'table_style' => sanitize_text_field($_POST['table_style']),
-                    'button_style' => sanitize_text_field($_POST['button_style'])
-                ));
-                SM_Logger::log('تحديث تصميم النظام', "تم تغيير إعدادات الألوان والمظهر العام.");
+                $saved = array(
+                    'primary_color' => sanitize_hex_color($_POST['primary_color'] ?? '#8B0000'),
+                    'primary_hover' => sanitize_hex_color($_POST['primary_hover'] ?? '#6F0000'),
+                    'danger_color'  => sanitize_hex_color($_POST['danger_color'] ?? '#C62828'),
+                    'danger_hover'  => sanitize_hex_color($_POST['danger_hover'] ?? '#A61B1B'),
+                    'black_color'   => sanitize_hex_color($_POST['black_color'] ?? '#000000'),
+                    'white_color'   => sanitize_hex_color($_POST['white_color'] ?? '#FFFFFF'),
+
+                    'gray_50'  => sanitize_hex_color($_POST['gray_50'] ?? '#F8F8F8'),
+                    'gray_100' => sanitize_hex_color($_POST['gray_100'] ?? '#F5F5F5'),
+                    'gray_200' => sanitize_hex_color($_POST['gray_200'] ?? '#EEEEEE'),
+                    'gray_300' => sanitize_hex_color($_POST['gray_300'] ?? '#E0E0E0'),
+                    'gray_400' => sanitize_hex_color($_POST['gray_400'] ?? '#BDBDBD'),
+                    'gray_500' => sanitize_hex_color($_POST['gray_500'] ?? '#9E9E9E'),
+                    'gray_600' => sanitize_hex_color($_POST['gray_600'] ?? '#757575'),
+                    'gray_700' => sanitize_hex_color($_POST['gray_700'] ?? '#424242'),
+                    'gray_800' => sanitize_hex_color($_POST['gray_800'] ?? '#212121'),
+                    'gray_900' => sanitize_hex_color($_POST['gray_900'] ?? '#000000'),
+
+                    'pastel_red_bg'     => sanitize_hex_color($_POST['pastel_red_bg'] ?? '#FDECEC'),
+                    'pastel_red_text'   => sanitize_hex_color($_POST['pastel_red_text'] ?? '#C62828'),
+                    'pastel_green_bg'   => sanitize_hex_color($_POST['pastel_green_bg'] ?? '#EAF7EE'),
+                    'pastel_green_text' => sanitize_hex_color($_POST['pastel_green_text'] ?? '#2E7D32'),
+                    'pastel_blue_bg'    => sanitize_hex_color($_POST['pastel_blue_bg'] ?? '#EAF3FB'),
+                    'pastel_blue_text'  => sanitize_hex_color($_POST['pastel_blue_text'] ?? '#1565C0'),
+                    'pastel_yellow_bg'  => sanitize_hex_color($_POST['pastel_yellow_bg'] ?? '#FFF8E1'),
+                    'pastel_yellow_text'=> sanitize_hex_color($_POST['pastel_yellow_text'] ?? '#B77900'),
+                    'pastel_gray_bg'    => sanitize_hex_color($_POST['pastel_gray_bg'] ?? '#F5F5F5'),
+                    'pastel_gray_text'  => sanitize_hex_color($_POST['pastel_gray_text'] ?? '#616161'),
+
+                    'button_radius' => sanitize_text_field($_POST['button_radius'] ?? '9999px'),
+                    'card_radius'   => sanitize_text_field($_POST['card_radius'] ?? '20px'),
+                    'field_radius'  => sanitize_text_field($_POST['field_radius'] ?? '9999px'),
+                    'modal_radius'  => sanitize_text_field($_POST['modal_radius'] ?? '20px'),
+
+                    'font_size'       => sanitize_text_field($_POST['font_size'] ?? '15px'),
+                    'secondary_color' => sanitize_hex_color($_POST['gray_700'] ?? '#424242'),
+                    'accent_color'    => sanitize_hex_color($_POST['primary_color'] ?? '#8B0000'),
+                    'dark_color'      => sanitize_hex_color($_POST['gray_800'] ?? '#212121'),
+                    'border_radius'   => sanitize_text_field($_POST['card_radius'] ?? '20px')
+                );
+                SM_Settings::save_appearance($saved);
+                SM_Logger::log('تحديث تصميم النظام', "تم تغيير إعدادات الألوان والمظهر العام للنظام بالكامل.");
                 wp_redirect(add_query_arg('sm_admin_msg', 'settings_saved', $_SERVER['REQUEST_URI']));
                 exit;
             }

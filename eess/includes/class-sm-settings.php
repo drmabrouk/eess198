@@ -25,14 +25,50 @@ class SM_Settings {
 
     public static function get_appearance() {
         $default = array(
-            'primary_color' => '#334155',
-            'secondary_color' => '#475569',
-            'accent_color' => '#64748B',
-            'dark_color' => '#1E293B',
-            'font_size' => '15px',
-            'border_radius' => '12px',
-            'table_style' => 'modern',
-            'button_style' => 'flat'
+            // Primary Brand Colors
+            'primary_color' => '#8B0000',      // Primary Dark Red
+            'primary_hover' => '#6F0000',      // Dark Red Hover
+            'danger_color'  => '#C62828',      // Global Danger Red
+            'danger_hover'  => '#A61B1B',
+            'black_color'   => '#000000',
+            'white_color'   => '#FFFFFF',
+
+            // Complete Grayscale Palette
+            'gray_50'  => '#F8F8F8',
+            'gray_100' => '#F5F5F5',
+            'gray_200' => '#EEEEEE',
+            'gray_300' => '#E0E0E0',
+            'gray_400' => '#BDBDBD',
+            'gray_500' => '#9E9E9E',
+            'gray_600' => '#757575',
+            'gray_700' => '#424242',
+            'gray_800' => '#212121',
+            'gray_900' => '#000000',
+
+            // Pastel Status Colors
+            'pastel_red_bg'     => '#FDECEC',
+            'pastel_red_text'   => '#C62828',
+            'pastel_green_bg'   => '#EAF7EE',
+            'pastel_green_text' => '#2E7D32',
+            'pastel_blue_bg'    => '#EAF3FB',
+            'pastel_blue_text'  => '#1565C0',
+            'pastel_yellow_bg'  => '#FFF8E1',
+            'pastel_yellow_text'=> '#B77900',
+            'pastel_gray_bg'    => '#F5F5F5',
+            'pastel_gray_text'  => '#616161',
+
+            // Global Component Radii
+            'button_radius' => '9999px',
+            'card_radius'   => '20px',
+            'field_radius'  => '9999px',
+            'modal_radius'  => '20px',
+
+            // Legacy Fallbacks
+            'font_size'       => '15px',
+            'secondary_color' => '#424242',
+            'accent_color'    => '#8B0000',
+            'dark_color'      => '#212121',
+            'border_radius'   => '12px'
         );
         return wp_parse_args(get_option('sm_appearance', array()), $default);
     }

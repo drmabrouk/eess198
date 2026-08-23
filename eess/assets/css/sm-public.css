@@ -115,21 +115,22 @@
     background-color: var(--sm-pastel-red);
 }
 
-/* Unified Button Design */
-.sm-btn {
+/* Unified System-Wide Button Design: All Buttons Full Pill Radius (9999px) */
+.sm-btn, button.sm-btn, a.sm-btn, input[type='submit'].sm-btn,
+.sm-btn-custom, .eess-hdr-btn, .pag-btn, .sm-tab-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 600;
+    padding: 8px 18px;
+    border-radius: 9999px !important;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.25s ease;
     border: none;
     gap: 8px;
     font-size: 13px;
-    background: var(--sm-primary-color);
-    color: white;
+    background: var(--color-primary, #8B0000);
+    color: var(--color-white, #ffffff);
     text-decoration: none;
 }
 
