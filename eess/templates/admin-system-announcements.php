@@ -118,11 +118,12 @@ $activity_logs = $wpdb->get_results("SELECT ua.*, a.title as announcement_title,
                         <th style="padding: 12px; text-align: center;">المشاهدين</th>
                         <th style="padding: 12px; text-align: center;">المغلقين</th>
                         <th style="padding: 12px; text-align: center;">الحالة</th>
+                        <th style="padding: 12px; text-align: center;">إجراءات (Actions)</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($announcements)): ?>
-                        <tr><td colspan="6" style="padding: 20px; text-align: center; color: #94a3b8;">لا توجد إشعارات منشورة حالياً.</td></tr>
+                        <tr><td colspan="7" style="padding: 20px; text-align: center; color: #94a3b8;">لا توجد إشعارات منشورة حالياً.</td></tr>
                     <?php else: ?>
                         <?php foreach ($announcements as $anc):
                             $target_arr = json_decode($anc->target_roles, true) ?: array();
@@ -130,6 +131,7 @@ $activity_logs = $wpdb->get_results("SELECT ua.*, a.title as announcement_title,
 
                             $viewed_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}sm_user_announcements WHERE announcement_id = %d AND status IN ('viewed', 'closed')", $anc->id));
                             $closed_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}sm_user_announcements WHERE announcement_id = %d AND status = 'closed'", $anc->id));
+                            $is_active = ($anc->status === 'active');
                         ?>
                             <tr style="border-bottom: 1px solid #f1f5f9;">
                                 <td style="padding: 12px; font-weight: 700; color: #0f172a;"><?php echo esc_html($anc->title); ?></td>
@@ -138,7 +140,21 @@ $activity_logs = $wpdb->get_results("SELECT ua.*, a.title as announcement_title,
                                 <td style="padding: 12px; text-align: center;"><span style="background: #dbeafe; color: #1e40af; padding: 4px 10px; border-radius: 50px; font-weight: 800; font-size: 11px;"><?php echo $viewed_count; ?></span></td>
                                 <td style="padding: 12px; text-align: center;"><span style="background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 50px; font-weight: 800; font-size: 11px;"><?php echo $closed_count; ?></span></td>
                                 <td style="padding: 12px; text-align: center;">
-                                    <span style="background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 50px; font-weight: 800; font-size: 11px;">نشط</span>
+                                    <?php if ($is_active): ?>
+                                        <span style="background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 50px; font-weight: 800; font-size: 11px;">نشط (Active)</span>
+                                    <?php else: ?>
+                                        <span style="background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 50px; font-weight: 800; font-size: 11px;">معطل (Disabled)</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <?php if ($is_active): ?>
+                                        <button type="button" onclick="eessDisableAnnouncement(<?php echo $anc->id; ?>)" style="background: #ef4444; color: white; border: none; border-radius: 6px; padding: 5px 12px; font-size: 11px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                            <span class="dashicons dashicons-no-alt" style="font-size: 14px; width: 14px; height: 14px;"></span>
+                                            تعطيل (Disable)
+                                        </button>
+                                    <?php else: ?>
+                                        <span style="font-size: 11px; color: #94a3b8; font-weight: 700;">معطل</span>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -245,6 +261,23 @@ function eessResetUserAnnouncement(ancId, userId, logId) {
             location.reload();
         } else {
             alert(res.data || 'حدث خطأ أثناء تنفيذ الإجراء.');
+        }
+    });
+}
+
+function eessDisableAnnouncement(ancId) {
+    if (!confirm('هل أنت تأكد من تعطيل هذا الإشعار؟ سيتم إيقاف ظهوره فوراً لجميع المستخدمين المستهدفين.')) return;
+
+    jQuery.post('<?php echo admin_url('admin-ajax.php'); ?>', {
+        action: 'sm_disable_system_announcement',
+        announcement_id: ancId,
+        nonce: '<?php echo wp_create_nonce('sm_announcement_action'); ?>'
+    }, function(res) {
+        if (res.success) {
+            alert(res.data.message || 'تم تعطيل الإشعار بنجاح.');
+            location.reload();
+        } else {
+            alert(res.data || 'حدث خطأ أثناء تعطيل الإشعار.');
         }
     });
 }
