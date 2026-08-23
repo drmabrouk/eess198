@@ -70,8 +70,11 @@ if ($is_reviewer) {
                 </div>
             </div>
 
-            <!-- Tab Switching Buttons -->
-            <div style="display: flex; gap: 10px;">
+            <!-- Tab Switching & Print Buttons -->
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=annual_plan&teacher_id=' . $user_id); ?>" target="_blank" class="sm-btn" style="background: #16a34a; color: #fff !important; height: 38px; border-radius: 10px; padding: 0 16px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                    🖨️ طباعة الخطة السنوية (PDF)
+                </a>
                 <button type="button" onclick="switchTermPlanTab('teacher-dashboard')" id="btn-tab-teacher" class="sm-btn" style="background: #2563eb; color: #fff; height: 38px; border-radius: 10px; padding: 0 18px; font-weight: 800; border: none; cursor: pointer;">
                     إعداد وخطة المدرس
                 </button>
@@ -122,7 +125,7 @@ if ($is_reviewer) {
                         <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #64748b;">
                             <span>الإنجاز: <strong style="color: #0f172a;"><?php echo $pct; ?>%</strong></span>
                             <?php if ($p): ?>
-                                <span><?php echo $p->total_weeks; ?> أسبوعاً</span>
+                                <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=term_plan&plan_id=' . $p->id); ?>" target="_blank" style="color: #2563eb; text-decoration: none; font-weight: 800; font-size: 11.5px;">🖨️ طباعة الترم</a>
                             <?php endif; ?>
                         </div>
                     </div>

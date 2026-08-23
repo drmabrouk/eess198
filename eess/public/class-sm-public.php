@@ -6061,6 +6061,9 @@ class SM_Public {
 
             include SM_PLUGIN_DIR . 'templates/lesson-document-template.php';
             exit;
+        } elseif ($print_type === 'term_plan' || $print_type === 'annual_plan') {
+            include SM_PLUGIN_DIR . 'templates/term-plan-document-template.php';
+            exit;
         } else {
             wp_die('نوع الطباعة غير مدعوم.');
         }
