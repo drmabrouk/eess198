@@ -1,15 +1,51 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <div class="sm-assignments-container" dir="rtl" style="font-family: 'Cairo', sans-serif;">
 
-    <!-- Top Action Bar & Homework Search Engine -->
-    <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0;">
-        <div style="flex: 1;">
-            <input type="text" id="eess-homework-search" onkeyup="eessFilterHomework()" class="sm-input" placeholder="ابحث عن واجب باسم المادة، المدرس، الطالب، أو العنوان..." style="height: 40px; border-radius: 8px; width: 100%; font-size: 13px; padding: 0 15px;">
+    <!-- Top Action Bar & Homework Multi-Filter Search Engine -->
+    <div style="background: #ffffff; padding: 20px; border-radius: 16px; border: 1px solid #cbd5e1; box-shadow: 0 2px 8px rgba(0,0,0,0.02); margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                <span class="dashicons dashicons-search" style="color: #881337; font-size: 18px; width: 18px; height: 18px; margin: 0;"></span>
+                <span>محرك البحث والتصفية المتقدم للواجبات المدرسية</span>
+            </h3>
+            <?php if (in_array('sm_teacher', (array)wp_get_current_user()->roles) || current_user_can('manage_options')): ?>
+                <button type="button" onclick="document.getElementById('add-assignment-modal').style.display='flex'" class="sm-btn" style="height: 38px; padding: 0 20px; font-weight: 800; font-size: 12.5px; background: #881337; color: white !important; border-radius: 9999px !important; display: inline-flex; align-items: center; gap: 6px; border: none; cursor: pointer;">
+                    <span class="dashicons dashicons-plus-alt" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
+                    <span>إضافة واجب جديد</span>
+                </button>
+            <?php endif; ?>
         </div>
-        <button type="button" onclick="document.getElementById('add-assignment-modal').style.display='flex'" class="sm-btn" style="height: 40px; padding: 0 20px; font-weight: 800; font-size: 13px; background: var(--sm-primary-color); color: white !important; display: inline-flex; align-items: center; gap: 8px; border-radius: 8px; cursor: pointer;">
-            <span class="dashicons dashicons-plus-alt" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
-            <span>إضافة واجب جديد</span>
-        </button>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+            <div>
+                <label style="font-size: 11.5px; font-weight: 700; color: #475569; margin-bottom: 4px; display: block;">البحث المباشر</label>
+                <input type="text" id="eess-homework-search" onkeyup="eessFilterHomework()" class="sm-input" placeholder="عنوان الواجب، المدرس، المادة، الطالب..." style="height: 38px; border-radius: 9999px !important; border: 1px solid #cbd5e1; width: 100%; font-size: 12.5px; padding: 0 14px;">
+            </div>
+
+            <div>
+                <label style="font-size: 11.5px; font-weight: 700; color: #475569; margin-bottom: 4px; display: block;">المادة الدراسية</label>
+                <select id="eess-hw-filter-subject" onchange="eessFilterHomework()" class="sm-input" style="height: 38px; border-radius: 9999px !important; border: 1px solid #cbd5e1; width: 100%; font-size: 12.5px; padding: 0 12px;">
+                    <option value="">كافة المواد</option>
+                    <?php
+                    $all_subjects = SM_DB::get_subjects() ?: array();
+                    $unique_subjs = array_unique(array_filter(array_map(function($s){ return is_object($s) ? $s->name : (is_array($s) ? ($s['name'] ?? '') : (string)$s); }, (array)$all_subjects)));
+                    foreach ($unique_subjs as $sub_item) {
+                        echo '<option value="' . esc_attr($sub_item) . '">' . esc_html($sub_item) . '</option>';
+                    }
+                    ?>
+                </select>
+            </div>
+
+            <div>
+                <label style="font-size: 11.5px; font-weight: 700; color: #475569; margin-bottom: 4px; display: block;">التاريخ</label>
+                <input type="date" id="eess-hw-filter-date" onchange="eessFilterHomework()" class="sm-input" style="height: 38px; border-radius: 9999px !important; border: 1px solid #cbd5e1; width: 100%; font-size: 12px; padding: 0 10px;">
+            </div>
+
+            <div style="display: flex; align-items: flex-end; gap: 8px;">
+                <button type="button" onclick="eessFilterHomework()" class="sm-btn" style="height: 38px; font-size: 12px; padding: 0 18px; background: #881337; color: white !important; border-radius: 9999px !important; font-weight: 800; border: none; cursor: pointer; width: 100%;">تصفية النتائج</button>
+                <button type="button" onclick="eessResetHomeworkFilter()" class="sm-btn sm-btn-outline" style="height: 38px; font-size: 12px; padding: 0 14px; border-radius: 9999px !important; border: 1px solid #cbd5e1; color: #475569; font-weight: 700; cursor: pointer;">إعادة ضبط</button>
+            </div>
+        </div>
     </div>
 
     <div class="sm-tabs-wrapper" style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee;">
@@ -291,16 +327,31 @@ function viewAssignment(a) {
 
 function eessFilterHomework() {
     const q = document.getElementById('eess-homework-search').value.trim().toLowerCase();
+    const subj = document.getElementById('eess-hw-filter-subject') ? document.getElementById('eess-hw-filter-subject').value.trim().toLowerCase() : '';
+    const dateVal = document.getElementById('eess-hw-filter-date') ? document.getElementById('eess-hw-filter-date').value.trim() : '';
+
     const rows = document.querySelectorAll('.sm-table tbody tr');
 
     rows.forEach(row => {
         if (row.cells.length < 2) return;
         const text = row.textContent.toLowerCase();
-        if (text.includes(q)) {
+
+        let matchQuery = !q || text.includes(q);
+        let matchSubj = !subj || text.includes(subj);
+        let matchDate = !dateVal || text.includes(dateVal);
+
+        if (matchQuery && matchSubj && matchDate) {
             row.style.display = '';
         } else {
             row.style.display = 'none';
         }
     });
+}
+
+function eessResetHomeworkFilter() {
+    document.getElementById('eess-homework-search').value = '';
+    if (document.getElementById('eess-hw-filter-subject')) document.getElementById('eess-hw-filter-subject').value = '';
+    if (document.getElementById('eess-hw-filter-date')) document.getElementById('eess-hw-filter-date').value = '';
+    eessFilterHomework();
 }
 </script>

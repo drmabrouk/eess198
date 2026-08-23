@@ -187,15 +187,16 @@ if (!is_array($timeline)) $timeline = json_decode($timeline, true) ?: array();
                 <div style="background: #f8fafc; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 25px; box-shadow: var(--sm-shadow);">
                     <div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
                         <div style="text-align: center;">
-                            <?php
-                            $pending_photo = get_user_meta($target_user_id, 'eess_pending_profile_photo', true);
-                            echo get_avatar($target_user_id, 110, '', '', array('style' => 'width: 110px; height: 110px; border-radius: 50% !important; border: 4px solid #cbd5e1; object-fit: cover; display: block; margin: 0 auto;'));
-                            ?>
-                            <form method="POST" enctype="multipart/form-data" action="" style="margin-top: 10px;">
+                            <?php $pending_photo = get_user_meta($target_user_id, 'eess_pending_profile_photo', true); ?>
+                            <form method="POST" enctype="multipart/form-data" action="" id="eess_avatar_upload_form">
                                 <?php wp_nonce_field('eess_profile_photo_upload', 'eess_photo_nonce'); ?>
-                                <label class="sm-btn sm-btn-outline" style="font-size: 11px; padding: 4px 10px; cursor: pointer; border-radius: 6px; display: inline-block; background: #fff; border-color: #cbd5e1; font-weight: bold;">
-                                    📁 تغيير الصورة الشخصية
-                                    <input type="file" name="profile_photo_upload" onchange="this.form.submit()" style="display: none;">
+                                <label style="position: relative; display: inline-block; cursor: pointer; border-radius: 50%; overflow: hidden; border: 4px solid #cbd5e1; width: 110px; height: 110px;" title="انقر لتغيير الصورة الشخصية">
+                                    <?php echo get_avatar($target_user_id, 110, '', '', array('style' => 'width: 100%; height: 100%; object-fit: cover; display: block; margin: 0;')); ?>
+                                    <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.4); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0'">
+                                        <span class="dashicons dashicons-camera" style="font-size: 24px; width: 24px; height: 24px;"></span>
+                                        <span style="font-size: 10px; font-weight: bold; margin-top: 2px;">تغيير</span>
+                                    </div>
+                                    <input type="file" name="profile_photo_upload" onchange="document.getElementById('eess_avatar_upload_form').submit()" style="display: none;">
                                 </label>
                             </form>
                             <?php if ($pending_photo): ?>

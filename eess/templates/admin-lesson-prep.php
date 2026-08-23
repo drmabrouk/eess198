@@ -542,23 +542,23 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                 <?php echo $can_review ? 'استعراض واعتماد خطط تحضير المعلمين' : 'أرشيف وسجل تحضير الدروس الخاص بي'; ?>
             </h3>
 
-            <!-- Search and Filter bar (Compacted) -->
-            <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 15px; background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+            <!-- Search and Filter bar (Unified Wine-Red & Neutral Design System) -->
+            <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; background: #ffffff; padding: 18px; border-radius: 16px; border: 1px solid #cbd5e1; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
                 <input type="hidden" name="page" value="<?php echo isset($_GET['page']) ? esc_attr($_GET['page']) : ''; ?>">
 
                 <div>
-                    <label style="font-size: 11px; font-weight: bold; color: #475569;">البحث الفوري</label>
-                    <input type="text" name="s_query" value="<?php echo isset($_GET['s_query']) ? esc_attr($_GET['s_query']) : ''; ?>" placeholder="اسم المعلم أو العنوان..." class="sm-input" style="height:32px; font-size:11px;">
+                    <label style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">البحث الفوري</label>
+                    <input type="text" name="s_query" value="<?php echo isset($_GET['s_query']) ? esc_attr($_GET['s_query']) : ''; ?>" placeholder="اسم المعلم، المادة، أو عنوان الدرس..." class="sm-input" style="height:38px; font-size:12.5px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 14px;">
                 </div>
 
                 <div>
-                    <label style="font-size: 11px; font-weight: bold; color: #475569;">تاريخ الدرس</label>
-                    <input type="date" name="filter_date" value="<?php echo isset($_GET['filter_date']) ? esc_attr($_GET['filter_date']) : ''; ?>" class="sm-input" style="height:32px; font-size:11px;">
+                    <label style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">تاريخ الدرس</label>
+                    <input type="date" name="filter_date" value="<?php echo isset($_GET['filter_date']) ? esc_attr($_GET['filter_date']) : ''; ?>" class="sm-input" style="height:38px; font-size:12.5px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 12px;">
                 </div>
 
                 <div>
-                    <label style="font-size: 11px; font-weight: bold; color: #475569;">حالة التحضير</label>
-                    <select name="filter_status" class="sm-input" style="height:32px; font-size:11px; padding: 0 8px;">
+                    <label style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">حالة التحضير</label>
+                    <select name="filter_status" class="sm-input" style="height:38px; font-size:12.5px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 12px;">
                         <option value="">كافة الحالات</option>
                         <option value="draft" <?php selected(isset($_GET['filter_status']) && $_GET['filter_status'] == 'draft'); ?>>مسودة</option>
                         <option value="submitted" <?php selected(isset($_GET['filter_status']) && $_GET['filter_status'] == 'submitted'); ?>>مقدم للاعتماد</option>
@@ -569,9 +569,9 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                     </select>
                 </div>
 
-                <div style="display: flex; align-items: flex-end; gap: 5px;">
-                    <button type="submit" class="sm-btn" style="height: 32px; font-size:11px; padding:0 12px; width:auto; background:var(--sm-secondary-color);">تصفية</button>
-                    <a href="<?php echo home_url('/lesson-prep'); ?>" class="sm-btn sm-btn-outline" style="height: 32px; font-size:11px; padding:0 12px; width:auto; display:flex; align-items:center; justify-content:center; text-decoration:none;">إعادة ضبط</a>
+                <div style="display: flex; align-items: flex-end; gap: 8px;">
+                    <button type="submit" class="sm-btn" style="height: 38px; font-size:12.5px; padding:0 20px; width:100%; background: #881337; border-radius: 9999px !important; color: white !important; font-weight: 800; border: none; cursor: pointer;">تطبيق الفلترة</button>
+                    <a href="<?php echo home_url('/lesson-prep'); ?>" class="sm-btn sm-btn-outline" style="height: 38px; font-size:12px; padding:0 16px; border-radius: 9999px !important; border: 1px solid #cbd5e1; color: #475569; display:flex; align-items:center; justify-content:center; text-decoration:none; font-weight:700;">إعادة ضبط</a>
                 </div>
             </form>
 
