@@ -280,8 +280,8 @@ class SM_Public {
     }
 
     public function eess_render_mobile_lesson_prep() {
-        $all_subjects = SM_DB::get_subjects();
-        $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all_subjects));
+        $all_subjects = SM_DB::get_subjects() ?: array();
+        $unique_subjects = array_unique(array_filter(array_map(function($s){ return is_object($s) ? $s->name : (is_array($s) ? ($s['name'] ?? '') : (string)$s); }, (array)$all_subjects)));
         $nonce = wp_create_nonce('sm_mobile_prep_nonce');
         $ajax_url = admin_url('admin-ajax.php');
 
@@ -1507,19 +1507,24 @@ class SM_Public {
 
         <!-- Multi-Step Password Recovery Modal Without OTP -->
         ' . (function() {
-            $schools_list = SM_DB::get_schools();
-            $subjects_list = SM_DB::get_subjects();
-            $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $subjects_list));
+            $schools_list = SM_DB::get_schools() ?: array();
+            $subjects_list = SM_DB::get_subjects() ?: array();
+            $unique_subjects = array_unique(array_filter(array_map(function($s){ return is_object($s) ? $s->name : (is_array($s) ? ($s['name'] ?? '') : (string)$s); }, (array)$subjects_list)));
             $nationalities = array('إماراتي', 'سعودي', 'مصري', 'أردني', 'سوري', 'عماني', 'كويتي', 'بحريني', 'قطري', 'عراقي', 'يمني', 'سوداني', 'مغربي', 'جزائري', 'تونسية', 'لبناني', 'فلسطيني', 'جنسية أخرى');
 
             $schools_options = '';
-            foreach ($schools_list as $sch) {
-                $schools_options .= '<option value="' . esc_attr($sch->name) . '">' . esc_html($sch->name) . '</option>';
+            foreach ((array)$schools_list as $sch) {
+                $sch_name = is_object($sch) ? $sch->name : (is_array($sch) ? ($sch['name'] ?? '') : (string)$sch);
+                if ($sch_name) {
+                    $schools_options .= '<option value="' . esc_attr($sch_name) . '">' . esc_html($sch_name) . '</option>';
+                }
             }
 
             $subject_options = '';
             foreach ($unique_subjects as $subj) {
-                $subject_options .= '<option value="' . esc_attr($subj) . '">' . esc_html($subj) . '</option>';
+                if ($subj) {
+                    $subject_options .= '<option value="' . esc_attr($subj) . '">' . esc_html($subj) . '</option>';
+                }
             }
 
             $nationality_options = '';
@@ -1728,19 +1733,24 @@ class SM_Public {
 
         <!-- Registration Wizard Modal (Without OTP) -->
         ' . (function() {
-            $schools_list = SM_DB::get_schools();
-            $subjects_list = SM_DB::get_subjects();
-            $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $subjects_list));
+            $schools_list = SM_DB::get_schools() ?: array();
+            $subjects_list = SM_DB::get_subjects() ?: array();
+            $unique_subjects = array_unique(array_filter(array_map(function($s){ return is_object($s) ? $s->name : (is_array($s) ? ($s['name'] ?? '') : (string)$s); }, (array)$subjects_list)));
             $nationalities = array('إماراتي', 'سعودي', 'مصري', 'أردني', 'سوري', 'عماني', 'كويتي', 'بحريني', 'قطري', 'عراقي', 'يمني', 'سوداني', 'مغربي', 'جزائري', 'تونسية', 'لبناني', 'فلسطيني', 'جنسية أخرى');
 
             $schools_opts = '';
-            foreach ($schools_list as $sch) {
-                $schools_opts .= '<option value="' . esc_attr($sch->name) . '">' . esc_html($sch->name) . '</option>';
+            foreach ((array)$schools_list as $sch) {
+                $sch_name = is_object($sch) ? $sch->name : (is_array($sch) ? ($sch['name'] ?? '') : (string)$sch);
+                if ($sch_name) {
+                    $schools_opts .= '<option value="' . esc_attr($sch_name) . '">' . esc_html($sch_name) . '</option>';
+                }
             }
 
             $subject_opts = '';
             foreach ($unique_subjects as $subj) {
-                $subject_opts .= '<option value="' . esc_attr($subj) . '">' . esc_html($subj) . '</option>';
+                if ($subj) {
+                    $subject_opts .= '<option value="' . esc_attr($subj) . '">' . esc_html($subj) . '</option>';
+                }
             }
 
             $nat_opts = '';
