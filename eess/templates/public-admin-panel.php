@@ -2042,48 +2042,45 @@ jQuery(document).ready(function($) {
 
 <?php include_once SM_PLUGIN_DIR . 'templates/partials/teacher-behavior-referral-modal.php'; ?>
 <!-- TECHNICAL SUPPORT & HELP CAPSULE MODAL -->
-<div id="eess-support-capsule-modal" style="display: none; position: fixed; inset: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif; direction: rtl;">
-    <div style="background: #ffffff; border-radius: 16px; max-width: 520px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; display: flex; flex-direction: column;">
-        <!-- Header -->
-        <div style="background: #1e293b; color: #ffffff; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0; font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
-                <span class="dashicons dashicons-sos" style="color: #ef4444; font-size: 20px; width: 20px; height: 20px; margin: 0;"></span>
+<div id="eess-support-capsule-modal" style="display: none; position: fixed; inset: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif; direction: rtl;">
+    <div style="background: #ffffff; border-radius: 20px; max-width: 680px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; display: flex; flex-direction: column;">
+        <!-- Taller Header with White Title & White Icon -->
+        <div style="background: #1e293b; color: #ffffff; padding: 22px 26px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;">
+            <h3 style="margin: 0; font-size: 16.5px; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 10px;">
+                <span class="dashicons dashicons-sos" style="color: #ffffff; font-size: 22px; width: 22px; height: 22px; margin: 0;"></span>
                 <span>الدعم الفني والمساعدة</span>
             </h3>
-            <button type="button" onclick="eessCloseSupportHelpCapsule()" style="background: none; border: none; color: #ffffff; font-size: 22px; cursor: pointer; line-height: 1;">&times;</button>
+            <button type="button" onclick="eessCloseSupportHelpCapsule()" style="background: none; border: none; color: #ffffff; font-size: 26px; cursor: pointer; line-height: 1;">&times;</button>
         </div>
 
         <!-- Body -->
-        <div style="padding: 24px; box-sizing: border-box;">
+        <div style="padding: 26px; box-sizing: border-box;">
             <div id="eess-capsule-msg" style="display: none; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 12px; font-weight: 700;"></div>
 
-            <!-- Main Menu Options -->
+            <!-- Main Menu Options (3 Equal Square Cards on 1 Row) -->
             <div id="capsule-menu-view">
-                <p style="font-size: 13px; color: #64748b; margin: 0 0 20px 0; line-height: 1.6;">يرجى اختيار إحدى الخدمات المتاحة للبدء في التواصل مع فريق الدعم والتطوير:</p>
+                <p style="font-size: 13px; color: #64748b; margin: 0 0 22px 0; line-height: 1.6; text-align: center; font-weight: 600;">يرجى اختيار إحدى الخدمات المتاحة للبدء في التواصل مع فريق الدعم والتطوير:</p>
 
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <button type="button" onclick="eessSelectCapsuleOption('suggestion')" style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; text-align: right; transition: all 0.2s ease;">
-                        <span class="dashicons dashicons-lightbulb" style="font-size: 24px; width: 24px; height: 24px; color: #eab308; margin: 0;"></span>
-                        <div>
-                            <div style="font-weight: 800; font-size: 14px; color: #0f172a;">تقديم مقترح</div>
-                            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">شاركونا بأفكاركم واقتراحاتكم لتطوير المنظومة التعليمية.</div>
-                        </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                    <!-- Card 1: Suggestion -->
+                    <button type="button" onclick="eessSelectCapsuleOption('suggestion')" style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 16px; padding: 20px 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; transition: all 0.2s ease; aspect-ratio: 1 / 1;" onmouseover="this.style.borderColor='#881337'; this.style.transform='translateY(-3px)';" onmouseout="this.style.borderColor='#cbd5e1'; this.style.transform='translateY(0)';">
+                        <span class="dashicons dashicons-lightbulb" style="font-size: 32px; width: 32px; height: 32px; color: #eab308; margin: 0 0 12px 0;"></span>
+                        <div style="font-weight: 800; font-size: 14.5px; color: #0f172a; margin-bottom: 6px;">تقديم مقترح</div>
+                        <div style="font-size: 11px; color: #64748b; line-height: 1.4;">مقترحات أفكار لتطوير المنظومة</div>
                     </button>
 
-                    <button type="button" onclick="eessSelectCapsuleOption('technical_issue')" style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; text-align: right; transition: all 0.2s ease;">
-                        <span class="dashicons dashicons-warning" style="font-size: 24px; width: 24px; height: 24px; color: #dc2626; margin: 0;"></span>
-                        <div>
-                            <div style="font-weight: 800; font-size: 14px; color: #0f172a;">مشكلة فنية</div>
-                            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">الإبلاغ عن خلل تقني أو خطأ في الصفحة مرفقاً بلقطة شاشة.</div>
-                        </div>
+                    <!-- Card 2: Technical Issue -->
+                    <button type="button" onclick="eessSelectCapsuleOption('technical_issue')" style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 16px; padding: 20px 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; transition: all 0.2s ease; aspect-ratio: 1 / 1;" onmouseover="this.style.borderColor='#881337'; this.style.transform='translateY(-3px)';" onmouseout="this.style.borderColor='#cbd5e1'; this.style.transform='translateY(0)';">
+                        <span class="dashicons dashicons-warning" style="font-size: 32px; width: 32px; height: 32px; color: #dc2626; margin: 0 0 12px 0;"></span>
+                        <div style="font-weight: 800; font-size: 14.5px; color: #0f172a; margin-bottom: 6px;">مشكلة فنية</div>
+                        <div style="font-size: 11px; color: #64748b; line-height: 1.4;">الإبلاغ عن خلل مع لقطة شاشة</div>
                     </button>
 
-                    <button type="button" onclick="eessSelectCapsuleOption('rating')" style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; text-align: right; transition: all 0.2s ease;">
-                        <span class="dashicons dashicons-star-filled" style="font-size: 24px; width: 24px; height: 24px; color: #2563eb; margin: 0;"></span>
-                        <div>
-                            <div style="font-weight: 800; font-size: 14px; color: #0f172a;">أشكرنا</div>
-                            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">تقييم أداء الخدمة والمنظومة وإرسال كلمة شكر لفريق العمل.</div>
-                        </div>
+                    <!-- Card 3: Rating / Thank Us -->
+                    <button type="button" onclick="eessSelectCapsuleOption('rating')" style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 16px; padding: 20px 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; transition: all 0.2s ease; aspect-ratio: 1 / 1;" onmouseover="this.style.borderColor='#881337'; this.style.transform='translateY(-3px)';" onmouseout="this.style.borderColor='#cbd5e1'; this.style.transform='translateY(0)';">
+                        <span class="dashicons dashicons-star-filled" style="font-size: 32px; width: 32px; height: 32px; color: #2563eb; margin: 0 0 12px 0;"></span>
+                        <div style="font-weight: 800; font-size: 14.5px; color: #0f172a; margin-bottom: 6px;">شكرنا</div>
+                        <div style="font-size: 11px; color: #64748b; line-height: 1.4;">تقييم الخدمة وإرسال كلمة شكر</div>
                     </button>
                 </div>
             </div>

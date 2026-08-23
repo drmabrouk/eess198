@@ -394,20 +394,20 @@ $to_num = min($offset + $limit, $total_students_count);
                                     </div>
                                 </td>
 
-                                <!-- Academic Placement Cell (Clearly Separated School, Grade, and Section) -->
+                                <!-- Academic Placement Cell (Compact Table Capsules) -->
                                 <td style="padding: 14px 18px;">
-                                    <div style="font-weight: 700; font-size: 12px; color: #64748b; margin-bottom: 5px; display: flex; align-items: center; gap: 4px;">
-                                        <span class="dashicons dashicons-bank" style="font-size: 14px; width: 14px; height: 14px; color: #64748b;"></span>
+                                    <div style="font-weight: 700; font-size: 11px; color: #64748b; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                                        <span class="dashicons dashicons-bank" style="font-size: 13px; width: 13px; height: 13px; color: #64748b;"></span>
                                         <span><?php echo esc_html($student->school_name ?? 'المدرسة الرئيسية'); ?></span>
                                     </div>
-                                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                                        <!-- Distinct Grade Badge -->
-                                        <span style="display: inline-flex; align-items: center; padding: 3px 10px; background: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 11.5px; font-weight: 800;">
+                                    <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
+                                        <!-- Distinct Compact Grade Badge -->
+                                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; background: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 11px; font-weight: 800;">
                                             <?php echo esc_html($student->class_name); ?>
                                         </span>
-                                        <!-- Distinct Section Badge -->
+                                        <!-- Distinct Compact Section Badge -->
                                         <?php if (!empty($student->section)): ?>
-                                            <span style="display: inline-flex; align-items: center; padding: 3px 10px; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; border-radius: 6px; font-size: 11.5px; font-weight: 800;">
+                                            <span style="display: inline-flex; align-items: center; padding: 2px 8px; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; border-radius: 6px; font-size: 11px; font-weight: 800;">
                                                 شعبة <?php echo esc_html($student->section); ?>
                                             </span>
                                         <?php endif; ?>
