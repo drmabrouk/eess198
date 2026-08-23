@@ -5175,6 +5175,50 @@ class SM_Public {
         exit;
     }
 
+    public function ajax_download_student_import_template() {
+        if (!current_user_can('إدارة_الطلاب')) {
+            wp_die('Unauthorized');
+        }
+
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename=student_import_template.csv');
+        $output = fopen('php://output', 'w');
+        fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM for Excel
+
+        // 11 Official Columns: A to K
+        fputcsv($output, array(
+            'كود الطالب (Student Code)',
+            'الاسم الكامل (Full Name)',
+            'رقم الهوية الوطنية (National ID)',
+            'الصف الدراسي (Grade)',
+            'الشعبة / الفصل (Section)',
+            'الجنسية (Nationality)',
+            'تاريخ التسجيل (Registration Date)',
+            'البريد الإلكتروني لولي الأمر (Guardian Email)',
+            'رقم هاتف ولي الأمر (Guardian Phone)',
+            'رابط الصورة الشخصية (Photo URL)',
+            'معرف المدرسة (School ID)'
+        ));
+
+        // Sample Row
+        fputcsv($output, array(
+            'STU-1001',
+            'علي أحمد عبدالله',
+            '784199012345678',
+            'الصف 5',
+            'أ',
+            'إماراتي',
+            date('Y-m-d'),
+            'parent@example.com',
+            '0501234567',
+            '',
+            '1'
+        ));
+
+        fclose($output);
+        exit;
+    }
+
     public function ajax_export_students_csv() {
         if (!current_user_can('إدارة_الطلاب')) {
             wp_die('Unauthorized');
@@ -5191,17 +5235,34 @@ class SM_Public {
         $output = fopen('php://output', 'w');
         fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM for Excel
 
-        fputcsv($output, array('الاسم الكامل', 'الصف', 'الشعبة', 'الجنسية', 'البريد الإلكتروني لولي الأمر', 'رقم هاتف ولي الأمر', 'رقم الهوية الوطنية / الكود'));
+        // 11 Official Columns: A to K
+        fputcsv($output, array(
+            'كود الطالب (Student Code)',
+            'الاسم الكامل (Full Name)',
+            'رقم الهوية الوطنية (National ID)',
+            'الصف الدراسي (Grade)',
+            'الشعبة / الفصل (Section)',
+            'الجنسية (Nationality)',
+            'تاريخ التسجيل (Registration Date)',
+            'البريد الإلكتروني لولي الأمر (Guardian Email)',
+            'رقم هاتف ولي الأمر (Guardian Phone)',
+            'رابط الصورة الشخصية (Photo URL)',
+            'معرف المدرسة (School ID)'
+        ));
 
         foreach ($records as $r) {
             fputcsv($output, array(
+                $r->student_code,
                 $r->name,
+                $r->national_id,
                 $r->class_name,
                 $r->section,
                 $r->nationality,
+                $r->registration_date,
                 $r->parent_email,
                 $r->guardian_phone,
-                $r->student_code
+                $r->photo_url,
+                $r->school_id
             ));
         }
         fclose($output);
@@ -5405,14 +5466,32 @@ class SM_Public {
                 }
             }
 
-            // Mapping: A:Name, B:Grade, C:Section, D:Nationality, E:Email, F:Phone, G:NationalID
-            $name         = isset($data[0]) ? trim($data[0]) : '';
-            $class_name   = isset($data[1]) ? trim($data[1]) : '';
-            $section      = isset($data[2]) ? trim($data[2]) : '';
-            $nationality  = isset($data[3]) ? trim($data[3]) : '';
-            $email        = isset($data[4]) ? trim($data[4]) : '';
-            $phone        = isset($data[5]) ? trim($data[5]) : '';
-            $national_id  = isset($data[6]) ? trim($data[6]) : null;
+            // 11 Official Columns: A to K
+            // A: Student Code, B: Full Name, C: National ID, D: Grade, E: Section, F: Nationality, G: Reg Date, H: Guardian Email, I: Guardian Phone, J: Photo URL, K: School ID
+            $student_code = isset($data[0]) ? trim($data[0]) : '';
+            $name         = isset($data[1]) ? trim($data[1]) : '';
+            $national_id  = isset($data[2]) ? trim($data[2]) : null;
+            $class_name   = isset($data[3]) ? trim($data[3]) : '';
+            $section      = isset($data[4]) ? trim($data[4]) : '';
+            $nationality  = isset($data[5]) ? trim($data[5]) : '';
+            $reg_date     = isset($data[6]) ? trim($data[6]) : '';
+            $email        = isset($data[7]) ? trim($data[7]) : '';
+            $phone        = isset($data[8]) ? trim($data[8]) : '';
+            $photo_url    = isset($data[9]) ? trim($data[9]) : '';
+            $school_id    = isset($data[10]) && is_numeric($data[10]) ? intval($data[10]) : null;
+
+            // Handle legacy 7-column fallback if A is Name instead of Code
+            if (empty($name) && !empty($student_code) && (mb_strlen($student_code) > 4 && !preg_replace('/[^a-zA-Z]/', '', $student_code))) {
+                // If column A contains Arabic text, treat as Full Name (Legacy compatibility)
+                $name = $student_code;
+                $student_code = '';
+                $class_name   = isset($data[1]) ? trim($data[1]) : '';
+                $section      = isset($data[2]) ? trim($data[2]) : '';
+                $nationality  = isset($data[3]) ? trim($data[3]) : '';
+                $email        = isset($data[4]) ? trim($data[4]) : '';
+                $phone        = isset($data[5]) ? trim($data[5]) : '';
+                $national_id  = isset($data[6]) ? trim($data[6]) : null;
+            }
 
             if (empty($name)) {
                 $errors[] = "الاسم الكامل مفقود في السطر $row_index";
@@ -5435,11 +5514,14 @@ class SM_Public {
                     }
                 }
 
-                $existing_id = SM_DB::student_exists($name, $class_name, $section, $national_id);
+                $existing_id = SM_DB::student_exists($name, $class_name, $section, $national_id ?: $student_code);
                 $extra = array(
                     'guardian_phone' => $phone,
                     'nationality' => $nationality,
-                    'national_id' => $national_id
+                    'national_id' => $national_id,
+                    'registration_date' => !empty($reg_date) ? $reg_date : date('Y-m-d'),
+                    'photo_url' => $photo_url,
+                    'school_id' => $school_id
                 );
 
                 try {
@@ -5451,12 +5533,12 @@ class SM_Public {
                             'parent_email' => $email,
                             'guardian_phone' => $phone,
                             'nationality' => $nationality,
-                            'national_id' => $national_id
+                            'national_id' => $national_id,
+                            'photo_url' => $photo_url
                         );
-                        // Force student_code to match national_id if provided
-                        if (!empty($national_id)) {
-                            $update_data['student_code'] = $national_id;
-                        }
+                        if (!empty($reg_date)) $update_data['registration_date'] = $reg_date;
+                        if (!empty($school_id)) $update_data['school_id'] = $school_id;
+                        if (!empty($student_code)) $update_data['student_code'] = $student_code;
 
                         SM_DB::update_student($existing_id, $update_data);
                         $results['success']++;
@@ -5464,11 +5546,11 @@ class SM_Public {
                         $results['details'][] = array('type' => 'info', 'msg' => "تم تحديث سجل ($name) في السطر $row_index");
                     } else {
                         $extra['sort_order'] = $next_sort_order++;
-                        $final_id_to_use = !empty($national_id) ? $national_id : '';
+                        $final_code_to_use = !empty($student_code) ? $student_code : (!empty($national_id) ? $national_id : '');
 
-                        $imported_id = SM_DB::add_student($name, $class_name, $email, $final_id_to_use, null, null, $section, $extra);
+                        $imported_id = SM_DB::add_student($name, $class_name, $email, $final_code_to_use, null, null, $section, $extra);
                         if ($imported_id) {
-                            if (empty($national_id)) {
+                            if (empty($final_code_to_use)) {
                                 $results['generated']++;
                                 SM_DB::update_student_meta($imported_id, 'sm_incomplete_identity', '1');
                             }

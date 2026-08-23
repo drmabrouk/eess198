@@ -124,12 +124,50 @@ if ($import_results) {
         </form>
     </div>
 
-    <!-- Chunked File Upload Progress Form -->
+    <!-- Chunked File Upload Progress Form & Documentation -->
     <div id="csv-import-form" style="display:none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; margin-bottom: 30px; box-shadow: var(--sm-shadow);">
-        <h4 style="margin-top:0; color:var(--sm-dark-color); font-weight: 800;">استيراد ذكي لملف الطلاب الشامل</h4>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px;">
+            <h4 style="margin:0; color:var(--sm-dark-color); font-weight: 800;">استيراد ذكي لملف الطلاب الشامل (Excel / CSV)</h4>
+            <a href="<?php echo admin_url('admin-ajax.php?action=sm_download_student_import_template'); ?>" target="_blank" class="sm-btn" style="background: #2563eb; color: white !important; font-size: 11px; padding: 6px 16px; width: auto; height: 32px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                📥 تحميل نموذج الاستيراد المعتمد (11 عمود)
+            </a>
+        </div>
+
         <p style="font-size:12px; color:#718096; line-height:1.6; margin-bottom:15px;">
-            يرجى اختيار ملف الطلاب الخاص بك بصيغة CSV. يدعم الاستيراد ذو الأحجام الكبيرة بنظام الدفعات (Chunking) لضمان عدم توقف الخادم أو حدوث مهلات زمنية.
+            يرجى اختيار ملف الطلاب المعتمد بصيغة CSV/Excel. يدعم النظام بنظام الدفعات (Chunking) لمعالجة الملفات الضخمة وتحديث بيانات الطلاب الحاليين تلقائياً عند مطابقة الكود أو الهوية.
         </p>
+
+        <!-- Official Column Structure Documentation Card -->
+        <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+            <div style="font-size: 12px; font-weight: 800; color: #1e293b; margin-bottom: 10px;">📋 دليل ترتيب أعمدة نموذج الاستيراد الرسمي (الأعمدة من A إلى K):</div>
+            <div style="max-height: 180px; overflow-y: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 11px; text-align: right;">
+                    <thead>
+                        <tr style="background: #f1f5f9; position: sticky; top: 0; color: #334155;">
+                            <th style="padding: 6px 10px; border-bottom: 1px solid #cbd5e1; width: 50px;">العمود</th>
+                            <th style="padding: 6px 10px; border-bottom: 1px solid #cbd5e1;">اسم الحقل</th>
+                            <th style="padding: 6px 10px; border-bottom: 1px solid #cbd5e1; width: 90px;">الحالة</th>
+                            <th style="padding: 6px 10px; border-bottom: 1px solid #cbd5e1;">الصيغة التوضيحية</th>
+                            <th style="padding: 6px 10px; border-bottom: 1px solid #cbd5e1;">مثال</th>
+                        </tr>
+                    </thead>
+                    <tbody style="color: #475569;">
+                        <tr><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9; font-weight:700;">A</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">كود الطالب (Student Code)</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9; color: #2563eb;">اختياري (تلقائي)</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">نصي / رقمي</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">STU-1001</td></tr>
+                        <tr><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9; font-weight:700;">B</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">الاسم الكامل (Full Name)</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9; color: #dc2626; font-weight:700;">إجباري</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">نص ثلاثي أو رباعي</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">علي أحمد عبدالله</td></tr>
+                        <tr><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9; font-weight:700;">C</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">الهوية الوطنية (National ID)</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9; color: #2563eb;">اختياري (فريد)</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">أرقام فقط</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">784199012345678</td></tr>
+                        <tr><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9; font-weight:700;">D</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">الصف الدراسي (Grade)</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9; color: #dc2626; font-weight:700;">إجباري</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">الصف 1 إلى 12</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">الصف 5</td></tr>
+                        <tr><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9; font-weight:700;">E</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">الشعبة / الفصل (Section)</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9; color: #64748b;">اختياري</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">حرف أو رقم</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">أ</td></tr>
+                        <tr><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9; font-weight:700;">F</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">الجنسية (Nationality)</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9; color: #64748b;">اختياري</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">اسم الدولة</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">إماراتي</td></tr>
+                        <tr><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9; font-weight:700;">G</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">تاريخ التسجيل (Reg Date)</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9; color: #64748b;">اختياري</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">YYYY-MM-DD</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">2024-09-01</td></tr>
+                        <tr><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9; font-weight:700;">H</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">بريد ولي الأمر (Email)</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9; color: #64748b;">اختياري</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">بريد إلكتروني صالح</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">parent@domain.com</td></tr>
+                        <tr><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9; font-weight:700;">I</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">هاتف ولي الأمر (Phone)</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9; color: #64748b;">اختياري</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">أرقام الهاتف</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">0501234567</td></tr>
+                        <tr><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9; font-weight:700;">J</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">رابط الصورة (Photo URL)</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9; color: #64748b;">اختياري</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">رابط URL مباشر</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">https://site.com/p.jpg</td></tr>
+                        <tr><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9; font-weight:700;">K</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">معرف المدرسة (School ID)</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9; color: #64748b;">اختياري</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">رقم المعرف</td><td style="padding: 6px 10px; border-bottom: 1px solid #f1f5f9;">1</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <div id="import-selection-area">
             <input type="file" id="csv-file-input" accept=".csv" class="sm-input" style="width: auto; display: inline-block; margin-bottom:15px; font-size:12px; height:36px;">
             <button onclick="startChunkedUpload()" class="sm-btn" style="width: auto; height:36px; font-size:12px;">بدء الاستيراد المجدول</button>
