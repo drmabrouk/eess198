@@ -640,6 +640,11 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                     'desc' => 'إعداد وتحديد الخطط الأكاديمية والتوزيع الأسبوعي للمناهج الدراسية بالفصول والاعتماد المباشر.',
                     'button' => ''
                 ),
+                'system-announcements' => array(
+                    'title' => 'الإشعارات والإعلانات العامة',
+                    'desc' => 'إدارة ونشر التنبيهات، التعاميم الإدارية، والإعلانات الشاملة لرتب مستخدمي النظام ومتابعة القراءة.',
+                    'button' => ''
+                ),
                 'assignments' => array(
                     'title' => 'الواجبات المدرسية',
                     'desc' => 'إنشاء وتوزيع ومتابعة الواجبات المدرسية والمهام المنزلية المقررة على الطلاب لمتابعة الأداء الأكاديمي.',
@@ -906,6 +911,10 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
 
                 case 'term-plans':
                     include SM_PLUGIN_DIR . 'templates/admin-term-plans.php';
+                    break;
+
+                case 'system-announcements':
+                    include SM_PLUGIN_DIR . 'templates/admin-system-announcements.php';
                     break;
 
                 case 'assignments':
@@ -1848,4 +1857,113 @@ jQuery(document).ready(function($) {
         eessStandardizePlaceholders();
     });
 });
+</script>
+
+<!-- SYSTEM ANNOUNCEMENTS POPUP QUEUE ENGINE -->
+<div id="eess-announcement-modal" style="display: none; position: fixed; inset: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif; direction: rtl;">
+    <div style="background: #ffffff; border-radius: 20px; max-width: 480px; width: 100%; padding: 30px 25px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); border: 1px solid #e2e8f0; text-align: center; position: relative;">
+        <div id="anc-modal-icon-container" style="width: 70px; height: 70px; border-radius: 50%; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto;">
+            <span id="anc-modal-icon" class="dashicons dashicons-mega" style="font-size: 36px; width: 36px; height: 36px;"></span>
+        </div>
+
+        <div style="background: #f8fafc; border-radius: 50px; padding: 4px 14px; display: inline-block; font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 12px;" id="anc-modal-badge">
+            تحديث جديد من النظام
+        </div>
+
+        <h3 id="anc-modal-title" style="margin: 0 0 12px 0; font-size: 18px; font-weight: 800; color: #0f172a; line-height: 1.4;">-</h3>
+        <p id="anc-modal-details" style="margin: 0 0 25px 0; font-size: 13px; color: #475569; line-height: 1.7; white-space: pre-line;">-</p>
+
+        <button type="button" onclick="eessCloseAnnouncementModal()" style="width: 100%; height: 44px; background: #0f172a; color: #ffffff; border: none; border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s ease;">
+            إغلاق ومتابعة (Dismiss)
+        </button>
+    </div>
+</div>
+
+<script>
+(function() {
+    let pendingQueue = [];
+    let currentAnc = null;
+
+    function initAnnouncementsEngine() {
+        // Wait 5 seconds after page load
+        setTimeout(function() {
+            jQuery.post('<?php echo admin_url('admin-ajax.php'); ?>', {
+                action: 'sm_get_pending_announcements'
+            }, function(res) {
+                if (res.success && res.data && res.data.length > 0) {
+                    pendingQueue = res.data;
+                    processNextAnnouncement();
+                }
+            });
+        }, 5000);
+    }
+
+    function processNextAnnouncement() {
+        if (pendingQueue.length === 0) {
+            document.getElementById('eess-announcement-modal').style.display = 'none';
+            return;
+        }
+
+        currentAnc = pendingQueue.shift();
+
+        const titleEl = document.getElementById('anc-modal-title');
+        const detailsEl = document.getElementById('anc-modal-details');
+        const iconEl = document.getElementById('anc-modal-icon');
+        const containerEl = document.getElementById('anc-modal-icon-container');
+        const badgeEl = document.getElementById('anc-modal-badge');
+
+        titleEl.innerText = currentAnc.title;
+        detailsEl.innerText = currentAnc.details;
+
+        if (currentAnc.type === 'warning') {
+            iconEl.className = 'dashicons dashicons-warning';
+            containerEl.style.background = '#fffbebfb';
+            containerEl.style.color = '#d97706';
+            badgeEl.innerText = 'تنبيه هام';
+        } else if (currentAnc.type === 'urgent') {
+            iconEl.className = 'dashicons dashicons-dismiss';
+            containerEl.style.background = '#fef2f2';
+            containerEl.style.color = '#dc2626';
+            badgeEl.innerText = 'عاجل جداً';
+        } else if (currentAnc.type === 'success') {
+            iconEl.className = 'dashicons dashicons-yes-alt';
+            containerEl.style.background = '#f0fdf4';
+            containerEl.style.color = '#16a34a';
+            badgeEl.innerText = 'رسالة ترحيبية';
+        } else {
+            iconEl.className = 'dashicons dashicons-mega';
+            containerEl.style.background = '#eff6ff';
+            containerEl.style.color = '#2563eb';
+            badgeEl.innerText = 'تحديث إداري';
+        }
+
+        // Mark viewed in DB
+        jQuery.post('<?php echo admin_url('admin-ajax.php'); ?>', {
+            action: 'sm_mark_announcement_viewed',
+            announcement_id: currentAnc.id
+        });
+
+        document.getElementById('eess-announcement-modal').style.display = 'flex';
+    }
+
+    window.eessCloseAnnouncementModal = function() {
+        if (currentAnc) {
+            jQuery.post('<?php echo admin_url('admin-ajax.php'); ?>', {
+                action: 'sm_mark_announcement_closed',
+                announcement_id: currentAnc.id
+            });
+        }
+
+        document.getElementById('eess-announcement-modal').style.display = 'none';
+
+        // Wait 1 second before showing next pending notification in queue
+        if (pendingQueue.length > 0) {
+            setTimeout(function() {
+                processNextAnnouncement();
+            }, 1000);
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', initAnnouncementsEngine);
+})();
 </script>

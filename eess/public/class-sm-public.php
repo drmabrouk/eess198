@@ -6170,4 +6170,240 @@ class SM_Public {
             wp_send_json_error('حدث خطأ أثناء حفظ التحضير بقاعدة البيانات.');
         }
     }
+
+    public function ajax_create_system_announcement() {
+        if (!is_user_logged_in() || !current_user_can('manage_options')) {
+            wp_send_json_error('عفواً، غير مصرح لك بإنشاء إعلانات النظام.');
+        }
+
+        $title            = sanitize_text_field($_POST['title'] ?? '');
+        $details          = sanitize_textarea_field($_POST['details'] ?? '');
+        $type             = sanitize_text_field($_POST['type'] ?? 'info');
+        $display_duration = intval($_POST['display_duration'] ?? 10);
+        $display_freq     = intval($_POST['display_frequency'] ?? 1);
+        $roles            = isset($_POST['target_roles']) ? array_map('sanitize_text_field', (array)$_POST['target_roles']) : array();
+
+        if (empty($title) || empty($details) || empty($roles)) {
+            wp_send_json_error('يرجى تعبئة جميع الحقول المطلوبة واختيار الرتب المستهدفة.');
+        }
+
+        if (mb_strlen($details) > 500) {
+            wp_send_json_error('تفاصيل الإشعار يجب ألا تتجاوز 500 حرف.');
+        }
+
+        global $wpdb;
+        $inserted = $wpdb->insert(
+            "{$wpdb->prefix}sm_system_announcements",
+            array(
+                'title'             => $title,
+                'details'           => $details,
+                'target_roles'      => json_encode($roles),
+                'type'              => $type,
+                'display_duration'  => $display_duration,
+                'display_frequency' => $display_freq,
+                'status'            => 'active',
+                'created_by'        => get_current_user_id(),
+                'created_at'        => current_time('mysql')
+            )
+        );
+
+        if ($inserted) {
+            $anc_id = $wpdb->insert_id;
+            SM_Logger::log('إنشاء إشعار نظام', "تم نشر إشعار نظام جديد (ID: $anc_id) بعنوان: $title");
+            wp_send_json_success(array('announcement_id' => $anc_id, 'message' => 'تم نشر الإشعار والتعميم بنجاح.'));
+        } else {
+            wp_send_json_error('حدث خطأ أثناء نشر الإشعار.');
+        }
+    }
+
+    private function eess_ensure_first_login_welcome($user_id) {
+        if (!$user_id) return;
+        $welcome_shown = get_user_meta($user_id, 'eess_welcome_shown', true);
+        if ($welcome_shown) return;
+
+        $user = get_userdata($user_id);
+        if (!$user) return;
+
+        $user_name = $user->display_name ?: $user->first_name ?: $user->user_login;
+
+        global $wpdb;
+        $wpdb->insert(
+            "{$wpdb->prefix}sm_system_announcements",
+            array(
+                'title'             => 'أهلاً بك، ' . $user_name,
+                'details'           => 'أهلاً بك في النظام. تم تصميم هذه المنظومة لتنظيم وتسهيل عملك، وتوفير وصول أسرع لمهامك ومسؤولياتك، وتحسين التواصل وتدفق العمل اليومي.',
+                'target_roles'      => json_encode(array('all_users')),
+                'type'              => 'success',
+                'display_duration'  => 12,
+                'display_frequency' => 1,
+                'is_welcome'        => 1,
+                'status'            => 'active',
+                'created_by'        => 1,
+                'created_at'        => current_time('mysql')
+            )
+        );
+        $anc_id = $wpdb->insert_id;
+
+        update_user_meta($user_id, 'eess_welcome_shown', current_time('mysql'));
+    }
+
+    public function ajax_get_pending_announcements() {
+        if (!is_user_logged_in()) {
+            wp_send_json_success(array());
+        }
+
+        $user_id = get_current_user_id();
+        $this->eess_ensure_first_login_welcome($user_id);
+
+        $user = wp_get_current_user();
+        $user_roles = (array) $user->roles;
+
+        global $wpdb;
+        $announcements = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}sm_system_announcements WHERE status = 'active' ORDER BY id ASC");
+
+        $pending = array();
+
+        foreach ($announcements as $anc) {
+            $target_roles = json_decode($anc->target_roles, true) ?: array();
+            $matches_role = in_array('all_users', $target_roles) || in_array('administrator', $user_roles);
+            if (!$matches_role) {
+                foreach ($user_roles as $r) {
+                    if (in_array($r, $target_roles)) {
+                        $matches_role = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!$matches_role) continue;
+
+            $activity = $wpdb->get_row($wpdb->prepare(
+                "SELECT * FROM {$wpdb->prefix}sm_user_announcements WHERE announcement_id = %d AND user_id = %d",
+                $anc->id, $user_id
+            ));
+
+            if (!$activity) {
+                $pending[] = array(
+                    'id'               => intval($anc->id),
+                    'title'            => $anc->title,
+                    'details'          => $anc->details,
+                    'type'             => $anc->type,
+                    'display_duration' => intval($anc->display_duration),
+                    'display_frequency'=> intval($anc->display_frequency)
+                );
+            } else if ($activity->status === 'pending' || ($activity->status === 'viewed' && $activity->view_count < $anc->display_frequency)) {
+                $pending[] = array(
+                    'id'               => intval($anc->id),
+                    'title'            => $anc->title,
+                    'details'          => $anc->details,
+                    'type'             => $anc->type,
+                    'display_duration' => intval($anc->display_duration),
+                    'display_frequency'=> intval($anc->display_frequency)
+                );
+            }
+        }
+
+        wp_send_json_success($pending);
+    }
+
+    public function ajax_mark_announcement_viewed() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        $anc_id = intval($_POST['announcement_id'] ?? 0);
+        $user_id = get_current_user_id();
+
+        if (!$anc_id) wp_send_json_error('ID غير صحيح');
+
+        global $wpdb;
+        $existing = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}sm_user_announcements WHERE announcement_id = %d AND user_id = %d",
+            $anc_id, $user_id
+        ));
+
+        if ($existing) {
+            $wpdb->update(
+                "{$wpdb->prefix}sm_user_announcements",
+                array(
+                    'status'     => 'viewed',
+                    'view_count' => $existing->view_count + 1,
+                    'viewed_at'  => current_time('mysql')
+                ),
+                array('id' => $existing->id)
+            );
+        } else {
+            $wpdb->insert(
+                "{$wpdb->prefix}sm_user_announcements",
+                array(
+                    'announcement_id' => $anc_id,
+                    'user_id'         => $user_id,
+                    'status'          => 'viewed',
+                    'view_count'      => 1,
+                    'viewed_at'       => current_time('mysql')
+                )
+            );
+        }
+
+        wp_send_json_success();
+    }
+
+    public function ajax_mark_announcement_closed() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        $anc_id = intval($_POST['announcement_id'] ?? 0);
+        $user_id = get_current_user_id();
+
+        if (!$anc_id) wp_send_json_error('ID غير صحيح');
+
+        global $wpdb;
+        $existing = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}sm_user_announcements WHERE announcement_id = %d AND user_id = %d",
+            $anc_id, $user_id
+        ));
+
+        if ($existing) {
+            $wpdb->update(
+                "{$wpdb->prefix}sm_user_announcements",
+                array(
+                    'status'    => 'closed',
+                    'closed_at' => current_time('mysql')
+                ),
+                array('id' => $existing->id)
+            );
+        } else {
+            $wpdb->insert(
+                "{$wpdb->prefix}sm_user_announcements",
+                array(
+                    'announcement_id' => $anc_id,
+                    'user_id'         => $user_id,
+                    'status'          => 'closed',
+                    'view_count'      => 1,
+                    'closed_at'       => current_time('mysql')
+                )
+            );
+        }
+
+        wp_send_json_success();
+    }
+
+    public function ajax_reset_user_announcement() {
+        if (!is_user_logged_in() || !current_user_can('manage_options')) {
+            wp_send_json_error('عفواً، غير مصرح لك بهذا الإجراء.');
+        }
+
+        $anc_id  = intval($_POST['announcement_id'] ?? 0);
+        $target_user_id = intval($_POST['user_id'] ?? 0);
+
+        if (!$anc_id || !$target_user_id) wp_send_json_error('بيانات الإشعار أو المستخدم غير مكملة.');
+
+        global $wpdb;
+        $deleted = $wpdb->delete(
+            "{$wpdb->prefix}sm_user_announcements",
+            array('announcement_id' => $anc_id, 'user_id' => $target_user_id)
+        );
+
+        if ($deleted !== false) {
+            SM_Logger::log('إعادة تفعيل إشعار', "تم إعادة تفعيل الإشعار (ID: $anc_id) للمستخدم ID: $target_user_id");
+            wp_send_json_success();
+        } else {
+            wp_send_json_error('فشل إعادة ضبط الإشعار.');
+        }
+    }
 }
