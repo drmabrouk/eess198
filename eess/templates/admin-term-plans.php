@@ -77,18 +77,26 @@ $arabic_term_names = array(
 
         <!-- Primary Header Actions (Wine-Red, Black, White Button Tokens) -->
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-            <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=annual_plan&teacher_id=' . $user_id); ?>" target="_blank" class="sm-btn" style="background: #1e293b; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 18px; font-weight: 800; font-size: 12.5px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border: none;">
-                <span class="dashicons dashicons-printer" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
-                <span>طباعة الخطة السنوية</span>
-            </a>
+            <!-- Annual Plan Printing Dropdown -->
+            <div style="position: relative; display: inline-block;">
+                <button type="button" onclick="const d = document.getElementById('eess-print-annual-dropdown'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; event.stopPropagation();" class="sm-btn" style="background: #1e293b; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 18px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                    <span class="dashicons dashicons-printer" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
+                    <span>طباعة وتصدير الخطة</span>
+                    <span class="dashicons dashicons-arrow-down-alt2" style="font-size: 10px; width: 10px; height: 10px; color: #fff;"></span>
+                </button>
+
+                <div id="eess-print-annual-dropdown" style="display: none; position: absolute; left: 0; top: 115%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px; width: 240px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 99999; padding: 6px 0; text-align: right;">
+                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=term_plan&term_number=1&teacher_id=' . $user_id); ?>" target="_blank" style="display: block; padding: 10px 16px; color: #334155; font-size: 12px; font-weight: 700; text-decoration: none; border-bottom: 1px solid #f1f5f9;">📄 تحميل خطة الفصل الدراسي الأول</a>
+                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=term_plan&term_number=2&teacher_id=' . $user_id); ?>" target="_blank" style="display: block; padding: 10px 16px; color: #334155; font-size: 12px; font-weight: 700; text-decoration: none; border-bottom: 1px solid #f1f5f9;">📄 تحميل خطة الفصل الدراسي الثاني</a>
+                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=term_plan&term_number=3&teacher_id=' . $user_id); ?>" target="_blank" style="display: block; padding: 10px 16px; color: #334155; font-size: 12px; font-weight: 700; text-decoration: none; border-bottom: 1px solid #f1f5f9;">📄 تحميل خطة الفصل الدراسي الثالث</a>
+                    <a href="javascript:void(0)" onclick="eessCheckAnnualPlanPrintComplete(<?php echo $completed_terms_count; ?>)" style="display: block; padding: 10px 16px; color: #881337; font-size: 12px; font-weight: 800; text-decoration: none;">📘 تحميل الخطة السنوية الشاملة</a>
+                </div>
+            </div>
+            <?php if ($is_teacher && !$is_reviewer): ?>
             <button type="button" onclick="eessOpenPlanSetupWizard(1)" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                 <span class="dashicons dashicons-plus-alt2" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
                 <span>إعداد وخطة المدرس</span>
             </button>
-            <?php if ($is_reviewer): ?>
-                <button type="button" onclick="switchTermPlanTab('reviewer-dashboard')" id="btn-tab-reviewer" class="sm-btn sm-btn-outline" style="background: #ffffff; color: #334155 !important; height: 38px; border-radius: 9999px !important; padding: 0 18px; font-weight: 800; font-size: 12.5px; border: 1px solid #cbd5e1; cursor: pointer;">
-                    مراجعة واعتماد الخطط المقدمة
-                </button>
             <?php endif; ?>
         </div>
     </div>
@@ -142,55 +150,100 @@ $arabic_term_names = array(
             </div>
         </div>
 
-    <!-- TEACHER TAB: SUBMITTED PLANS HISTORY -->
+    <!-- TEACHER TAB: SUBMITTED PLANS HISTORY WITH RICH MULTI-LINE CARD ROWS -->
     <div id="panel-teacher-dashboard" class="term-plan-panel" style="display: block;">
         <div style="background: #ffffff; padding: 24px 28px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
-                <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #0f172a;">سجل وأرشيف الخطط الفصلية والسنوية الخاصة بي</h3>
-                <button type="button" onclick="eessOpenPlanSetupWizard()" class="sm-btn" style="background: #881337; color: #fff; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 14px;">
+                <div>
+                    <h3 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 800; color: #0f172a;">سجل وأرشيف الخطط الفصلية والسنوية الخاصة بي</h3>
+                    <p style="margin: 0; font-size: 12px; color: #64748b;">استعراض الخطط السابقة وإعادة تعديل المسودات أو الخطط التي حُددت للتعديل</p>
+                </div>
+                <?php if ($is_teacher && !$is_reviewer): ?>
+                <button type="button" onclick="eessOpenPlanSetupWizard(1)" class="sm-btn" style="background: #881337; color: #fff; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                     <span class="dashicons dashicons-plus-alt" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
                     <span>إنشاء خطة جديدة</span>
                 </button>
+                <?php endif; ?>
             </div>
 
             <div style="overflow-x: auto;">
                 <table style="width: 100%; border-collapse: separate; border-spacing: 0; text-align: right;">
                     <thead>
-                        <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
-                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0;">الفصل الدراسي</th>
-                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0;">المادة والصف</th>
-                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0;">تاريخ الفترة</th>
-                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0; text-align: center;">نسبة إنجاز الترم</th>
-                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0; text-align: center;">الحالة</th>
-                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0; text-align: center;">الإجراءات</th>
+                        <tr style="background: #212121; color: #ffffff;">
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #ffffff;">المادة والمعلم والتسكين</th>
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #ffffff;">الفصل الدراسي والتاريخ</th>
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #ffffff; text-align: center;">نسبة الإنجاز</th>
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #ffffff; text-align: center;">الحالة</th>
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #ffffff; text-align: center;">الإجراءات السريعة</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($teacher_plans)): ?>
                             <tr>
-                                <td colspan="6" style="padding: 40px; text-align: center; color: #94a3b8;">لا توجد خطط فصلية أو سنوية مسجلة لك حالياً. اضغط "إعداد وخطة المدرس" للبدء.</td>
+                                <td colspan="5" style="padding: 40px; text-align: center; color: #94a3b8; font-weight: 700;">لا توجد خطط فصلية أو سنوية مسجلة لك حالياً. اضغط "إعداد وخطة المدرس" للبدء.</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($teacher_plans as $tp):
                                 $s_bg = '#f1f5f9'; $s_col = '#64748b'; $s_lbl = 'مسودة';
                                 if ($tp->status === 'submitted') { $s_bg = '#e0f2fe'; $s_col = '#0369a1'; $s_lbl = 'مرفوعة للمراجعة'; }
-                                elseif ($tp->status === 'approved') { $s_bg = '#dcfce7'; $s_col = '#15803d'; $s_lbl = 'معتمدة'; }
+                                elseif ($tp->status === 'approved') { $s_bg = '#dcfce7'; $s_col = '#15803d'; $s_lbl = 'معتمدة رسمياً'; }
                                 elseif ($tp->status === 'returned') { $s_bg = '#fee2e2'; $s_col = '#b91c1c'; $s_lbl = 'طلب تعديل'; }
+
+                                $teacher_school_name = get_user_meta($user_id, 'eess_school_name', true) ?: 'المدرسة الرئيسية';
+                                $term_name = $arabic_term_names[intval($tp->term_number)] ?? ('الفصل ' . intval($tp->term_number));
                             ?>
                                 <tr style="border-bottom: 1px solid #f1f5f9;">
-                                    <td style="padding: 12px 16px; font-weight: 800; color: #0f172a;">الفصل الدراسي <?php echo intval($tp->term_number); ?></td>
-                                    <td style="padding: 12px 16px; font-size: 13px; color: #334155;"><?php echo esc_html($tp->subject . ' - ' . $tp->grade); ?></td>
-                                    <td style="padding: 12px 16px; font-size: 12px; color: #64748b;"><?php echo esc_html($tp->start_date . ' إلى ' . $tp->end_date); ?></td>
-                                    <td style="padding: 12px 16px; text-align: center; font-weight: 800; color: #2563eb;"><?php echo intval($tp->completion_pct); ?>%</td>
-                                    <td style="padding: 12px 16px; text-align: center;">
-                                        <span style="padding: 3px 10px; border-radius: 8px; background: <?php echo $s_bg; ?>; color: <?php echo $s_col; ?>; font-weight: 800; font-size: 11.5px;">
+                                    <!-- Rich Multi-Line Subject & School Cell -->
+                                    <td style="padding: 14px 16px;">
+                                        <div style="font-weight: 800; font-size: 14px; color: #0f172a;"><?php echo esc_html($tp->subject); ?></div>
+                                        <div style="font-size: 11px; color: #64748b; margin-top: 2px;">🏫 <?php echo esc_html($teacher_school_name); ?></div>
+                                        <div style="display: flex; gap: 6px; margin-top: 5px;">
+                                            <span style="display: inline-flex; padding: 2px 8px; border-radius: 6px; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; font-size: 10.5px; font-weight: 800;">
+                                                <?php echo esc_html($tp->grade); ?>
+                                            </span>
+                                        </div>
+                                    </td>
+
+                                    <!-- Term Name & Period Dates -->
+                                    <td style="padding: 14px 16px;">
+                                        <div style="font-weight: 800; font-size: 13px; color: #334155;"><?php echo esc_html($term_name); ?></div>
+                                        <div style="font-size: 11px; color: #94a3b8; font-family: monospace; margin-top: 3px;">
+                                            <?php echo esc_html($tp->start_date . ' إلى ' . $tp->end_date); ?>
+                                        </div>
+                                    </td>
+
+                                    <!-- Progress Capsule -->
+                                    <td style="padding: 14px 16px; text-align: center;">
+                                        <span style="display: inline-flex; padding: 3px 10px; border-radius: 9999px; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; font-weight: 900; font-size: 12px;">
+                                            <?php echo intval($tp->completion_pct); ?>%
+                                        </span>
+                                    </td>
+
+                                    <!-- Status Capsule -->
+                                    <td style="padding: 14px 16px; text-align: center;">
+                                        <span style="padding: 3px 10px; border-radius: 9999px; background: <?php echo $s_bg; ?>; color: <?php echo $s_col; ?>; font-weight: 800; font-size: 11px;">
                                             <?php echo $s_lbl; ?>
                                         </span>
                                     </td>
-                                    <td style="padding: 12px 16px; text-align: center;">
-                                        <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=term_plan&plan_id=' . $tp->id); ?>" target="_blank" class="sm-btn" style="background: #0284c7; color: #fff !important; height: 32px; padding: 0 14px; border-radius: 8px; font-size: 11.5px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-                                            🖨️ طباعة
-                                        </a>
+
+                                    <!-- Standardized 36px Circular Action Buttons -->
+                                    <td style="padding: 14px 16px; text-align: center;">
+                                        <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
+                                            <!-- Print Button -->
+                                            <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=term_plan&plan_id=' . $tp->id); ?>" target="_blank" title="طباعة الخطة" style="width: 36px; height: 36px; border-radius: 50% !important; background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                                <span class="dashicons dashicons-printer" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
+                                            </a>
+
+                                            <!-- Edit Button -->
+                                            <button type="button" onclick="eessOpenPlanSetupWizard(<?php echo intval($tp->term_number); ?>)" title="تعديل الخطة" style="width: 36px; height: 36px; border-radius: 50% !important; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                                <span class="dashicons dashicons-edit" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
+                                            </button>
+
+                                            <!-- View Content Button -->
+                                            <button type="button" onclick="inspectSubmittedPlan(<?php echo htmlspecialchars(json_encode($tp)); ?>)" title="معاينة" style="width: 36px; height: 36px; border-radius: 50% !important; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                                <span class="dashicons dashicons-visibility" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -257,11 +310,13 @@ $arabic_term_names = array(
                                 $term_arabic = $arabic_term_names[intval($sp->term_number)] ?? ('الفصل ' . intval($sp->term_number));
                             ?>
                                 <tr style="border-bottom: 1px solid #f1f5f9;" class="reviewer-plan-row">
-                                    <!-- Teacher Name & Employee ID -->
+                                    <!-- Teacher Name & Employee ID Pastel Capsule (No "رقم الموظف" text) -->
                                     <td style="padding: 12px 16px;">
                                         <div style="font-weight: 800; font-size: 13.5px; color: #0f172a;"><?php echo esc_html($sp->teacher_name ?: 'مدرس غير محدد'); ?></div>
-                                        <div style="font-size: 11px; color: #881337; font-weight: 800; font-family: monospace; margin-top: 3px;">
-                                            رقم الموظف: <?php echo esc_html($emp_code); ?>
+                                        <div style="margin-top: 4px;">
+                                            <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; font-size: 10.5px; font-weight: 800; font-family: monospace;">
+                                                <?php echo esc_html($emp_code); ?>
+                                            </span>
                                         </div>
                                     </td>
 
@@ -554,6 +609,22 @@ function eessDirectReviewPlan(planId, reviewStatus) {
     });
 }
 
+function eessCheckAnnualPlanPrintComplete(completedCount) {
+    if (completedCount >= 3) {
+        window.open('<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=annual_plan&teacher_id=' . $user_id); ?>', '_blank');
+    } else {
+        document.getElementById('tp_inspect_title').innerText = 'تنبيه: الخطة السنوية غير مكتملة';
+        document.getElementById('tp_inspect_body').innerHTML = `
+            <div style="background:#fef2f2; border:1px solid #fecdd3; border-radius:12px; padding:16px; color:#991b1b; font-size:13px; line-height:1.6;">
+                <strong>⚠️ تعذر تحميل الخطة السنوية الشاملة:</strong><br>
+                يجب إكمال واعتماد جميع الفصول الدراسية الثلاثة أولاً لطباعة الخطة السنوية الموحدة.<br>
+                الفصول المكتملة حالياً: <strong>${completedCount} من 3 فصول</strong>.
+            </div>
+        `;
+        document.getElementById('tp_inspect_modal').style.display = 'flex';
+    }
+}
+
 function eessOpenModificationNotesModal(planId, teacherName) {
     currentInspectedPlanId = planId;
     document.getElementById('tp_inspect_title').innerText = 'طلب تعديل وملاحظات على خطة: ' + teacherName;
@@ -686,11 +757,44 @@ function saveTermPlanDraft(targetStatus = 'draft', isSilent = false) {
 
 let wizCurrentStep = 1;
 
+let eessActiveWizardPlans = <?php echo json_encode(array_values((array)$teacher_plans)); ?>;
+
 function eessOpenPlanSetupWizard(termNum = 1) {
     wizCurrentStep = 1;
     if (document.getElementById('wiz_term_number')) {
         document.getElementById('wiz_term_number').value = termNum;
     }
+
+    // Load existing plan data for selected term if available
+    const existing = eessActiveWizardPlans.find(p => parseInt(p.term_number) === parseInt(termNum));
+    if (existing) {
+        document.getElementById('tp_plan_id').value = existing.id || 0;
+        if (document.getElementById('wiz_academic_year')) document.getElementById('wiz_academic_year').value = existing.academic_year || '2025/2026';
+        if (document.getElementById('wiz_subject') && existing.subject) document.getElementById('wiz_subject').value = existing.subject;
+        if (document.getElementById('wiz_grade') && existing.grade) document.getElementById('wiz_grade').value = existing.grade;
+        if (document.getElementById('wiz_weekly_lessons')) document.getElementById('wiz_weekly_lessons').value = existing.weekly_lessons || 2;
+        if (document.getElementById('wiz_num_terms')) document.getElementById('wiz_num_terms').value = existing.num_terms || 3;
+        if (document.getElementById('wiz_start_date')) document.getElementById('wiz_start_date').value = existing.start_date || '';
+        if (document.getElementById('wiz_end_date')) document.getElementById('wiz_end_date').value = existing.end_date || '';
+
+        // Pre-fill weekly data if available
+        if (existing.weeks_data) {
+            try {
+                const wData = typeof existing.weeks_data === 'string' ? JSON.parse(existing.weeks_data) : existing.weeks_data;
+                generateWizWeeklyFields();
+                Object.keys(wData).forEach(wKey => {
+                    const item = wData[wKey];
+                    const titleInp = document.querySelector(`input[name="wiz_weeks[${wKey}][title]"]`);
+                    const sumInp = document.querySelector(`textarea[name="wiz_weeks[${wKey}][summary]"]`);
+                    if (titleInp && item.title) titleInp.value = item.title;
+                    if (sumInp && item.summary) sumInp.value = item.summary;
+                });
+            } catch(e) {}
+        }
+    } else {
+        document.getElementById('tp_plan_id').value = 0;
+    }
+
     updateWizardUI();
     document.getElementById('eess-plan-setup-modal').style.display = 'flex';
 }
@@ -803,6 +907,7 @@ function eessSaveWizardPlanSubmit(e) {
     const formData = new FormData();
     formData.append('action', 'sm_save_term_plan');
     formData.append('sm_nonce', '<?php echo wp_create_nonce("sm_term_plan_action"); ?>');
+    formData.append('plan_id', document.getElementById('tp_plan_id').value || 0);
     formData.append('academic_year', document.getElementById('wiz_academic_year').value);
     formData.append('subject', document.getElementById('wiz_subject').value);
     formData.append('grade', document.getElementById('wiz_grade').value);

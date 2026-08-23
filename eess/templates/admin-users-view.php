@@ -289,7 +289,7 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                         </a>
                                     <?php endif; ?>
 
-                                    <button type="button" onclick='eessOpenUnifiedUserModal("edit_user", <?php echo $u->ID; ?>)' title="تعديل المستخدم" style="width: 36px; height: 36px; border-radius: 50% !important; flex-shrink: 0; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                    <button type="button" onclick='editSmGenericUser(<?php echo htmlspecialchars(json_encode($u_data)); ?>)' title="تعديل المستخدم" style="width: 36px; height: 36px; border-radius: 50% !important; flex-shrink: 0; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
                                         <span class="dashicons dashicons-edit" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
                                     </button>
 
