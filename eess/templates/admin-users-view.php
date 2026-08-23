@@ -276,14 +276,30 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                             <td>
                                 <code style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-family:monospace; font-size: 11px;"><?php echo get_user_meta($u->ID, 'sm_temp_pass', true) ?: '********'; ?></code>
                             </td>
-                            <td>
-                                <div style="display:flex; gap:8px; justify-content: flex-end;">
-                                    <button onclick='eessOpenUnifiedUserModal("edit_user", <?php echo $u->ID; ?>)' class="sm-btn sm-btn-outline" style="padding:4px 10px; width:auto; font-size:11px; height: 28px;">تعديل</button>
+                            <td style="text-align: center;">
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                    <?php
+                                    $u_phone = get_user_meta($u->ID, 'sm_phone', true) ?: (get_user_meta($u->ID, 'phone_number', true) ?: (get_user_meta($u->ID, 'guardian_phone', true) ?: ''));
+                                    $formatted_u_phone = SM_Settings::format_uae_phone($u_phone);
+                                    if (!empty($formatted_u_phone)):
+                                        $wa_text = rawurlencode("السلام عليكم ورحمة الله وبركاته، الأخ/ت العزيز/ة " . $u->display_name);
+                                    ?>
+                                        <a href="https://wa.me/<?php echo $formatted_u_phone; ?>?text=<?php echo $wa_text; ?>" target="_blank" title="تواصل عبر واتساب" style="width: 36px; height: 36px; border-radius: 50% !important; flex-shrink: 0; background: #dcfce7; color: #16a34a; border: 1px solid #86efac; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                            <span class="dashicons dashicons-whatsapp" style="font-size: 18px; width: 18px; height: 18px; margin: 0;"></span>
+                                        </a>
+                                    <?php endif; ?>
+
+                                    <button type="button" onclick='eessOpenUnifiedUserModal("edit_user", <?php echo $u->ID; ?>)' title="تعديل المستخدم" style="width: 36px; height: 36px; border-radius: 50% !important; flex-shrink: 0; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                        <span class="dashicons dashicons-edit" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
+                                    </button>
+
                                     <?php if ($u->ID != get_current_user_id()): ?>
                                         <form method="post" style="display:inline;" onsubmit="return confirm('حذف هذا المستخدم نهائياً؟')">
                                             <?php wp_nonce_field('sm_user_action', 'sm_nonce'); ?>
                                             <input type="hidden" name="delete_user_id" value="<?php echo $u->ID; ?>">
-                                            <button type="submit" name="sm_delete_user" class="sm-btn" style="background:#e53e3e; padding:4px 10px; width:auto; font-size:11px; height: 28px;">حذف</button>
+                                            <button type="submit" name="sm_delete_user" title="حذف المستخدم" style="width: 36px; height: 36px; border-radius: 50% !important; flex-shrink: 0; background: #fee2e2; color: #dc2626; border: none; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                                <span class="dashicons dashicons-trash" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
+                                            </button>
                                         </form>
                                     <?php endif; ?>
                                 </div>
