@@ -376,3 +376,37 @@
 .sm-sidebar-link:hover span.dashicons {
     transform: scale(1.1);
 }
+
+/* EESS Action Button Standardized Rules */
+.eess-action-btn {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    text-decoration: none !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+}
+
+.eess-action-btn:hover:not(.disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.eess-action-btn.disabled {
+    opacity: 0.4 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    filter: grayscale(1) !important;
+}
+
+.eess-action-btn svg {
+    width: 18px !important;
+    height: 18px !important;
+    display: block !important;
+}
