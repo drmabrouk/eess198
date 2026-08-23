@@ -5769,7 +5769,5 @@ class SM_Public {
         } else {
             wp_send_json_error('فشل تحديث حالة الخطة.');
         }
-
-        wp_send_json_error('إجراء جماعي غير مدعوم.');
     }
 }
