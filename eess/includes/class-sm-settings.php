@@ -576,7 +576,7 @@ class SM_Settings {
                     'sm_supervisor' => true,
                     'sm_coordinator' => false,
                     'sm_hod' => false,
-                    'sm_teacher' => false,
+                    'sm_teacher' => true,
                     'sm_student' => false,
                     'sm_parent' => false,
                     'sm_discipline_supervisor' => false,

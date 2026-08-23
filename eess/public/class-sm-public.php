@@ -5848,23 +5848,34 @@ class SM_Public {
             wp_send_json_error('الرتبة المحددة غير متطابقة مع رتبة الحساب.');
         }
 
-        // 4. Verify Institution if provided
+        // 4. Verify Institution
         if (!empty($institution)) {
             $stored_inst1 = get_user_meta($user->ID, 'institution', true);
             $stored_inst2 = get_user_meta($user->ID, 'sm_institution', true);
-            if (!empty($stored_inst1) && strcasecmp($stored_inst1, $institution) !== 0 && strcasecmp($stored_inst2, $institution) !== 0) {
+            $stored_inst3 = get_user_meta($user->ID, 'eess_school_name', true);
+            $school_info  = SM_Settings::get_school_info();
+            $default_inst = $school_info['school_name'] ?? 'خدمات الأنظمة الإلكترونية التعليمية (EESS)';
+
+            $inst_match = (strcasecmp($stored_inst1, $institution) === 0) ||
+                         (strcasecmp($stored_inst2, $institution) === 0) ||
+                         (strcasecmp($stored_inst3, $institution) === 0) ||
+                         (empty($stored_inst1) && strcasecmp($default_inst, $institution) === 0);
+
+            if (!$inst_match) {
                 set_transient($rate_key, $attempts + 1, 15 * MINUTE_IN_SECONDS);
                 wp_send_json_error('اسم المؤسسة أو المدرسة غير متطابق.');
             }
         }
 
-        // 5. Verify Nationality if provided
+        // 5. Verify Nationality
         if (!empty($nationality)) {
             $stored_nat1 = get_user_meta($user->ID, 'nationality', true);
             $stored_nat2 = get_user_meta($user->ID, 'sm_nationality', true);
-            if (!empty($stored_nat1) && strcasecmp($stored_nat1, $nationality) !== 0 && strcasecmp($stored_nat2, $nationality) !== 0) {
-                set_transient($rate_key, $attempts + 1, 15 * MINUTE_IN_SECONDS);
-                wp_send_json_error('بيانات الجنسية غير متطابقة.');
+            if (!empty($stored_nat1) || !empty($stored_nat2)) {
+                if (strcasecmp($stored_nat1, $nationality) !== 0 && strcasecmp($stored_nat2, $nationality) !== 0) {
+                    set_transient($rate_key, $attempts + 1, 15 * MINUTE_IN_SECONDS);
+                    wp_send_json_error('بيانات الجنسية غير متطابقة.');
+                }
             }
         }
 
@@ -5873,9 +5884,11 @@ class SM_Public {
         if (in_array($role, $roles_requiring_subject) && !empty($subject)) {
             $stored_sub1 = get_user_meta($user->ID, 'sm_specialization', true);
             $stored_sub2 = get_user_meta($user->ID, 'specialization', true);
-            if (!empty($stored_sub1) && strcasecmp($stored_sub1, $subject) !== 0 && strcasecmp($stored_sub2, $subject) !== 0) {
-                set_transient($rate_key, $attempts + 1, 15 * MINUTE_IN_SECONDS);
-                wp_send_json_error('المادة المحددة غير متطابقة مع مادة المعلم المسجلة.');
+            if (!empty($stored_sub1) || !empty($stored_sub2)) {
+                if (strcasecmp($stored_sub1, $subject) !== 0 && strcasecmp($stored_sub2, $subject) !== 0) {
+                    set_transient($rate_key, $attempts + 1, 15 * MINUTE_IN_SECONDS);
+                    wp_send_json_error('المادة المحددة غير متطابقة مع مادة المعلم المسجلة.');
+                }
             }
         }
 
@@ -5883,9 +5896,11 @@ class SM_Public {
         if (!empty($dob)) {
             $stored_dob1 = get_user_meta($user->ID, 'sm_dob', true);
             $stored_dob2 = get_user_meta($user->ID, 'dob', true);
-            if (!empty($stored_dob1) && $stored_dob1 !== $dob && $stored_dob2 !== $dob) {
-                set_transient($rate_key, $attempts + 1, 15 * MINUTE_IN_SECONDS);
-                wp_send_json_error('تاريخ الميلاد غير متطابق.');
+            if (!empty($stored_dob1) || !empty($stored_dob2)) {
+                if ($stored_dob1 !== $dob && $stored_dob2 !== $dob) {
+                    set_transient($rate_key, $attempts + 1, 15 * MINUTE_IN_SECONDS);
+                    wp_send_json_error('تاريخ الميلاد غير متطابق.');
+                }
             }
         }
 

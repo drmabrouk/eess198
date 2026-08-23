@@ -32,7 +32,16 @@ if ($is_annual) {
     }
 } else {
     $plan_id = isset($_GET['plan_id']) ? intval($_GET['plan_id']) : 0;
-    $single_plan = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}sm_term_plans WHERE id = %d", $plan_id));
+    $term_num = isset($_GET['term_number']) ? intval($_GET['term_number']) : 0;
+    $teacher_id = isset($_GET['teacher_id']) ? intval($_GET['teacher_id']) : get_current_user_id();
+
+    if ($plan_id > 0) {
+        $single_plan = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}sm_term_plans WHERE id = %d", $plan_id));
+    } elseif ($term_num > 0) {
+        $single_plan = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}sm_term_plans WHERE teacher_id = %d AND term_number = %d ORDER BY updated_at DESC LIMIT 1", $teacher_id, $term_num));
+    } else {
+        $single_plan = null;
+    }
     $plans = $single_plan ? array($single_plan) : array();
 }
 

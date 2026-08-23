@@ -3,7 +3,8 @@ if (!defined('ABSPATH')) exit;
 
 $user = wp_get_current_user();
 $roles = (array) $user->roles;
-$can_manage = current_user_can('manage_grades') || current_user_can('manage_options');
+$is_teacher = in_array('sm_teacher', $roles);
+$can_manage = current_user_can('manage_grades') || current_user_can('manage_options') || $is_teacher || in_array('sm_coordinator', $roles) || in_array('sm_hod', $roles);
 
 if (!$can_manage) {
     echo '<p>غير مسموح لك بالوصول لهذه الصفحة.</p>';
