@@ -301,22 +301,37 @@ if ($is_reviewer) {
 
 <!-- Professional Multi-Step Plan Setup Wizard Modal -->
 <div id="eess-plan-setup-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif; direction: rtl;">
-    <div style="background: #ffffff; border-radius: 20px; max-width: 720px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); overflow: hidden; display: flex; flex-direction: column; max-height: 88vh;">
-        <!-- Wizard Header -->
-        <div style="background: #1e293b; color: #ffffff; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center;">
+    <div style="background: #ffffff; border-radius: 20px; max-width: 820px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); overflow: hidden; display: flex; flex-direction: column; max-height: 88vh;">
+        <!-- Flush Full-Width Wizard Header Banner -->
+        <div style="background: #1e293b; color: #ffffff; padding: 20px 28px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box;">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span class="dashicons dashicons-calendar-alt" style="color: #60a5fa; font-size: 22px; width: 22px; height: 22px; margin: 0;"></span>
-                <h3 style="margin: 0; font-size: 16px; font-weight: 800; font-family: 'Cairo', sans-serif;">معالج إعداد وخطة المدرس (الخطط الفصلية والسنوية)</h3>
+                <h3 style="margin: 0; font-size: 16.5px; font-weight: 800; font-family: 'Cairo', sans-serif;">معالج إعداد وخطة المدرس (الخطط الفصلية والسنوية)</h3>
             </div>
-            <button type="button" onclick="eessClosePlanSetupWizard()" style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer; line-height: 1;">&times;</button>
+            <button type="button" onclick="eessClosePlanSetupWizard()" style="background: none; border: none; color: #ffffff; font-size: 26px; cursor: pointer; line-height: 1;">&times;</button>
         </div>
 
-        <!-- Progress Steps -->
-        <div style="background: #f8fafc; padding: 12px 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
-            <div id="wiz-step-node-1" class="ref-step-node ref-step-active">1. الإعدادات</div>
-            <div id="wiz-step-node-2" class="ref-step-node">2. التواريخ والأسابيع</div>
-            <div id="wiz-step-node-3" class="ref-step-node">3. تخطيط الدروس الأسبوعي</div>
-            <div id="wiz-step-node-4" class="ref-step-node">4. الاعتماد والتصدير</div>
+        <!-- Full-Width Balanced RTL Stepper Track -->
+        <div style="background: #f8fafc; padding: 14px 24px; border-bottom: 1px solid #e2e8f0; position: relative;">
+            <div style="position: absolute; top: 50%; left: 40px; right: 40px; height: 2px; background: #e2e8f0; transform: translateY(-50%); z-index: 1;"></div>
+            <div style="position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div id="wiz-step-node-1" class="eess-prep-step-indicator active" style="font-weight: 800; font-size: 11.5px; color: #881337; display: flex; flex-direction: column; align-items: center; gap: 4px; background: #f8fafc; padding: 0 6px;">
+                    <span style="background: #881337; color: white; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; box-shadow: 0 0 0 4px #f8fafc;">1</span>
+                    <span>الإعدادات المبدئية</span>
+                </div>
+                <div id="wiz-step-node-2" class="eess-prep-step-indicator" style="font-weight: 700; font-size: 11.5px; color: #94a3b8; display: flex; flex-direction: column; align-items: center; gap: 4px; background: #f8fafc; padding: 0 6px;">
+                    <span style="background: #e2e8f0; color: #475569; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; box-shadow: 0 0 0 4px #f8fafc;">2</span>
+                    <span>التواريخ والأسابيع</span>
+                </div>
+                <div id="wiz-step-node-3" class="eess-prep-step-indicator" style="font-weight: 700; font-size: 11.5px; color: #94a3b8; display: flex; flex-direction: column; align-items: center; gap: 4px; background: #f8fafc; padding: 0 6px;">
+                    <span style="background: #e2e8f0; color: #475569; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; box-shadow: 0 0 0 4px #f8fafc;">3</span>
+                    <span>تخطيط الدروس الأسبوعي</span>
+                </div>
+                <div id="wiz-step-node-4" class="eess-prep-step-indicator" style="font-weight: 700; font-size: 11.5px; color: #94a3b8; display: flex; flex-direction: column; align-items: center; gap: 4px; background: #f8fafc; padding: 0 6px;">
+                    <span style="background: #e2e8f0; color: #475569; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; box-shadow: 0 0 0 4px #f8fafc;">4</span>
+                    <span>الاعتماد والتصدير</span>
+                </div>
+            </div>
         </div>
 
         <!-- Wizard Body Container -->
@@ -324,14 +339,14 @@ if ($is_reviewer) {
             <!-- Step 1 -->
             <div id="wiz-step-1" class="wiz-step-content" style="display: block;">
                 <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 800; color: #0f172a;">الخطوة 1: تحديد المادة والصف ونظام الفصول</h4>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                     <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">العام الأكاديمي *</label>
-                        <input type="text" id="wiz_academic_year" class="sm-input" value="<?php echo esc_attr($active_academic_year); ?>" required style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px;">
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">العام الأكاديمي *</label>
+                        <input type="text" id="wiz_academic_year" class="sm-input" value="<?php echo esc_attr($active_academic_year); ?>" required style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 13px; text-align: right; box-sizing: border-box;">
                     </div>
                     <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">المادة الدراسية *</label>
-                        <select id="wiz_subject" class="sm-select" required style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 13px;">
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">المادة الدراسية *</label>
+                        <select id="wiz_subject" class="sm-select" required style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 13px; text-align: right; direction: rtl; box-sizing: border-box;">
                             <option value="">-- اختر المادة --</option>
                             <?php foreach ($unique_subjects as $subj): ?>
                                 <option value="<?php echo esc_attr($subj); ?>"><?php echo esc_html($subj); ?></option>
@@ -340,10 +355,10 @@ if ($is_reviewer) {
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                     <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">الصف الدراسي *</label>
-                        <select id="wiz_grade" class="sm-select" required style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 13px;">
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">الصف الدراسي *</label>
+                        <select id="wiz_grade" class="sm-select" required style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 13px; text-align: right; direction: rtl; box-sizing: border-box;">
                             <option value="">-- اختر الصف --</option>
                             <?php
                             foreach ($academic['active_grades'] as $g) {
@@ -353,8 +368,8 @@ if ($is_reviewer) {
                         </select>
                     </div>
                     <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">الحصص الأسبوعية *</label>
-                        <input type="number" id="wiz_weekly_lessons" min="1" max="10" value="2" required style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px;">
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">الحصص الأسبوعية *</label>
+                        <input type="number" id="wiz_weekly_lessons" min="1" max="10" value="2" required style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 20px; font-size: 13.5px; font-weight: 800; text-align: right; box-sizing: border-box;">
                     </div>
                 </div>
             </div>
@@ -362,36 +377,36 @@ if ($is_reviewer) {
             <!-- Step 2 -->
             <div id="wiz-step-2" class="wiz-step-content" style="display: none;">
                 <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 800; color: #0f172a;">الخطوة 2: تحديد تاريخ البداية والنهاية وحساب الأسابيع</h4>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                     <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">الفصل الدراسي المراد تخطيطه *</label>
-                        <select id="wiz_term_number" class="sm-select" style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 13px;">
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">الفصل الدراسي المراد تخطيطه *</label>
+                        <select id="wiz_term_number" class="sm-select" style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 13px; text-align: right; direction: rtl; box-sizing: border-box;">
                             <option value="1">الفصل الدراسي الأول (Term 1)</option>
                             <option value="2">الفصل الدراسي الثاني (Term 2)</option>
                             <option value="3">الفصل الدراسي الثالث (Term 3)</option>
                         </select>
                     </div>
                     <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">عدد الفصول بالعام</label>
-                        <select id="wiz_num_terms" class="sm-select" style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 13px;">
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">عدد الفصول بالعام</label>
+                        <select id="wiz_num_terms" class="sm-select" style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 13px; text-align: right; direction: rtl; box-sizing: border-box;">
                             <option value="3">3 فصول دراسية</option>
                             <option value="2">فصلان دراسيان</option>
                         </select>
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                     <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">تاريخ بداية الفصل *</label>
-                        <input type="date" id="wiz_start_date" onchange="wizCalculateWeeksAuto()" class="sm-input" required style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 12.5px;">
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">تاريخ بداية الفصل *</label>
+                        <input type="date" id="wiz_start_date" onchange="wizCalculateWeeksAuto()" class="sm-input" required style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 12.5px; text-align: right; box-sizing: border-box;">
                     </div>
                     <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">تاريخ نهاية الفصل *</label>
-                        <input type="date" id="wiz_end_date" onchange="wizCalculateWeeksAuto()" class="sm-input" required style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 12.5px;">
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">تاريخ نهاية الفصل *</label>
+                        <input type="date" id="wiz_end_date" onchange="wizCalculateWeeksAuto()" class="sm-input" required style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 12.5px; text-align: right; box-sizing: border-box;">
                     </div>
                 </div>
 
-                <div style="background: #f0f9ff; border: 1px solid #bae6fd; padding: 12px 18px; border-radius: 12px; font-size: 13px; color: #0369a1; font-weight: 700;">
+                <div style="background: #f0f9ff; border: 1px solid #bae6fd; padding: 14px 18px; border-radius: 12px; font-size: 13px; color: #0369a1; font-weight: 700;">
                     إجمالي الأسابيع المحسوبة تلقائياً للفصل: <strong id="wiz_weeks_count_label" style="color: #2563eb; font-size: 15px;">0 أسابيع</strong>
                 </div>
             </div>
@@ -417,10 +432,10 @@ if ($is_reviewer) {
 
             <!-- Wizard Footer Buttons -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
-                <button type="button" id="wiz-prev-btn" onclick="wizNav(-1)" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 10px; padding: 8px 18px; font-weight: 700; font-size: 13px; cursor: pointer; display: none;">← السابق</button>
+                <button type="button" id="wiz-prev-btn" onclick="wizNav(-1)" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 9999px !important; padding: 8px 18px; font-weight: 700; font-size: 12.5px; cursor: pointer; display: none;">السابق</button>
                 <div></div>
-                <button type="button" id="wiz-next-btn" onclick="wizNav(1)" style="background: #2563eb; color: #ffffff; border: none; border-radius: 10px; padding: 8px 22px; font-weight: 800; font-size: 13.5px; cursor: pointer;">المتابعة للخطوة التالية →</button>
-                <button type="submit" id="wiz-submit-btn" style="background: #16a34a; color: #ffffff; border: none; border-radius: 10px; padding: 8px 24px; font-weight: 800; font-size: 13.5px; cursor: pointer; display: none;">رفع الخطة المكتملة للاعتماد</button>
+                <button type="button" id="wiz-next-btn" onclick="wizNav(1)" style="background: #2563eb; color: #ffffff; border: none; border-radius: 9999px !important; padding: 8px 22px; font-weight: 800; font-size: 13.5px; cursor: pointer;">المتابعة للخطوة التالية</button>
+                <button type="submit" id="wiz-submit-btn" style="background: #16a34a; color: #ffffff; border: none; border-radius: 9999px !important; padding: 8px 24px; font-weight: 800; font-size: 13.5px; cursor: pointer; display: none;">رفع الخطة المكتملة للاعتماد</button>
             </div>
         </form>
     </div>
