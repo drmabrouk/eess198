@@ -117,11 +117,7 @@ class School_Management {
         $this->loader->add_action('wp_ajax_nopriv_eess_forgot_set_password', $plugin_public, 'ajax_forgot_set_password');
         $this->loader->add_action('wp_ajax_eess_forgot_set_password', $plugin_public, 'ajax_forgot_set_password');
 
-        // Registration wizard AJAX actions
-        $this->loader->add_action('wp_ajax_nopriv_eess_register_otp', $plugin_public, 'ajax_register_otp');
-        $this->loader->add_action('wp_ajax_eess_register_otp', $plugin_public, 'ajax_register_otp');
-        $this->loader->add_action('wp_ajax_nopriv_eess_register_verify_otp', $plugin_public, 'ajax_register_verify_otp');
-        $this->loader->add_action('wp_ajax_eess_register_verify_otp', $plugin_public, 'ajax_register_verify_otp');
+        // Registration wizard AJAX action (Without OTP)
         $this->loader->add_action('wp_ajax_nopriv_eess_register_submit', $plugin_public, 'ajax_register_submit');
         $this->loader->add_action('wp_ajax_eess_register_submit', $plugin_public, 'ajax_register_submit');
 
