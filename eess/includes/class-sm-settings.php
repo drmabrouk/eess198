@@ -1055,4 +1055,71 @@ class SM_Settings {
 
         return false;
     }
+
+    public static function get_subject_lesson_fields($subject) {
+        $sub = mb_strtolower(trim($subject));
+
+        if (strpos($sub, 'رياضية') !== false || strpos($sub, 'بدنية') !== false || strpos($sub, 'pe') !== false || strpos($sub, 'physical') !== false) {
+            return array(
+                'label1' => 'الإعداد البدني واللياقة العامة والخاصة (Physical Preparation)',
+                'placeholder1' => 'تمارين الإحماء واكتساب عناصر اللياقة العامة والخاصة بالمهارة...',
+                'label2' => 'الإعداد المهاري والخطوات الفنية (Skill Preparation)',
+                'placeholder2' => 'شرح وعرض الخطوات التعليمية والفنية للمهارة الحركية...',
+                'label3' => 'النشاط التطبيقي والتقسيمات (Main Practical Activity)',
+                'placeholder3' => 'الألعاب والتقسيمات والتطبيقات والمنافسات الجماعية...',
+                'label4' => 'الخاتمة والتهدئة وتجميع الطلاب (Cool-down & Closing)',
+                'placeholder4' => 'تمارين التهدئة وتجميع الأدوات والتقييم الحركي الختامي...'
+            );
+        }
+
+        if (strpos($sub, 'رياضيات') !== false || strpos($sub, 'math') !== false) {
+            return array(
+                'label1' => 'الأهداف والبراهين الرياضية والمفاهيم (Objectives & Concepts)',
+                'placeholder1' => 'صياغة المفاهيم الرياضية، النظريات، والقوانين المقرر إثباتها...',
+                'label2' => 'التهيئة والتمهيد ومراجعة المكتسبات (Warm-up & Prior Knowledge)',
+                'placeholder2' => 'مراجعة المهارات السابقة والتمهيد للمسألة النموذجية...',
+                'label3' => 'استراتيجيات الحل والأنشطة التطبيقية (Problem Solving & Activities)',
+                'placeholder3' => 'خطوات حل المسائل والتطبيق التدريجي على البراهين والتمارين...',
+                'label4' => 'التقويم الذاتي والتحقق من فهم المسائل (Assessment & Proof Check)',
+                'placeholder4' => 'تمارين قياس مستوى الاستيعاب والتأكد من صحة الحلول...'
+            );
+        }
+
+        if (strpos($sub, 'فيزياء') !== false || strpos($sub, 'كيمياء') !== false || strpos($sub, 'أحياء') !== false || strpos($sub, 'علوم') !== false || strpos($sub, 'physics') !== false || strpos($sub, 'chemistry') !== false || strpos($sub, 'biology') !== false || strpos($sub, 'science') !== false) {
+            return array(
+                'label1' => 'الأهداف والتجارب والتفسيرات العلمية (Scientific Objectives & Concepts)',
+                'placeholder1' => 'الأهداف العلمية والتجارب المعملية والمفاهيم العلمية المستهدفة...',
+                'label2' => 'التهيئة الاستكشافية والمشاهدة (Warm-up & Observation)',
+                'placeholder2' => 'طرح التساؤل العلمي أو الظاهرة الاستكشافية قبل التجربة...',
+                'label3' => 'التجربة العملية واستراتيجية الاستقصاء (Lab Experiment & Inquiry)',
+                'placeholder3' => 'خطوات تنفيذ التجربة، السلامة المعملية، وجمع البيانات والتطبيقات...',
+                'label4' => 'تحليل النتائج والتقويم العلمي (Data Analysis & Evaluation)',
+                'placeholder4' => 'استنتاج نتائج التجربة والإجابة على أسئلة التقييم المعملي...'
+            );
+        }
+
+        if (strpos($sub, 'إسلامية') !== false || strpos($sub, 'قرآن') !== false || strpos($sub, 'تربية إسلامية') !== false || strpos($sub, 'islamic') !== false) {
+            return array(
+                'label1' => 'الأهداف السلوكية والأحكام الشرعية والتلاوة (Objectives & Recitation)',
+                'placeholder1' => 'الآيات والمفاهيم والأحكام الشرعية والقيم التربوية المستفادة...',
+                'label2' => 'التمهيد وربط الآيات بالواقع (Warm-up & Reflection)',
+                'placeholder2' => 'نشاط تمهيدي لربط الدرس بالقيم السلوكية والحياة اليومية...',
+                'label3' => 'الشرح والتفسير والأنشطة الإيمانية (Tafseer & Learning Activities)',
+                'placeholder3' => 'شرح المعاني، تطبيق قواعد التلاوة، والاستراتيجيات التفاعلية...',
+                'label4' => 'التقويم السلوكي والتطبيق الحياتي (Behavioral Assessment & Closing)',
+                'placeholder4' => 'قياس فهم الأحكام والآثار السلوكية المكتسبة...'
+            );
+        }
+
+        return array(
+            'label1' => 'الأهداف السلوكية والتعليمية (Objectives)',
+            'placeholder1' => 'أدخل الأهداف السلوكية المحددة والواضحة للدرس...',
+            'label2' => 'التمهيد والتهيئة الحافزة (Warm-up)',
+            'placeholder2' => 'نشاط تمهيدي لجذب انتباه الطلاب للمفهوم الجديد...',
+            'label3' => 'الاستراتيجيات والأنشطة والخطوات التعليمية (Learning Activities)',
+            'placeholder3' => 'شرح طريقة عرض المفهوم والوسائل والأنشطة المتبعة...',
+            'label4' => 'التقويم الصفي وأدوات القياس (Evaluation & Assessment)',
+            'placeholder4' => 'أسئلة وأدوات تقييم فهم واستيعاب الطلاب خلال الحصة...'
+        );
+    }
 }

@@ -318,17 +318,7 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
             $is_locked = ($is_teacher && !empty($assigned_subject));
             $current_subject = !empty($edit_prep->subject) ? $edit_prep->subject : $assigned_subject;
 
-            $is_pe_subject = false;
-            if (!empty($current_subject)) {
-                $sub_lower = strtolower($current_subject);
-                $is_pe_subject = (
-                    strpos($sub_lower, 'رياضية') !== false ||
-                    strpos($sub_lower, 'بدنية') !== false ||
-                    strpos($sub_lower, 'pe') !== false ||
-                    strpos($sub_lower, 'physical') !== false ||
-                    strpos($sub_lower, 'health') !== false
-                );
-            }
+            $subj_fields = SM_Settings::get_subject_lesson_fields($current_subject);
             ?>
 
             <form method="post" id="eess-lesson-prep-wizard-form">
@@ -404,52 +394,28 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
 
                 <!-- Stage 2: Objectives & Warm-up -->
                 <div class="eess-prep-wizard-stage" id="eess-prep-stage-2" style="display: none;">
-                    <?php if ($is_pe_subject): ?>
-                        <h4 style="margin: 0 0 15px 0; font-size: 13px; font-weight: 800; color: var(--sm-primary-color);">الخطوة الثانية: الإعداد البدني والمهاري للتربية الرياضية والبدنية</h4>
-                        <div style="margin-bottom: 15px;">
-                            <label class="sm-label" style="font-weight: 700; font-size: 12px;">1. الإعداد البدني (Physical Preparation) <span style="color:#ef4444;">*</span></label>
-                            <textarea id="eess_objectives" name="objectives" class="sm-input" style="height: 90px; font-size: 12px;" placeholder="تمارين الإحماء واللياقة العامة والخاصة بالمهارة..."><?php echo esc_textarea($data['objectives'] ?? ''); ?></textarea>
-                        </div>
-                        <div style="margin-bottom: 15px;">
-                            <label class="sm-label" style="font-weight: 700; font-size: 12px;">2. الإعداد المهاري (Skill Preparation) <span style="color:#ef4444;">*</span></label>
-                            <textarea id="eess_warmup" name="warmup" class="sm-input" style="height: 80px; font-size: 12px;" placeholder="شرح وعرض الخطوات الفنية والتعليمية للمهارة المقررة الحركية..."><?php echo esc_textarea($data['warmup'] ?? ''); ?></textarea>
-                        </div>
-                    <?php else: ?>
-                        <h4 style="margin: 0 0 15px 0; font-size: 13px; font-weight: 800; color: var(--sm-primary-color);">الخطوة الثانية: صياغة الأهداف التعليمية والتمهيد</h4>
-                        <div style="margin-bottom: 15px;">
-                            <label class="sm-label" style="font-weight: 700; font-size: 12px;">1. الأهداف السلوكية والتعليمية (Objectives) <span style="color:#ef4444;">*</span></label>
-                            <textarea id="eess_objectives" name="objectives" class="sm-input" style="height: 90px; font-size: 12px;" placeholder="أدخل الأهداف السلوكية المحددة والواضحة للدرس..."><?php echo esc_textarea($data['objectives'] ?? ''); ?></textarea>
-                        </div>
-                        <div style="margin-bottom: 15px;">
-                            <label class="sm-label" style="font-weight: 700; font-size: 12px;">2. التمهيد والتهيئة الحافزة (Warm-up) <span style="color:#ef4444;">*</span></label>
-                            <textarea id="eess_warmup" name="warmup" class="sm-input" style="height: 80px; font-size: 12px;" placeholder="نشاط تمهيدي لجذب انتباه الطلاب للمفهوم الجديد..."><?php echo esc_textarea($data['warmup'] ?? ''); ?></textarea>
-                        </div>
-                    <?php endif; ?>
+                    <h4 style="margin: 0 0 15px 0; font-size: 13px; font-weight: 800; color: var(--sm-primary-color);">الخطوة الثانية: أهداف وتمهيد المادة (<?php echo esc_html($current_subject); ?>)</h4>
+                    <div style="margin-bottom: 15px;">
+                        <label class="sm-label" style="font-weight: 700; font-size: 12px;">1. <?php echo esc_html($subj_fields['label1']); ?> <span style="color:#ef4444;">*</span></label>
+                        <textarea id="eess_objectives" name="objectives" class="sm-input" style="height: 90px; font-size: 12px;" placeholder="<?php echo esc_attr($subj_fields['placeholder1']); ?>"><?php echo esc_textarea($data['objectives'] ?? ''); ?></textarea>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label class="sm-label" style="font-weight: 700; font-size: 12px;">2. <?php echo esc_html($subj_fields['label2']); ?> <span style="color:#ef4444;">*</span></label>
+                        <textarea id="eess_warmup" name="warmup" class="sm-input" style="height: 80px; font-size: 12px;" placeholder="<?php echo esc_attr($subj_fields['placeholder2']); ?>"><?php echo esc_textarea($data['warmup'] ?? ''); ?></textarea>
+                    </div>
                 </div>
 
                 <!-- Stage 3: Activities & Evaluation -->
                 <div class="eess-prep-wizard-stage" id="eess-prep-stage-3" style="display: none;">
-                    <?php if ($is_pe_subject): ?>
-                        <h4 style="margin: 0 0 15px 0; font-size: 13px; font-weight: 800; color: var(--sm-primary-color);">الخطوة الثالثة: النشاط العملي والتطبيق والتهدئة</h4>
-                        <div style="margin-bottom: 15px;">
-                            <label class="sm-label" style="font-weight: 700; font-size: 12px;">3. النشاط الرئيسي/العملي (Main/Practical Activity) <span style="color:#ef4444;">*</span></label>
-                            <textarea id="eess_activities" name="activities" class="sm-input" style="height: 100px; font-size: 12px;" placeholder="الألعاب، التقسيمات، والمنافسات التطبيقية للمهارات الرياضية..."><?php echo esc_textarea($data['activities'] ?? ''); ?></textarea>
-                        </div>
-                        <div style="margin-bottom: 15px;">
-                            <label class="sm-label" style="font-weight: 700; font-size: 12px;">4. الخاتمة والتهدئة (Cool-down & Closing) <span style="color:#ef4444;">*</span></label>
-                            <textarea id="eess_evaluation" name="evaluation" class="sm-input" style="height: 80px; font-size: 12px;" placeholder="تمارين الاسترخاء وتجميع الطلاب، والتقييم الختامي للأداء..."><?php echo esc_textarea($data['evaluation'] ?? ''); ?></textarea>
-                        </div>
-                    <?php else: ?>
-                        <h4 style="margin: 0 0 15px 0; font-size: 13px; font-weight: 800; color: var(--sm-primary-color);">الخطوة الثالثة: الأنشطة والتقويم الصفي</h4>
-                        <div style="margin-bottom: 15px;">
-                            <label class="sm-label" style="font-weight: 700; font-size: 12px;">3. الاستراتيجيات، الأنشطة والخطوات التعليمية <span style="color:#ef4444;">*</span></label>
-                            <textarea id="eess_activities" name="activities" class="sm-input" style="height: 100px; font-size: 12px;" placeholder="شرح طريقة عرض المفهوم والوسائل والأنشطة المتبعة..."><?php echo esc_textarea($data['activities'] ?? ''); ?></textarea>
-                        </div>
-                        <div style="margin-bottom: 15px;">
-                            <label class="sm-label" style="font-weight: 700; font-size: 12px;">4. التقويم الصفي وأدوات القياس (Evaluation & Assessment) <span style="color:#ef4444;">*</span></label>
-                            <textarea id="eess_evaluation" name="evaluation" class="sm-input" style="height: 80px; font-size: 12px;" placeholder="أسئلة وأدوات تقييم فهم واستيعاب الطلاب خلال الحصة..."><?php echo esc_textarea($data['evaluation'] ?? ''); ?></textarea>
-                        </div>
-                    <?php endif; ?>
+                    <h4 style="margin: 0 0 15px 0; font-size: 13px; font-weight: 800; color: var(--sm-primary-color);">الخطوة الثالثة: الأنشطة والتقويم الخاص بمادة (<?php echo esc_html($current_subject); ?>)</h4>
+                    <div style="margin-bottom: 15px;">
+                        <label class="sm-label" style="font-weight: 700; font-size: 12px;">3. <?php echo esc_html($subj_fields['label3']); ?> <span style="color:#ef4444;">*</span></label>
+                        <textarea id="eess_activities" name="activities" class="sm-input" style="height: 100px; font-size: 12px;" placeholder="<?php echo esc_attr($subj_fields['placeholder3']); ?>"><?php echo esc_textarea($data['activities'] ?? ''); ?></textarea>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label class="sm-label" style="font-weight: 700; font-size: 12px;">4. <?php echo esc_html($subj_fields['label4']); ?> <span style="color:#ef4444;">*</span></label>
+                        <textarea id="eess_evaluation" name="evaluation" class="sm-input" style="height: 80px; font-size: 12px;" placeholder="<?php echo esc_attr($subj_fields['placeholder4']); ?>"><?php echo esc_textarea($data['evaluation'] ?? ''); ?></textarea>
+                    </div>
                 </div>
 
                 <!-- Stage 4: Homework & Notes -->
