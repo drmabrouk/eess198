@@ -137,6 +137,7 @@ class School_Management {
         $this->loader->add_action('wp_ajax_sm_mark_announcement_viewed', $plugin_public, 'ajax_mark_announcement_viewed');
         $this->loader->add_action('wp_ajax_sm_mark_announcement_closed', $plugin_public, 'ajax_mark_announcement_closed');
         $this->loader->add_action('wp_ajax_sm_reset_user_announcement', $plugin_public, 'ajax_reset_user_announcement');
+        $this->loader->add_action('wp_ajax_sm_disable_system_announcement', $plugin_public, 'ajax_disable_system_announcement');
 
         // Term & Annual Plans AJAX actions
         $this->loader->add_action('wp_ajax_sm_save_term_plan', $plugin_public, 'ajax_save_term_plan');

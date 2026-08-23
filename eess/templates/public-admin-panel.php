@@ -1341,6 +1341,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                             <button class="sm-tab-btn" onclick="smOpenInternalTab('sidebar-settings', this)">تخصيص القائمة</button>
                             <button class="sm-tab-btn" onclick="smOpenInternalTab('backup-settings', this)">مركز النسخ الاحتياطي</button>
                             <?php if ($is_admin): ?>
+                                <button class="sm-tab-btn" onclick="smOpenInternalTab('announcements-settings', this)">الإشعارات والتعاميم العامة</button>
                                 <button class="sm-tab-btn" onclick="smOpenInternalTab('activity-logs', this)">سجل النشاطات</button>
                             <?php endif; ?>
                         </div>
@@ -1538,6 +1539,9 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                             </div>
                         </div>
                         <?php if ($is_admin): ?>
+                        <div id="announcements-settings" class="sm-internal-tab" style="display:none;">
+                            <?php include SM_PLUGIN_DIR . 'templates/admin-system-announcements.php'; ?>
+                        </div>
                         <div id="activity-logs" class="sm-internal-tab" style="display:none;">
                             <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:30px;">
                                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -1873,9 +1877,14 @@ jQuery(document).ready(function($) {
         <h3 id="anc-modal-title" style="margin: 0 0 12px 0; font-size: 18px; font-weight: 800; color: #0f172a; line-height: 1.4;">-</h3>
         <p id="anc-modal-details" style="margin: 0 0 25px 0; font-size: 13px; color: #475569; line-height: 1.7; white-space: pre-line;">-</p>
 
-        <button type="button" onclick="eessCloseAnnouncementModal()" style="width: 100%; height: 44px; background: #0f172a; color: #ffffff; border: none; border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s ease;">
-            إغلاق ومتابعة (Dismiss)
-        </button>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button type="button" onclick="eessCloseAnnouncementModal()" style="flex: 1; height: 44px; background: #0f172a; color: #ffffff; border: none; border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s ease;">
+                إغلاق
+            </button>
+            <button type="button" onclick="eessContinueAnnouncementModal()" id="anc-modal-continue-btn" style="flex: 1; height: 44px; background: #2563eb; color: #ffffff; border: none; border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s ease; display: none;">
+                متابعة
+            </button>
+        </div>
     </div>
 </div>
 
@@ -1945,6 +1954,10 @@ jQuery(document).ready(function($) {
 
         document.getElementById('eess-announcement-modal').style.display = 'flex';
     }
+
+    window.eessContinueAnnouncementModal = function() {
+        eessCloseAnnouncementModal();
+    };
 
     window.eessCloseAnnouncementModal = function() {
         if (currentAnc) {
