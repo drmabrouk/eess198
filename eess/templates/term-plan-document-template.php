@@ -46,7 +46,14 @@ $teacher_name = $teacher ? $teacher->display_name : 'غير محدد';
 $emp_id = get_user_meta($first_plan->teacher_id, 'sm_employee_id', true) ?: (get_user_meta($first_plan->teacher_id, 'sm_employee_code', true) ?: $first_plan->teacher_id);
 
 // Dynamic Institutional Branding for Assigned Teacher
-$assigned_school = get_user_meta($first_plan->teacher_id, 'eess_school_name', true) ?: ($school_info['school_name'] ?? 'خدمات الأنظمة الإلكترونية التعليمية (EESS)');
+$assigned_school = get_user_meta($first_plan->teacher_id, 'eess_school_name', true);
+if (empty($assigned_school)) {
+    $assigned_school = get_user_meta($first_plan->teacher_id, 'sm_school_name', true);
+}
+if (empty($assigned_school)) {
+    $assigned_school = $school_info['school_name'] ?? 'خدمات الأنظمة الإلكترونية التعليمية (EESS)';
+}
+
 $school_logo = get_user_meta($first_plan->teacher_id, 'eess_school_logo', true) ?: ($school_info['school_logo'] ?? '');
 $school_phone = get_user_meta($first_plan->teacher_id, 'eess_school_phone', true) ?: ($school_info['phone'] ?? '');
 ?>

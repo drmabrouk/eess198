@@ -275,27 +275,27 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
     <div style="background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 15px;">
         <h3 style="margin: 0 0 12px 0; font-weight: 800; color: #1e293b; font-size: 13px; border-bottom: 2px solid #f1f5f9; padding-bottom: 6px;">إحصائيات الامتثال ومتابعة التحضير</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;">
-            <div class="sm-stat-card" style="border-top: 3px solid #334155; text-align: center; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0;">
+            <div onclick="eessShowComplianceStatDetails('required')" class="sm-stat-card" style="border-top: 3px solid #334155; text-align: center; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                 <div style="font-size: 11px; color: #64748b; font-weight: 700; margin-bottom: 3px;">التحضيرات المطلوبة</div>
                 <div style="font-size: 18px; font-weight: 800; color: #334155;"><?php echo $stats_total_required; ?></div>
             </div>
-            <div class="sm-stat-card" style="border-top: 3px solid #475569; text-align: center; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0;">
+            <div onclick="eessShowComplianceStatDetails('submitted')" class="sm-stat-card" style="border-top: 3px solid #475569; text-align: center; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                 <div style="font-size: 11px; color: #64748b; font-weight: 700; margin-bottom: 3px;">التحضيرات المقدمة</div>
                 <div style="font-size: 18px; font-weight: 800; color: #475569;"><?php echo $stats_submitted; ?></div>
             </div>
-            <div class="sm-stat-card" style="border-top: 3px solid #eab308; text-align: center; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0;">
+            <div onclick="eessShowComplianceStatDetails('pending')" class="sm-stat-card" style="border-top: 3px solid #eab308; text-align: center; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                 <div style="font-size: 11px; color: #64748b; font-weight: 700; margin-bottom: 3px;">قيد المراجعة</div>
                 <div style="font-size: 18px; font-weight: 800; color: #eab308;"><?php echo $stats_pending; ?></div>
             </div>
-            <div class="sm-stat-card" style="border-top: 3px solid #16a34a; text-align: center; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0;">
+            <div onclick="eessShowComplianceStatDetails('approved')" class="sm-stat-card" style="border-top: 3px solid #16a34a; text-align: center; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                 <div style="font-size: 11px; color: #64748b; font-weight: 700; margin-bottom: 3px;">التحضيرات المعتمدة</div>
                 <div style="font-size: 18px; font-weight: 800; color: #16a34a;"><?php echo $stats_approved; ?></div>
             </div>
-            <div class="sm-stat-card" style="border-top: 3px solid #ea580c; text-align: center; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0;">
+            <div onclick="eessShowComplianceStatDetails('revision_required')" class="sm-stat-card" style="border-top: 3px solid #ea580c; text-align: center; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                 <div style="font-size: 11px; color: #64748b; font-weight: 700; margin-bottom: 3px;">تعديل مطلوب</div>
                 <div style="font-size: 18px; font-weight: 800; color: #ea580c;"><?php echo $stats_revision; ?></div>
             </div>
-            <div class="sm-stat-card" style="border-top: 3px solid #8b1e1e; text-align: center; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0;">
+            <div onclick="eessShowComplianceStatDetails('late')" class="sm-stat-card" style="border-top: 3px solid #8b1e1e; text-align: center; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                 <div style="font-size: 11px; color: #64748b; font-weight: 700; margin-bottom: 3px;">تسليم متأخر</div>
                 <div style="font-size: 18px; font-weight: 800; color: #8b1e1e;"><?php echo $stats_late; ?></div>
             </div>
@@ -1230,6 +1230,19 @@ window.addEventListener('click', function() {
         dropdown.style.display = 'none';
     }
 });
+
+    window.eessShowComplianceStatDetails = function(statKey) {
+        let typeMapping = {
+            'required': 'submitted',
+            'submitted': 'submitted',
+            'pending': 'submitted',
+            'approved': 'ranking',
+            'revision_required': 'not_submitted',
+            'late': 'late_stats'
+        };
+        const mappedType = typeMapping[statKey] || 'submitted';
+        eessShowPrepReport(mappedType);
+    };
 
 function eessShowPrepReport(type) {
     // Hide all report sections inside modal

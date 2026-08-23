@@ -35,7 +35,7 @@
         </div>
     </div>
 
-    <div class="sm-tabs-wrapper" style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee;">
+    <div class="sm-tabs-wrapper" style="display: flex; gap: 10px; margin-bottom: 20px;">
         <button class="sm-tab-btn sm-active" onclick="smOpenInternalTab('received-assignments', this)">الواجبات المستلمة</button>
         <button class="sm-tab-btn" onclick="smOpenInternalTab('sent-assignments', this)">الواجبات المرسلة</button>
     </div>

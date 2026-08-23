@@ -49,61 +49,65 @@ if ($is_reviewer) {
         SELECT tp.*, u.display_name as teacher_name
         FROM {$wpdb->prefix}sm_term_plans tp
         LEFT JOIN {$wpdb->users} u ON tp.teacher_id = u.ID
-        WHERE tp.status IN ('submitted', 'approved', 'returned')
-        ORDER BY tp.updated_at DESC LIMIT 50
+        WHERE tp.status IN ('submitted', 'approved', 'returned', 'rejected', 'draft')
+        ORDER BY tp.updated_at DESC LIMIT 100
     ");
 }
+
+$arabic_term_names = array(
+    1 => 'الفصل الدراسي الأول',
+    2 => 'الفصل الدراسي الثاني',
+    3 => 'الفصل الدراسي الثالث'
+);
 ?>
 
 <div class="sm-content-wrapper" dir="rtl" style="font-family: 'Cairo', sans-serif !important;">
 
-    <!-- Single Consolidated Top Header Banner -->
-    <div style="background: #ffffff; padding: 22px 28px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 24px; box-shadow: 0 4px 18px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-        <div style="display: flex; align-items: center; gap: 16px;">
-            <div style="width: 50px; height: 50px; background: #eff6ff; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: #2563eb; border: 1px solid #dbeafe; flex-shrink: 0;">
-                <svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+    <!-- Single Main Banner Header -->
+    <div style="background: #ffffff; padding: 20px 24px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 18px; box-shadow: 0 4px 18px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 48px; height: 48px; background: #fef2f2; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #881337; border: 1px solid #fecdd3; flex-shrink: 0;">
+                <span class="dashicons dashicons-calendar-alt" style="font-size: 24px; width: 24px; height: 24px;"></span>
             </div>
             <div>
-                <h2 style="margin: 0 0 4px 0; font-size: 21px; font-weight: 800; color: #0f172a;">الخطط الفصلية والسنوية للمدرس</h2>
-                <p style="margin: 0; font-size: 13px; color: #64748b; font-weight: 500;">إعداد وإدارة الخطط التعليمية والتوزيع الأسبوعي للمناهج الدراسية والاعتماد المباشر</p>
+                <h2 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 800; color: #0f172a;">الخطط الفصلية والسنوية للمدرس</h2>
+                <p style="margin: 0; font-size: 12.5px; color: #64748b; font-weight: 500;">إعداد وإدارة الخطط التعليمية والتوزيع الأسبوعي للمناهج الدراسية والاعتماد المباشر</p>
             </div>
         </div>
 
-        <!-- Primary Top Banner Actions -->
+        <!-- Primary Header Actions (Wine-Red, Black, White Button Tokens) -->
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-            <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=annual_plan&teacher_id=' . $user_id); ?>" target="_blank" class="sm-btn" style="background: #16a34a; color: #fff !important; height: 40px; border-radius: 12px; padding: 0 16px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-                🖨️ طباعة الخطة السنوية
+            <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=annual_plan&teacher_id=' . $user_id); ?>" target="_blank" class="sm-btn" style="background: #1e293b; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 18px; font-weight: 800; font-size: 12.5px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border: none;">
+                <span class="dashicons dashicons-printer" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
+                <span>طباعة الخطة السنوية</span>
             </a>
-            <button type="button" onclick="eessOpenPlanSetupWizard()" class="sm-btn" style="background: #2563eb; color: #fff; height: 40px; border-radius: 12px; padding: 0 18px; font-weight: 800; border: none; cursor: pointer;">
-                إعداد وخطة المدرس
+            <button type="button" onclick="eessOpenPlanSetupWizard(1)" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <span class="dashicons dashicons-plus-alt2" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
+                <span>إعداد وخطة المدرس</span>
             </button>
             <?php if ($is_reviewer): ?>
-                <button type="button" onclick="switchTermPlanTab('reviewer-dashboard')" id="btn-tab-reviewer" class="sm-btn" style="background: #f8fafc; color: #334155; height: 40px; border-radius: 12px; padding: 0 18px; font-weight: 800; border: 1px solid #cbd5e1; cursor: pointer;">
+                <button type="button" onclick="switchTermPlanTab('reviewer-dashboard')" id="btn-tab-reviewer" class="sm-btn sm-btn-outline" style="background: #ffffff; color: #334155 !important; height: 38px; border-radius: 9999px !important; padding: 0 18px; font-weight: 800; font-size: 12.5px; border: 1px solid #cbd5e1; cursor: pointer;">
                     مراجعة واعتماد الخطط المقدمة
                 </button>
             <?php endif; ?>
         </div>
     </div>
 
-        <!-- Annual Progress Overview Bar -->
-        <div style="background: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+        <!-- 3 Independent Annual Progress Cards Grid -->
+        <div style="background: #ffffff; padding: 20px 24px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.02); margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
                 <div>
-                    <span style="font-size: 14px; font-weight: 800; color: #0f172a;">نسبة إنجاز الخطة السنوية الشاملة (العام الأكاديمي <?php echo esc_html($active_academic_year); ?>)</span>
-                    <span style="font-size: 12px; color: #64748b; margin-right: 8px;">(<?php echo $completed_terms_count; ?> من <?php echo $terms_in_year; ?> فصول مكتملة)</span>
+                    <span style="font-size: 15px; font-weight: 800; color: #0f172a;">مؤشرات إنجاز الفصول الدراسية المستقلة (العام الأكاديمي <?php echo esc_html($active_academic_year); ?>)</span>
+                    <span style="font-size: 12px; color: #64748b; margin-right: 8px;">(<?php echo $completed_terms_count; ?> من 3 فصول مكتملة)</span>
                 </div>
-                <div style="font-size: 18px; font-weight: 900; color: #2563eb; font-family: monospace;">
-                    <?php echo $annual_completion_pct; ?>%
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; color: #881337; background: #fef2f2; padding: 4px 12px; border-radius: 9999px; border: 1px solid #fecdd3;">
+                    <span>إجمالي الإنجاز السنوي: <?php echo $annual_completion_pct; ?>%</span>
                 </div>
             </div>
 
-            <div style="background: #e2e8f0; height: 10px; border-radius: 20px; overflow: hidden; margin-bottom: 16px;">
-                <div style="background: linear-gradient(90deg, #2563eb, #16a34a); height: 100%; width: <?php echo $annual_completion_pct; ?>%; transition: width 0.4s ease;"></div>
-            </div>
-
-            <!-- Terms Cards Grid -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
-                <?php for ($t = 1; $t <= $terms_in_year; $t++):
+            <!-- 3 Completely Independent Term Progress Cards -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                <?php for ($t = 1; $t <= 3; $t++):
                     $p = $plans_by_term[$t] ?? null;
                     $pct = $p ? intval($p->completion_pct) : 0;
                     $st = $p ? $p->status : 'not_started';
@@ -112,26 +116,31 @@ if ($is_reviewer) {
                     if ($st === 'draft') { $badge_bg = '#fef3c7'; $badge_col = '#b45309'; $st_txt = 'مسودة / قيد الإعداد'; }
                     elseif ($st === 'submitted') { $badge_bg = '#e0f2fe'; $badge_col = '#0369a1'; $st_txt = 'مرفوعة للمراجعة'; }
                     elseif ($st === 'approved') { $badge_bg = '#dcfce7'; $badge_col = '#15803d'; $st_txt = '✓ معتمدة رسمياً'; }
-                    elseif ($st === 'returned') { $badge_bg = '#fee2e2'; $badge_col = '#b91c1c'; $st_txt = 'مراجعة / طلب تعديل'; }
+                    elseif ($st === 'returned') { $badge_bg = '#fee2e2'; $badge_col = '#b91c1c'; $st_txt = 'طلب تعديل'; }
                 ?>
-                    <div style="background: #ffffff; padding: 14px 18px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px;">
+                    <div onclick="eessOpenPlanSetupWizard(<?php echo $t; ?>)" style="background: #ffffff; padding: 18px; border-radius: 16px; border: 1.5px solid <?php echo $p ? '#cbd5e1' : '#f1f5f9'; ?>; display: flex; flex-direction: column; gap: 12px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.02);" onmouseover="this.style.borderColor='#881337'; this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='<?php echo $p ? '#cbd5e1' : '#f1f5f9'; ?>'; this.style.transform='translateY(0)';">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: 800; font-size: 13.5px; color: #0f172a;">الفصل الدراسي <?php echo $t; ?></span>
-                            <span style="font-size: 11px; padding: 2px 8px; border-radius: 8px; background: <?php echo $badge_bg; ?>; color: <?php echo $badge_col; ?>; font-weight: 800;">
+                            <span style="font-weight: 800; font-size: 14px; color: #0f172a;"><?php echo $arabic_term_names[$t]; ?></span>
+                            <span style="font-size: 11px; padding: 3px 10px; border-radius: 9999px; background: <?php echo $badge_bg; ?>; color: <?php echo $badge_col; ?>; font-weight: 800;">
                                 <?php echo $st_txt; ?>
                             </span>
                         </div>
+
+                        <!-- Progress Bar -->
+                        <div style="background: #f1f5f9; height: 8px; border-radius: 9999px; overflow: hidden;">
+                            <div style="background: <?php echo $pct >= 100 ? '#16a34a' : '#881337'; ?>; height: 100%; width: <?php echo $pct; ?>%; transition: width 0.3s ease;"></div>
+                        </div>
+
                         <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #64748b;">
-                            <span>الإنجاز: <strong style="color: #0f172a;"><?php echo $pct; ?>%</strong></span>
-                            <?php if ($p): ?>
-                                <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=term_plan&plan_id=' . $p->id); ?>" target="_blank" style="color: #2563eb; text-decoration: none; font-weight: 800; font-size: 11.5px;">🖨️ طباعة الترم</a>
-                            <?php endif; ?>
+                            <span>نسبة الإنجاز: <strong style="color: #0f172a; font-size: 13px;"><?php echo $pct; ?>%</strong></span>
+                            <span style="color: #881337; font-weight: 800; font-size: 11.5px; display: inline-flex; align-items: center; gap: 4px;">
+                                <span><?php echo $p ? 'متابعة / تعديل ➔' : '+ بدء التخطيط'; ?></span>
+                            </span>
                         </div>
                     </div>
                 <?php endfor; ?>
             </div>
         </div>
-    </div>
 
     <!-- TEACHER TAB: SUBMITTED PLANS HISTORY -->
     <div id="panel-teacher-dashboard" class="term-plan-panel" style="display: block;">
@@ -192,50 +201,125 @@ if ($is_reviewer) {
         </div>
     </div>
 
-    <!-- REVIEWER TAB: SUBMITTED PLANS INSPECTION -->
+    <!-- REVIEWER TAB: SUBMITTED PLANS INSPECTION (Auto-Rendered with Tight Gap) -->
     <?php if ($is_reviewer): ?>
-    <div id="panel-reviewer-dashboard" class="term-plan-panel" style="display: none;">
-        <div style="background: #ffffff; padding: 24px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
-            <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 800; color: #0f172a;">سجل الخطط الفصلية المرفوعة للمراجعة والاعتماد</h3>
+    <div id="panel-reviewer-dashboard" class="term-plan-panel" style="display: block; margin-top: 18px;">
+        <div style="background: #ffffff; padding: 22px 26px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
 
+            <!-- Table Header & Live Search Engine Bar -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 14px;">
+                <div>
+                    <h3 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                        <span class="dashicons dashicons-shield" style="color: #881337; font-size: 18px; width: 18px; height: 18px;"></span>
+                        <span>سجل الخطط الفصلية المرفوعة للمراجعة والاعتماد المباشر</span>
+                    </h3>
+                    <p style="margin: 0; font-size: 12px; color: #64748b;">متابعة اعتماد الخطط والموافقة الفورية، رفض، أو طلب تعديلات إدارية</p>
+                </div>
+
+                <!-- Professional Live Search Input -->
+                <div style="position: relative; width: 280px;">
+                    <input type="text" id="eess-reviewer-plans-search" onkeyup="eessFilterReviewerPlansTable()" placeholder="ابحث باسم المدرس، المادة، أو الصف..." style="width: 100%; height: 38px; padding: 0 36px 0 14px; border: 1px solid #cbd5e1; border-radius: 9999px !important; font-size: 12.5px; outline: none; background: #f8fafc;">
+                    <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; display: flex; align-items: center;">
+                        <span class="dashicons dashicons-search" style="font-size: 15px; width: 15px; height: 15px;"></span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Table Wrapper -->
             <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: separate; border-spacing: 0; text-align: right;">
+                <table id="eess-reviewer-plans-table" style="width: 100%; border-collapse: separate; border-spacing: 0; text-align: right;">
                     <thead>
-                        <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
-                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0;">المدرس</th>
-                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0;">المادة / الصف</th>
-                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0;">الفصل الدراسي</th>
-                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0; text-align: center;">نسبة الإنجاز</th>
-                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0; text-align: center;">الحالة</th>
-                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0; text-align: center;">الإجراءات</th>
+                        <tr style="background: #212121; color: #ffffff;">
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #ffffff; border-radius: 0 10px 0 0;">المدرس والرقم الوظيفي</th>
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #ffffff;">المدرسة والمادة والتسكين</th>
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #ffffff;">الفصل الدراسي</th>
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #ffffff; text-align: center;">نسبة الإنجاز</th>
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #ffffff; text-align: center;">الحالة</th>
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #ffffff; text-align: center; border-radius: 10px 0 0 0;">الإجراءات السريعة</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($submitted_plans)): ?>
                             <tr>
-                                <td colspan="6" style="padding: 40px; text-align: center; color: #94a3b8;">لا توجد خطط فصلية مرفوعة للمراجعة حالياً.</td>
+                                <td colspan="6" style="padding: 40px; text-align: center; color: #94a3b8; font-weight: 700;">لا توجد خطط فصلية مرفوعة للمراجعة حالياً.</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($submitted_plans as $sp):
-                                $s_bg = '#f1f5f9'; $s_col = '#64748b'; $s_lbl = $sp->status;
+                                $emp_code = get_user_meta($sp->teacher_id, 'eess_employee_number', true) ?: (get_user_meta($sp->teacher_id, 'sm_teacher_id', true) ?: 'EMP-' . $sp->teacher_id);
+                                $t_school = get_user_meta($sp->teacher_id, 'eess_school_name', true) ?: 'المدرسة الرئيسية';
+
+                                $s_bg = '#f1f5f9'; $s_col = '#64748b'; $s_lbl = 'مسودة';
                                 if ($sp->status === 'submitted') { $s_bg = '#e0f2fe'; $s_col = '#0369a1'; $s_lbl = 'مرفوعة للمراجعة'; }
-                                elseif ($sp->status === 'approved') { $s_bg = '#dcfce7'; $s_col = '#15803d'; $s_lbl = 'معتمدة'; }
+                                elseif ($sp->status === 'approved') { $s_bg = '#dcfce7'; $s_col = '#15803d'; $s_lbl = 'معتمدة رسمياً'; }
                                 elseif ($sp->status === 'returned') { $s_bg = '#fee2e2'; $s_col = '#b91c1c'; $s_lbl = 'طلب تعديل'; }
+                                elseif ($sp->status === 'rejected') { $s_bg = '#fef2f2'; $s_col = '#991b1b'; $s_lbl = 'مرفوضة'; }
+
+                                $term_arabic = $arabic_term_names[intval($sp->term_number)] ?? ('الفصل ' . intval($sp->term_number));
                             ?>
-                                <tr style="border-bottom: 1px solid #f1f5f9;">
-                                    <td style="padding: 12px 16px; font-weight: 800; color: #0f172a;"><?php echo esc_html($sp->teacher_name ?: 'مدرس'); ?></td>
-                                    <td style="padding: 12px 16px; font-size: 13px; color: #334155;"><?php echo esc_html($sp->subject . ' - ' . $sp->grade); ?></td>
-                                    <td style="padding: 12px 16px; font-size: 13px; color: #334155;">الفصل الدراسي <?php echo intval($sp->term_number); ?></td>
-                                    <td style="padding: 12px 16px; text-align: center; font-weight: 800; color: #2563eb;"><?php echo intval($sp->completion_pct); ?>%</td>
+                                <tr style="border-bottom: 1px solid #f1f5f9;" class="reviewer-plan-row">
+                                    <!-- Teacher Name & Employee ID -->
+                                    <td style="padding: 12px 16px;">
+                                        <div style="font-weight: 800; font-size: 13.5px; color: #0f172a;"><?php echo esc_html($sp->teacher_name ?: 'مدرس غير محدد'); ?></div>
+                                        <div style="font-size: 11px; color: #881337; font-weight: 800; font-family: monospace; margin-top: 3px;">
+                                            رقم الموظف: <?php echo esc_html($emp_code); ?>
+                                        </div>
+                                    </td>
+
+                                    <!-- School, Subject & Grade Pastel Capsules -->
+                                    <td style="padding: 12px 16px;">
+                                        <div style="font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px;">🏫 <?php echo esc_html($t_school); ?></div>
+                                        <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+                                            <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; font-size: 11px; font-weight: 800;">
+                                                <?php echo esc_html($sp->subject); ?>
+                                            </span>
+                                            <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; font-size: 11px; font-weight: 800;">
+                                                <?php echo esc_html($sp->grade); ?>
+                                            </span>
+                                        </div>
+                                    </td>
+
+                                    <!-- Arabic Term Name -->
+                                    <td style="padding: 12px 16px; font-size: 13px; font-weight: 800; color: #334155;">
+                                        <?php echo esc_html($term_arabic); ?>
+                                    </td>
+
+                                    <!-- Completion Percentage Capsule -->
                                     <td style="padding: 12px 16px; text-align: center;">
-                                        <span style="padding: 3px 10px; border-radius: 8px; background: <?php echo $s_bg; ?>; color: <?php echo $s_col; ?>; font-weight: 800; font-size: 11.5px;">
+                                        <span style="display: inline-flex; padding: 3px 10px; border-radius: 9999px; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; font-weight: 900; font-size: 12px;">
+                                            <?php echo intval($sp->completion_pct); ?>%
+                                        </span>
+                                    </td>
+
+                                    <!-- Expanded Status Capsule -->
+                                    <td style="padding: 12px 16px; text-align: center;">
+                                        <span style="padding: 3px 10px; border-radius: 9999px; background: <?php echo $s_bg; ?>; color: <?php echo $s_col; ?>; font-weight: 800; font-size: 11px;">
                                             <?php echo $s_lbl; ?>
                                         </span>
                                     </td>
+
+                                    <!-- Quick Action Circular Buttons (Approve, Reject, Modification Request) -->
                                     <td style="padding: 12px 16px; text-align: center;">
-                                        <button type="button" onclick="inspectSubmittedPlan(<?php echo htmlspecialchars(json_encode($sp)); ?>)" class="sm-btn" style="background: #2563eb; color: #fff; height: 32px; padding: 0 14px; border-radius: 8px; font-size: 11.5px; font-weight: 700; border: none; cursor: pointer;">
-                                            معاينة الخطة
-                                        </button>
+                                        <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
+                                            <!-- Approve Button (Positive Green) -->
+                                            <button type="button" onclick="eessDirectReviewPlan(<?php echo $sp->id; ?>, 'approved')" title="اعتماد الخطة رسمياً" style="width: 32px; height: 32px; border-radius: 50% !important; background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                                <span class="dashicons dashicons-yes-alt" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
+                                            </button>
+
+                                            <!-- Modification Request Button (Warning Orange/Red) -->
+                                            <button type="button" onclick="eessOpenModificationNotesModal(<?php echo $sp->id; ?>, '<?php echo esc_js($sp->teacher_name); ?>')" title="طلب تعديلات وملاحظات" style="width: 32px; height: 32px; border-radius: 50% !important; background: #fff7ed; color: #ea580c; border: 1px solid #fed7aa; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                                <span class="dashicons dashicons-edit" style="font-size: 15px; width: 15px; height: 15px; margin: 0;"></span>
+                                            </button>
+
+                                            <!-- Reject Button (Danger Red) -->
+                                            <button type="button" onclick="eessDirectReviewPlan(<?php echo $sp->id; ?>, 'rejected')" title="رفض الخطة" style="width: 32px; height: 32px; border-radius: 50% !important; background: #fee2e2; color: #dc2626; border: 1px solid #fecdd3; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                                <span class="dashicons dashicons-no-alt" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
+                                            </button>
+
+                                            <!-- Preview Plan Details Button -->
+                                            <button type="button" onclick="inspectSubmittedPlan(<?php echo htmlspecialchars(json_encode($sp)); ?>)" title="معاينة محتوى الخطة" style="width: 32px; height: 32px; border-radius: 50% !important; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                                <span class="dashicons dashicons-visibility" style="font-size: 15px; width: 15px; height: 15px; margin: 0;"></span>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -252,13 +336,13 @@ if ($is_reviewer) {
 <!-- Professional Multi-Step Plan Setup Wizard Modal -->
 <div id="eess-plan-setup-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif; direction: rtl;">
     <div style="background: #ffffff; border-radius: 20px; max-width: 820px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); overflow: hidden; display: flex; flex-direction: column; max-height: 88vh;">
-        <!-- Flush Full-Width Wizard Header Banner -->
-        <div style="background: #1e293b; color: #ffffff; padding: 20px 28px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box;">
+        <!-- Thinner Flush Full-Width Wizard Header Banner with White Icon & Title -->
+        <div style="background: #1e293b; color: #ffffff; padding: 14px 22px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box;">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <span class="dashicons dashicons-calendar-alt" style="color: #60a5fa; font-size: 22px; width: 22px; height: 22px; margin: 0;"></span>
-                <h3 style="margin: 0; font-size: 16.5px; font-weight: 800; font-family: 'Cairo', sans-serif;">معالج إعداد وخطة المدرس (الخطط الفصلية والسنوية)</h3>
+                <span class="dashicons dashicons-calendar-alt" style="color: #ffffff; font-size: 20px; width: 20px; height: 20px; margin: 0;"></span>
+                <h3 style="margin: 0; font-size: 15.5px; font-weight: 800; color: #ffffff; font-family: 'Cairo', sans-serif;">معالج إعداد وخطة المدرس (الخطط الفصلية والسنوية)</h3>
             </div>
-            <button type="button" onclick="eessClosePlanSetupWizard()" style="background: none; border: none; color: #ffffff; font-size: 26px; cursor: pointer; line-height: 1;">&times;</button>
+            <button type="button" onclick="eessClosePlanSetupWizard()" style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer; line-height: 1;">&times;</button>
         </div>
 
         <!-- Full-Width Balanced RTL Stepper Track -->
@@ -380,50 +464,102 @@ if ($is_reviewer) {
                 </div>
             </div>
 
-            <!-- Wizard Footer Buttons -->
+            <!-- Wizard Footer Buttons (Wine-Red, Black & White Buttons) -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
-                <button type="button" id="wiz-prev-btn" onclick="wizNav(-1)" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 9999px !important; padding: 8px 18px; font-weight: 700; font-size: 12.5px; cursor: pointer; display: none;">السابق</button>
+                <button type="button" id="wiz-prev-btn" onclick="wizNav(-1)" class="sm-btn sm-btn-outline" style="background: #ffffff; color: #475569 !important; border: 1px solid #cbd5e1; border-radius: 9999px !important; padding: 8px 18px; font-weight: 700; font-size: 12.5px; cursor: pointer; display: none;">السابق</button>
                 <div></div>
-                <button type="button" id="wiz-next-btn" onclick="wizNav(1)" style="background: #2563eb; color: #ffffff; border: none; border-radius: 9999px !important; padding: 8px 22px; font-weight: 800; font-size: 13.5px; cursor: pointer;">المتابعة للخطوة التالية</button>
-                <button type="submit" id="wiz-submit-btn" style="background: #16a34a; color: #ffffff; border: none; border-radius: 9999px !important; padding: 8px 24px; font-weight: 800; font-size: 13.5px; cursor: pointer; display: none;">رفع الخطة المكتملة للاعتماد</button>
+                <button type="button" id="wiz-next-btn" onclick="wizNav(1)" class="sm-btn" style="background: #881337; color: #ffffff !important; border: none; border-radius: 9999px !important; padding: 8px 22px; font-weight: 800; font-size: 13px; cursor: pointer;">المتابعة للخطوة التالية</button>
+                <button type="submit" id="wiz-submit-btn" class="sm-btn" style="background: #1e293b; color: #ffffff !important; border: none; border-radius: 9999px !important; padding: 8px 24px; font-weight: 800; font-size: 13px; cursor: pointer; display: none;">رفع الخطة المكتملة للاعتماد</button>
             </div>
         </form>
     </div>
 </div>
 
 <!-- Inspection & Approval Modal -->
-<div id="tp_inspect_modal" class="sm-modal-overlay" style="display: none;">
-    <div class="sm-modal-content" style="max-width: 750px; border-radius: 20px; padding: 28px;">
-        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: #0f172a;" id="tp_inspect_title">معاينة ومراجعة الخطة الفصلية</h3>
-            <button type="button" onclick="document.getElementById('tp_inspect_modal').style.display='none'" style="background: none; border: none; font-size: 24px; color: #94a3b8; cursor: pointer;">&times;</button>
+<div id="tp_inspect_modal" class="sm-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif; direction: rtl;">
+    <div style="background: #ffffff; border-radius: 20px; max-width: 720px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); overflow: hidden; display: flex; flex-direction: column;">
+        <div style="background: #1e293b; color: #ffffff; padding: 16px 22px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box;">
+            <h3 style="margin: 0; font-size: 15.5px; font-weight: 800; color: #ffffff;" id="tp_inspect_title">معاينة ومراجعة الخطة الفصلية</h3>
+            <button type="button" onclick="document.getElementById('tp_inspect_modal').style.display='none'" style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer; line-height: 1;">&times;</button>
         </div>
 
-        <div id="tp_inspect_body" style="max-height: 50vh; overflow-y: auto; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px;">
-            <!-- Weeks details populated via JS -->
+        <div style="padding: 22px;">
+            <div id="tp_inspect_body" style="max-height: 48vh; overflow-y: auto; margin-bottom: 18px; display: flex; flex-direction: column; gap: 12px;">
+                <!-- Weeks details populated via JS -->
+            </div>
+
+            <?php if ($is_reviewer): ?>
+                <div style="background: #f8fafc; padding: 14px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 18px;">
+                    <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px; display: block;">ملاحظات المراجعة / التوجيه الإداري:</label>
+                    <textarea id="tp_review_notes_input" class="sm-textarea" rows="2" style="width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 8px; font-size: 12.5px;" placeholder="أدخل الملاحظات المطلوبة للتعديل..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" onclick="submitPlanReview('approved')" class="sm-btn" style="background: #16a34a; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; border: none; cursor: pointer;">
+                        ✓ اعتماد الخطة رسمياً
+                    </button>
+                    <button type="button" onclick="submitPlanReview('returned')" class="sm-btn" style="background: #ea580c; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 18px; font-weight: 800; border: none; cursor: pointer;">
+                        إعادة للتعديل مع الملاحظات
+                    </button>
+                    <button type="button" onclick="submitPlanReview('rejected')" class="sm-btn" style="background: #dc2626; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 18px; font-weight: 800; border: none; cursor: pointer;">
+                        رفض الخطة
+                    </button>
+                </div>
+            <?php endif; ?>
         </div>
-
-        <?php if ($is_reviewer): ?>
-            <div style="background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
-                <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px; display: block;">ملاحظات المراجعة / التوجيه الإداري:</label>
-                <textarea id="tp_review_notes_input" class="sm-textarea" rows="2" style="width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 8px; font-size: 12.5px;"></textarea>
-            </div>
-
-            <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" onclick="submitPlanReview('approved')" class="sm-btn" style="background: #16a34a; color: #fff; height: 38px; border-radius: 10px; padding: 0 20px; font-weight: 800; border: none; cursor: pointer;">
-                    ✓ اعتماد الخطة رسمياً
-                </button>
-                <button type="button" onclick="submitPlanReview('returned')" class="sm-btn" style="background: #dc2626; color: #fff; height: 38px; border-radius: 10px; padding: 0 20px; font-weight: 800; border: none; cursor: pointer;">
-                    إعادة للتعديل مع الملاحظات
-                </button>
-            </div>
-        <?php endif; ?>
     </div>
 </div>
 
 <script>
 let currentPlanData = null;
 let currentInspectedPlanId = 0;
+
+function eessFilterReviewerPlansTable() {
+    const q = document.getElementById('eess-reviewer-plans-search').value.trim().toLowerCase();
+    const rows = document.querySelectorAll('.reviewer-plan-row');
+    rows.forEach(r => {
+        const text = r.innerText.toLowerCase();
+        if (!q || text.includes(q)) {
+            r.style.display = '';
+        } else {
+            r.style.display = 'none';
+        }
+    });
+}
+
+function eessDirectReviewPlan(planId, reviewStatus) {
+    if (!planId) return;
+    const confirmMsg = reviewStatus === 'approved' ? 'هل أنت متأكد من اعتماد هذه الخطة رسمياً؟' : 'هل أنت متأكد من تغيير حالة هذه الخطة؟';
+    if (!confirm(confirmMsg)) return;
+
+    const formData = new FormData();
+    formData.append('action', 'sm_review_term_plan');
+    formData.append('plan_id', planId);
+    formData.append('review_status', reviewStatus);
+    formData.append('sm_nonce', '<?php echo wp_create_nonce("sm_term_plan_action"); ?>');
+
+    fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success) {
+            if (typeof smShowNotification === 'function') {
+                smShowNotification(reviewStatus === 'approved' ? 'تم اعتماد الخطة الفصلية بنجاح' : 'تم تحديث حالة الخطة بنجاح');
+            }
+            setTimeout(() => location.reload(), 500);
+        } else {
+            if (typeof smShowNotification === 'function') {
+                smShowNotification('خطأ: ' + (res.data || 'تعذر معالجة الطلب'), true);
+            }
+        }
+    });
+}
+
+function eessOpenModificationNotesModal(planId, teacherName) {
+    currentInspectedPlanId = planId;
+    document.getElementById('tp_inspect_title').innerText = 'طلب تعديل وملاحظات على خطة: ' + teacherName;
+    document.getElementById('tp_inspect_body').innerHTML = '<p style="color:#64748b; font-size:12.5px;">يرجى كتابة ملاحظات التعديل المطلوبة أدناه ثم الضغط على "إعادة للتعديل مع الملاحظات".</p>';
+    document.getElementById('tp_inspect_modal').style.display = 'flex';
+}
 
 function switchTermPlanTab(tabKey) {
     document.querySelectorAll('.term-plan-panel').forEach(p => p.style.display = 'none');
@@ -550,8 +686,11 @@ function saveTermPlanDraft(targetStatus = 'draft', isSilent = false) {
 
 let wizCurrentStep = 1;
 
-function eessOpenPlanSetupWizard() {
+function eessOpenPlanSetupWizard(termNum = 1) {
     wizCurrentStep = 1;
+    if (document.getElementById('wiz_term_number')) {
+        document.getElementById('wiz_term_number').value = termNum;
+    }
     updateWizardUI();
     document.getElementById('eess-plan-setup-modal').style.display = 'flex';
 }
@@ -583,13 +722,21 @@ function wizNav(dir) {
     if (dir === 1) {
         if (wizCurrentStep === 1) {
             if (!document.getElementById('wiz_subject').value || !document.getElementById('wiz_grade').value) {
-                alert('يرجى اختيار المادة والصف الدراسي');
+                if (typeof smShowNotification === 'function') {
+                    smShowNotification('يرجى اختيار المادة والصف الدراسي قبل المتابعة', true);
+                } else {
+                    alert('يرجى اختيار المادة والصف الدراسي قبل المتابعة');
+                }
                 return;
             }
         }
         if (wizCurrentStep === 2) {
             if (!document.getElementById('wiz_start_date').value || !document.getElementById('wiz_end_date').value) {
-                alert('يرجى تحديد بداية ونهاية الفصل الدراسي');
+                if (typeof smShowNotification === 'function') {
+                    smShowNotification('يرجى تحديد بداية ونهاية الفصل الدراسي قبل المتابعة', true);
+                } else {
+                    alert('يرجى تحديد بداية ونهاية الفصل الدراسي قبل المتابعة');
+                }
                 return;
             }
             generateWizWeeklyFields();
