@@ -208,6 +208,7 @@ if ($import_results) {
                             </td>
                             <td>
                                 <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_print_student_full_report&student_id=' . $student->id); ?>" target="_blank" class="sm-btn" style="background: #16a34a; color: white !important; font-size: 11px; padding: 4px 10px; width: auto; height: 28px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">🖨️ التقرير الشامل</a>
                                     <button onclick="viewSmStudent(<?php echo htmlspecialchars(json_encode($student)); ?>)" class="sm-btn" style="background:var(--sm-secondary-color); font-size:11px; padding: 4px 10px; width: auto; height: 28px;">الملف السلوكي</button>
                                     <?php if ($is_admin): ?>
                                         <button onclick="showStudentCreds('<?php echo esc_js($student->student_code); ?>', '<?php echo esc_js(get_user_meta($student->parent_user_id, 'sm_temp_pass', true)); ?>', '<?php echo esc_js($student->name); ?>', <?php echo $student->id; ?>)" class="sm-btn" style="background:#2d3748; font-size:11px; padding: 4px 10px; width: auto; height: 28px;">حساب الدخول</button>

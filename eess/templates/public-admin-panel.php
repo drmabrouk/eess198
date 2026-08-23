@@ -456,11 +456,6 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
         </div>
 
         <div style="display: flex; align-items: center; gap: 15px;">
-            <!-- Refresh System Button (Icon only, slate monochromatic) -->
-            <button id="sm-system-refresh-btn" onclick="smRefreshSystem()" class="sm-btn sm-btn-outline" style="height: 32px; width: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50% !important; border: 1px solid var(--sm-border-color); background: #f8fafc; color: var(--sm-secondary-color) !important; cursor: pointer; transition: 0.2s; min-width: 32px;" title="تحديث النظام">
-                <span class="dashicons dashicons-update" style="font-size: 15px; width: 15px; height: 15px; line-height: 1; color: var(--sm-secondary-color) !important; margin: 0;"></span>
-            </button>
-
             <?php if ($active_tab !== 'attendance' && ($is_admin || current_user_can('تسجيل_مخالفة'))): ?>
                 <button onclick="smOpenViolationModal()" class="sm-btn" style="background: var(--sm-primary-color); height: 32px; padding: 0 12px; font-size: 11px; color: white !important;">+ تسجيل مخالفة</button>
             <?php endif; ?>

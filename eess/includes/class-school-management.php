@@ -78,6 +78,7 @@ class School_Management {
         $this->loader->add_action('wp_ajax_sm_upload_import_csv', $plugin_public, 'ajax_upload_import_csv');
         $this->loader->add_action('wp_ajax_sm_process_import_chunk', $plugin_public, 'ajax_process_import_chunk');
         $this->loader->add_action('wp_ajax_sm_export_students_csv', $plugin_public, 'ajax_export_students_csv');
+        $this->loader->add_action('wp_ajax_sm_print_student_full_report', $plugin_public, 'ajax_print_student_full_report');
         $this->loader->add_action('wp_ajax_sm_reset_class_code_ajax', $plugin_public, 'ajax_reset_class_code');
         $this->loader->add_action('wp_ajax_sm_toggle_attendance_status_ajax', $plugin_public, 'ajax_toggle_attendance_status');
         $this->loader->add_action('wp_ajax_sm_filter_violations', $plugin_public, 'ajax_filter_violations');
@@ -102,6 +103,8 @@ class School_Management {
         $this->loader->add_action('wp_ajax_sm_delete_subject', $plugin_public, 'ajax_delete_subject');
         $this->loader->add_action('wp_ajax_sm_get_subjects', $plugin_public, 'ajax_get_subjects');
         $this->loader->add_action('wp_ajax_sm_save_class_grades', $plugin_public, 'ajax_save_class_grades');
+        $this->loader->add_action('wp_ajax_sm_export_grades_csv', $plugin_public, 'ajax_export_grades_csv');
+        $this->loader->add_action('wp_ajax_sm_import_grades_csv', $plugin_public, 'ajax_import_grades_csv');
         $this->loader->add_action('wp_ajax_sm_bulk_delete_students_ajax', $plugin_public, 'ajax_bulk_delete_students');
         $this->loader->add_action('wp_ajax_sm_download_plans_zip', $plugin_public, 'ajax_download_plans_zip');
         $this->loader->add_action('wp_ajax_sm_refresh_system_cache_ajax', $plugin_public, 'ajax_refresh_system');
@@ -136,6 +139,8 @@ class School_Management {
         $this->loader->add_action('wp_ajax_sm_mark_announcement_closed', $plugin_public, 'ajax_mark_announcement_closed');
         $this->loader->add_action('wp_ajax_sm_reset_user_announcement', $plugin_public, 'ajax_reset_user_announcement');
         $this->loader->add_action('wp_ajax_sm_disable_system_announcement', $plugin_public, 'ajax_disable_system_announcement');
+        $this->loader->add_action('wp_ajax_sm_delete_system_announcement', $plugin_public, 'ajax_delete_system_announcement');
+        $this->loader->add_action('wp_ajax_sm_delete_user_announcement_log', $plugin_public, 'ajax_delete_user_announcement_log');
 
         // Term & Annual Plans AJAX actions
         $this->loader->add_action('wp_ajax_sm_save_term_plan', $plugin_public, 'ajax_save_term_plan');
