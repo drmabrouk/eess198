@@ -146,15 +146,17 @@ $activity_logs = $wpdb->get_results("SELECT ua.*, a.title as announcement_title,
                                         <span style="background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 50px; font-weight: 800; font-size: 11px;">معطل (Disabled)</span>
                                     <?php endif; ?>
                                 </td>
-                                <td style="padding: 12px; text-align: center;">
+                                <td style="padding: 12px; text-align: center; display: flex; gap: 6px; justify-content: center;">
                                     <?php if ($is_active): ?>
-                                        <button type="button" onclick="eessDisableAnnouncement(<?php echo $anc->id; ?>)" style="background: #ef4444; color: white; border: none; border-radius: 6px; padding: 5px 12px; font-size: 11px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                        <button type="button" onclick="eessDisableAnnouncement(<?php echo $anc->id; ?>)" style="background: #ef4444; color: white; border: none; border-radius: 6px; padding: 5px 10px; font-size: 11px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
                                             <span class="dashicons dashicons-no-alt" style="font-size: 14px; width: 14px; height: 14px;"></span>
-                                            تعطيل (Disable)
+                                            تعطيل
                                         </button>
-                                    <?php else: ?>
-                                        <span style="font-size: 11px; color: #94a3b8; font-weight: 700;">معطل</span>
                                     <?php endif; ?>
+                                    <button type="button" onclick="eessDeleteAnnouncement(<?php echo $anc->id; ?>)" style="background: #991b1b; color: white; border: none; border-radius: 6px; padding: 5px 10px; font-size: 11px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                        <span class="dashicons dashicons-trash" style="font-size: 14px; width: 14px; height: 14px;"></span>
+                                        حذف الإشعار
+                                    </button>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -202,10 +204,14 @@ $activity_logs = $wpdb->get_results("SELECT ua.*, a.title as announcement_title,
                                 </td>
                                 <td style="padding: 12px; text-align: center; font-weight: 800;"><?php echo intval($log->view_count); ?></td>
                                 <td style="padding: 12px; color: #64748b; font-size: 11px;"><?php echo esc_html($log->closed_at ?: ($log->viewed_at ?: $log->updated_at)); ?></td>
-                                <td style="padding: 12px; text-align: center;">
-                                    <button type="button" onclick="eessResetUserAnnouncement(<?php echo $log->announcement_id; ?>, <?php echo $log->user_id; ?>, <?php echo $log->id; ?>)" style="background: #f59e0b; color: white; border: none; border-radius: 6px; padding: 5px 12px; font-size: 11px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                <td style="padding: 12px; text-align: center; display: flex; gap: 6px; justify-content: center;">
+                                    <button type="button" onclick="eessResetUserAnnouncement(<?php echo $log->announcement_id; ?>, <?php echo $log->user_id; ?>, <?php echo $log->id; ?>)" style="background: #f59e0b; color: white; border: none; border-radius: 6px; padding: 5px 10px; font-size: 11px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
                                         <span class="dashicons dashicons-redo" style="font-size: 14px; width: 14px; height: 14px;"></span>
-                                        إظهار مجدداً (Show Again)
+                                        إظهار مجدداً
+                                    </button>
+                                    <button type="button" onclick="eessDeleteUserLog(<?php echo $log->id; ?>)" style="background: #991b1b; color: white; border: none; border-radius: 6px; padding: 5px 10px; font-size: 11px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                        <span class="dashicons dashicons-trash" style="font-size: 14px; width: 14px; height: 14px;"></span>
+                                        حذف السجل
                                     </button>
                                 </td>
                             </tr>
@@ -278,6 +284,40 @@ function eessDisableAnnouncement(ancId) {
             location.reload();
         } else {
             alert(res.data || 'حدث خطأ أثناء تعطيل الإشعار.');
+        }
+    });
+}
+
+function eessDeleteAnnouncement(ancId) {
+    if (!confirm('تنبيه هام: هل أنت تأكد من حذف هذا الإشعار نهائياً؟ سيتم حذف جميع إحصائيات القراءة والتفاعل المرتبطة به.')) return;
+
+    jQuery.post('<?php echo admin_url('admin-ajax.php'); ?>', {
+        action: 'sm_delete_system_announcement',
+        announcement_id: ancId,
+        nonce: '<?php echo wp_create_nonce('sm_announcement_action'); ?>'
+    }, function(res) {
+        if (res.success) {
+            alert(res.data.message || 'تم حذف الإشعار نهائياً.');
+            location.reload();
+        } else {
+            alert(res.data || 'حدث خطأ أثناء حذف الإشعار.');
+        }
+    });
+}
+
+function eessDeleteUserLog(logId) {
+    if (!confirm('هل أنت تأكد من حذف سجل تفاعل هذا المستخدم بعينه؟')) return;
+
+    jQuery.post('<?php echo admin_url('admin-ajax.php'); ?>', {
+        action: 'sm_delete_user_announcement_log',
+        log_id: logId,
+        nonce: '<?php echo wp_create_nonce('sm_announcement_action'); ?>'
+    }, function(res) {
+        if (res.success) {
+            alert(res.data.message || 'تم حذف سجل المستخدم بنجاح.');
+            location.reload();
+        } else {
+            alert(res.data || 'حدث خطأ أثناء حذف السجل.');
         }
     });
 }

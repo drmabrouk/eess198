@@ -5074,6 +5074,87 @@ class SM_Public {
         }
     }
 
+    public function ajax_print_student_full_report() {
+        if (!is_user_logged_in() || (!current_user_can('إدارة_الطلاب') && !current_user_can('manage_options'))) {
+            wp_die('Unauthorized');
+        }
+
+        $student_id = intval($_GET['student_id'] ?? 0);
+        $student = SM_DB::get_student_by_id($student_id);
+        if (!$student) wp_die('الطالب غير موجود.');
+
+        $school_info = SM_Settings::get_school_info();
+
+        global $wpdb;
+        $violations = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}sm_records WHERE student_id = %d ORDER BY incident_date DESC", $student_id));
+        $grades     = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}sm_grades WHERE student_id = %d ORDER BY created_at DESC", $student_id));
+        ?>
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <title>الملف الأكاديمي والسلوكي الشامل - <?php echo esc_html($student->name); ?></title>
+            <style>
+                body { font-family: 'Cairo', Arial, sans-serif; padding: 35px; color: #0f172a; background: white; line-height: 1.6; direction: rtl; text-align: right; }
+                .header { border-bottom: 3px solid #0f172a; padding-bottom: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+                .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+                .meta-table th, .meta-table td { border: 1px solid #cbd5e1; padding: 10px 14px; text-align: right; font-size: 13px; }
+                .meta-table th { background: #f8fafc; font-weight: bold; width: 25%; }
+                .section-title { font-size: 16px; font-weight: 800; border-bottom: 2px solid #cbd5e1; padding-bottom: 5px; margin: 25px 0 12px 0; color: #0f172a; }
+                @media print { .no-print { display: none !important; } body { padding: 0; } }
+            </style>
+        </head>
+        <body onload="window.print()">
+            <div class="no-print" style="background:#f1f5f9; padding:12px; border-radius:8px; margin-bottom:25px; text-align:center;">
+                <button onclick="window.print()" style="padding:8px 20px; font-weight:bold; cursor:pointer;">🖨️ بدء طباعة الملف الشامل (PDF)</button>
+            </div>
+            <div class="header">
+                <div>
+                    <h1 style="font-size:22px; font-weight:900; margin:0;"><?php echo esc_html($school_info['school_name'] ?? 'خدمات الأنظمة الإلكترونية التعليمية (EESS)'); ?></h1>
+                    <p style="margin:4px 0 0 0; color:#64748b; font-size:12px;">تقرير سيرة ومسيرة طالب شامل | تاريخ التصدير: <?php echo current_time('Y-m-d H:i'); ?></p>
+                </div>
+                <div style="font-weight:900; font-size:18px; color:#2563eb;">EESS ONLINE</div>
+            </div>
+
+            <table class="meta-table">
+                <tr><th>اسم الطالب:</th><td><strong><?php echo esc_html($student->name); ?></strong></td><th>رقم الطالب / الكود:</th><td><?php echo esc_html($student->student_code); ?></td></tr>
+                <tr><th>الصف والشعبة:</th><td><?php echo esc_html($student->class_name . ' / ' . $student->section); ?></td><th>الجنسية:</th><td><?php echo esc_html($student->nationality ?: 'غير محدد'); ?></td></tr>
+                <tr><th>البريد الإلكتروني لولي الأمر:</th><td><?php echo esc_html($student->parent_email); ?></td><th>رقم هاتف ولي الأمر:</th><td><?php echo esc_html($student->guardian_phone); ?></td></tr>
+            </table>
+
+            <h3 class="section-title">1. السجل الأكاديمي والنتائج الدراسي</h3>
+            <table class="meta-table">
+                <thead><tr style="background:#f8fafc;"><th>المادة</th><th>الفصل</th><th>الدرجة</th><th>تاريخ الرصد</th></tr></thead>
+                <tbody>
+                    <?php if (empty($grades)): ?>
+                        <tr><td colspan="4" style="text-align:center;">لا توجد درجات مرصودة حالياً.</td></tr>
+                    <?php else: ?>
+                        <?php foreach($grades as $g): ?>
+                            <tr><td><?php echo esc_html($g->subject); ?></td><td><?php echo esc_html($g->term); ?></td><td><strong><?php echo esc_html($g->grade_val); ?></strong></td><td><?php echo esc_html($g->created_at); ?></td></tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+
+            <h3 class="section-title">2. السجل السلوكي والمخالفات الانضباطية</h3>
+            <table class="meta-table">
+                <thead><tr style="background:#f8fafc;"><th>التاريخ</th><th>المخالفة</th><th>الدرجة/الحدة</th><th>تكرار</th><th>الحالة</th></tr></thead>
+                <tbody>
+                    <?php if (empty($violations)): ?>
+                        <tr><td colspan="5" style="text-align:center;">سجل الطالب نظيف خالٍ من أي مخالفات سلوكية.</td></tr>
+                    <?php else: ?>
+                        <?php foreach($violations as $v): ?>
+                            <tr><td><?php echo esc_html($v->incident_date); ?></td><td><?php echo esc_html($v->violation_item); ?></td><td><?php echo esc_html($v->degree); ?></td><td><?php echo esc_html($v->frequency); ?></td><td><?php echo esc_html($v->status); ?></td></tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </body>
+        </html>
+        <?php
+        exit;
+    }
+
     public function ajax_export_students_csv() {
         if (!current_user_can('إدارة_الطلاب')) {
             wp_die('Unauthorized');
@@ -5105,6 +5186,106 @@ class SM_Public {
         }
         fclose($output);
         exit;
+    }
+
+    public function ajax_export_grades_csv() {
+        if (!is_user_logged_in() || (!current_user_can('manage_grades') && !current_user_can('manage_options'))) {
+            wp_die('Unauthorized');
+        }
+
+        $user = wp_get_current_user();
+        $assigned_subject = get_user_meta($user->ID, 'sm_specialization', true) ?: '';
+
+        global $wpdb;
+        $query = "SELECT s.id as student_id, s.name as student_name, s.class_name, s.section, sch.name as school_name
+                  FROM {$wpdb->prefix}sm_students s
+                  LEFT JOIN {$wpdb->prefix}eess_schools sch ON s.school_id = sch.id
+                  ORDER BY s.class_name ASC, s.section ASC, s.name ASC";
+        $students = $wpdb->get_results($query);
+
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename=grades_template_'.date('Y-m-d').'.csv');
+        $output = fopen('php://output', 'w');
+        fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM for Excel
+
+        // 10 Columns: A-Student ID, B-Student Name, C-School, D-Grade, E-Section, F-Subject, G-Assessment Type, H-Score, I-Max Score, J-Notes
+        fputcsv($output, array('Student ID', 'Student Name', 'School', 'Grade', 'Section', 'Subject', 'Assessment Type', 'Score', 'Max Score', 'Notes'));
+
+        foreach ($students as $st) {
+            fputcsv($output, array(
+                $st->student_id,
+                $st->student_name,
+                $st->school_name ?: 'المدرسة الرئيسية',
+                $st->class_name,
+                $st->section,
+                $assigned_subject ?: 'عام',
+                'الفصل الأول',
+                '',
+                '100',
+                ''
+            ));
+        }
+        fclose($output);
+        exit;
+    }
+
+    public function ajax_import_grades_csv() {
+        if (!is_user_logged_in() || (!current_user_can('manage_grades') && !current_user_can('manage_options'))) {
+            wp_send_json_error('Unauthorized');
+        }
+
+        if (empty($_FILES['csv_file']['tmp_name'])) {
+            wp_send_json_error('يرجى اختيار ملف CSV المعتمد لرفعه.');
+        }
+
+        $handle = fopen($_FILES['csv_file']['tmp_name'], 'r');
+        if (!$handle) {
+            wp_send_json_error('تعذر فتح الملف المستورد.');
+        }
+
+        // Skip BOM & Header row
+        $header = fgetcsv($handle);
+
+        global $wpdb;
+        $success_count = 0;
+        $error_count = 0;
+
+        while (($data = fgetcsv($handle)) !== false) {
+            if (empty($data[0])) continue;
+
+            $student_id  = intval($data[0]);
+            $subject     = sanitize_text_field($data[5] ?? 'عام');
+            $term        = sanitize_text_field($data[6] ?? 'الفصل الأول');
+            $score_val   = sanitize_text_field($data[7] ?? '');
+            $notes       = sanitize_text_field($data[9] ?? '');
+
+            if (!$student_id || $score_val === '') {
+                $error_count++;
+                continue;
+            }
+
+            $res = $wpdb->insert(
+                "{$wpdb->prefix}sm_grades",
+                array(
+                    'student_id' => $student_id,
+                    'subject'    => $subject,
+                    'term'       => $term,
+                    'grade_val'  => $score_val,
+                    'created_at' => current_time('mysql')
+                )
+            );
+
+            if ($res) {
+                $success_count++;
+            } else {
+                $error_count++;
+            }
+        }
+        fclose($handle);
+
+        wp_send_json_success(array(
+            'message' => "تم استيراد $success_count درجة بنجاح." . ($error_count > 0 ? " (تعذر استيراد $error_count سجل غير مكتمل)" : "")
+        ));
     }
 
     public function ajax_upload_import_csv() {
@@ -6639,6 +6820,43 @@ class SM_Public {
             wp_send_json_success(array('announcement_id' => $anc_id, 'message' => 'تم تعطيل الإشعار بنجاح وإيقاف ظهوره تلقائياً.'));
         } else {
             wp_send_json_error('حدث خطأ أثناء تعطيل الإشعار.');
+        }
+    }
+
+    public function ajax_delete_system_announcement() {
+        if (!is_user_logged_in() || !current_user_can('manage_options')) {
+            wp_send_json_error('عفواً، غير مصرح لك بهدم وحذف سجلات الإشعارات.');
+        }
+
+        $anc_id = intval($_POST['announcement_id'] ?? 0);
+        if (!$anc_id) wp_send_json_error('ID الإشعار غير صحيح.');
+
+        global $wpdb;
+        // Delete announcement record
+        $wpdb->delete("{$wpdb->prefix}sm_system_announcements", array('id' => $anc_id));
+        // Delete all associated user reading interaction logs
+        $wpdb->delete("{$wpdb->prefix}sm_user_announcements", array('announcement_id' => $anc_id));
+
+        SM_Logger::log('حذف إشعار نظام نهائياً', "تم حذف الإشعار ID: $anc_id وكافة سجلات قراءته نهائياً");
+        wp_send_json_success(array('message' => 'تم حذف الإشعار وكافة سجلات التفاعل الخاصة به نهائياً.'));
+    }
+
+    public function ajax_delete_user_announcement_log() {
+        if (!is_user_logged_in() || !current_user_can('manage_options')) {
+            wp_send_json_error('عفواً، غير مصرح لك بهذا الإجراء.');
+        }
+
+        $log_id = intval($_POST['log_id'] ?? 0);
+        if (!$log_id) wp_send_json_error('ID السجل غير صحيح.');
+
+        global $wpdb;
+        $deleted = $wpdb->delete("{$wpdb->prefix}sm_user_announcements", array('id' => $log_id));
+
+        if ($deleted) {
+            SM_Logger::log('حذف سجل تفاعل مستخدم', "تم حذف سجل تفاعل إشعار (ID: $log_id) نهائياً");
+            wp_send_json_success(array('message' => 'تم حذف سجل التفاعل الفردي بنجاح.'));
+        } else {
+            wp_send_json_error('حدث خطأ أثناء حذف السجل.');
         }
     }
 }

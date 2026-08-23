@@ -15,13 +15,58 @@ $students = SM_DB::get_students();
 
 <div class="sm-grades-management" dir="rtl">
 
-    <div class="sm-tabs-wrapper" style="display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
-        <button class="sm-tab-btn sm-active" onclick="smOpenInternalTab('individual-grading', this)">رصد فردي</button>
-        <button class="sm-tab-btn" onclick="smOpenInternalTab('class-grading', this)">رصد جماعي (حسب الصف)</button>
-        <?php if (current_user_can('إدارة_النظام')): ?>
-            <button class="sm-tab-btn" onclick="smOpenInternalTab('subject-mgmt', this)">إدارة المواد</button>
-        <?php endif; ?>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div class="sm-tabs-wrapper" style="display: flex; gap: 10px; border-bottom: 2px solid #eee; padding-bottom: 10px; flex: 1;">
+            <button class="sm-tab-btn sm-active" onclick="smOpenInternalTab('individual-grading', this)">رصد فردي</button>
+            <button class="sm-tab-btn" onclick="smOpenInternalTab('class-grading', this)">رصد جماعي (حسب الصف)</button>
+            <?php if (current_user_can('إدارة_النظام')): ?>
+                <button class="sm-tab-btn" onclick="smOpenInternalTab('subject-mgmt', this)">إدارة المواد</button>
+            <?php endif; ?>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <a href="<?php echo admin_url('admin-ajax.php?action=sm_export_grades_csv'); ?>" class="sm-btn" style="background: #16a34a; color: white !important; font-size: 12px; height: 36px; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; text-decoration: none;">
+                <span class="dashicons dashicons-download" style="font-size: 16px; width: 16px; height: 16px;"></span> تصدير نموذج Excel
+            </a>
+            <button type="button" onclick="jQuery('#import-grades-form-card').slideToggle()" class="sm-btn" style="background: #2563eb; color: white !important; font-size: 12px; height: 36px; display: inline-flex; align-items: center; gap: 6px; font-weight: 700;">
+                <span class="dashicons dashicons-upload" style="font-size: 16px; width: 16px; height: 16px;"></span> استيراد درجات Excel
+            </button>
+        </div>
     </div>
+
+    <!-- Excel Grades Import Drawer -->
+    <div id="import-grades-form-card" style="display: none; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+        <h4 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 800; color: #0f172a;">استيراد درجات الطلاب عبر ملف Excel (10 أعمدة)</h4>
+        <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">قم بتحميل النموذج المعتمد بالضغط على زر "تصدير نموذج Excel"، واملأ الدرجات والملاحظات ثم ارفع الملف هنا:</p>
+        <form id="eess-import-grades-form" onsubmit="eessSubmitImportGrades(event)">
+            <input type="file" name="csv_file" accept=".csv" required style="font-size: 12px; margin-bottom: 15px; display: block;">
+            <button type="submit" class="sm-btn" style="background: #16a34a; width: 180px; height: 36px; font-size: 12px;">بدء رفع واستيراد الدرجات</button>
+        </form>
+    </div>
+
+    <script>
+    function eessSubmitImportGrades(e) {
+        e.preventDefault();
+        const form = document.getElementById('eess-import-grades-form');
+        const formData = new FormData(form);
+        formData.append('action', 'sm_import_grades_csv');
+
+        jQuery.ajax({
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(res) {
+                if (res.success) {
+                    alert(res.data.message || 'تم استيراد الدرجات بنجاح!');
+                    location.reload();
+                } else {
+                    alert(res.data || 'حدث خطأ أثناء الاستيراد.');
+                }
+            }
+        });
+    }
+    </script>
 
     <div id="individual-grading" class="sm-internal-tab">
         <div style="background: #fff; padding: 25px; border-radius: 12px; border: 1px solid var(--sm-border-color); margin-bottom: 30px;">
