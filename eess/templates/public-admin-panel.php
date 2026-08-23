@@ -456,8 +456,12 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
         </div>
 
         <div style="display: flex; align-items: center; gap: 15px;">
-            <?php if ($active_tab !== 'attendance' && ($is_admin || current_user_can('تسجيل_مخالفة'))): ?>
-                <button onclick="smOpenViolationModal()" class="sm-btn" style="background: var(--sm-primary-color); height: 32px; padding: 0 12px; font-size: 11px; color: white !important;">+ تسجيل مخالفة</button>
+            <?php if ($active_tab !== 'attendance'): ?>
+                <?php if ($is_teacher): ?>
+                    <button onclick="eessOpenTeacherReferralModal()" class="sm-btn" style="background: var(--sm-primary-color); height: 32px; padding: 0 12px; font-size: 11px; color: white !important;">+ تقديم مخالفة سلوكية لطالب</button>
+                <?php elseif ($is_admin || current_user_can('تسجيل_مخالفة')): ?>
+                    <button onclick="smOpenViolationModal()" class="sm-btn" style="background: var(--sm-primary-color); height: 32px; padding: 0 12px; font-size: 11px; color: white !important;">+ تسجيل مخالفة</button>
+                <?php endif; ?>
             <?php endif; ?>
 
             <div class="sm-user-dropdown" style="position: relative;">
@@ -2036,6 +2040,7 @@ jQuery(document).ready(function($) {
 })();
 </script>
 
+<?php include_once SM_PLUGIN_DIR . 'templates/partials/teacher-behavior-referral-modal.php'; ?>
 <!-- TECHNICAL SUPPORT & HELP CAPSULE MODAL -->
 <div id="eess-support-capsule-modal" style="display: none; position: fixed; inset: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif; direction: rtl;">
     <div style="background: #ffffff; border-radius: 16px; max-width: 520px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; display: flex; flex-direction: column;">

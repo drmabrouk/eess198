@@ -383,7 +383,13 @@ class SM_Settings {
     }
 
     public static function get_system_modules() {
-        return array(
+        $user = wp_get_current_user();
+        $roles = (array) $user->roles;
+
+        // Educational staff role check: Teacher, Supervisor, Head of Department, Activities Supervisor
+        $is_educational_role = in_array('sm_teacher', $roles) || in_array('sm_supervisor', $roles) || in_array('sm_hod', $roles) || in_array('sm_activities_supervisor', $roles);
+
+        $modules = array(
             'summary' => array(
                 'label' => 'لوحة المعلومات',
                 'dashicon' => 'dashicons-dashboard',
@@ -404,20 +410,19 @@ class SM_Settings {
                     'sm_hr' => true,
                 )
             ),
-            'students' => array(
-                'label' => 'شؤون الطلاب',
-                'dashicon' => 'dashicons-groups',
-                'tab' => 'students',
+            'lesson-plans' => array(
+                'label' => 'تحضير الدروس',
+                'dashicon' => 'dashicons-welcome-write-blog',
+                'tab' => 'lesson-plans',
                 'default' => array(
                     'sm_system_admin' => true,
                     'sm_principal' => true,
                     'sm_supervisor' => true,
-                    'sm_coordinator' => false,
-                    'sm_hod' => true,
+                    'sm_coordinator' => true,
                     'sm_teacher' => true,
                     'sm_student' => false,
                     'sm_parent' => false,
-                    'sm_discipline_supervisor' => true,
+                    'sm_discipline_supervisor' => false,
                     'sm_activities_supervisor' => false,
                     'sm_transportation_supervisor' => false,
                     'sm_bus_supervisor' => false,
@@ -443,6 +448,64 @@ class SM_Settings {
                     'sm_hr' => false,
                 )
             ),
+            'assignments' => array(
+                'label' => 'الواجبات المدرسية',
+                'dashicon' => 'dashicons-portfolio',
+                'tab' => 'assignments',
+                'default' => array(
+                    'sm_system_admin' => true,
+                    'sm_principal' => false,
+                    'sm_supervisor' => false,
+                    'sm_coordinator' => false,
+                    'sm_teacher' => true,
+                    'sm_student' => true,
+                    'sm_parent' => false,
+                    'sm_discipline_supervisor' => false,
+                    'sm_activities_supervisor' => false,
+                    'sm_transportation_supervisor' => false,
+                    'sm_bus_supervisor' => false,
+                    'sm_hr' => false,
+                )
+            ),
+            'attendance' => array(
+                'label' => 'سجل الحضور والغياب',
+                'dashicon' => 'dashicons-calendar-alt',
+                'tab' => 'attendance',
+                'default' => array(
+                    'sm_system_admin' => true,
+                    'sm_principal' => true,
+                    'sm_supervisor' => true,
+                    'sm_coordinator' => false,
+                    'sm_teacher' => true,
+                    'sm_student' => false,
+                    'sm_parent' => false,
+                    'sm_discipline_supervisor' => false,
+                    'sm_activities_supervisor' => false,
+                    'sm_transportation_supervisor' => false,
+                    'sm_bus_supervisor' => false,
+                    'sm_hr' => false,
+                )
+            ),
+            'students' => array(
+                'label' => 'شؤون الطلاب',
+                'dashicon' => 'dashicons-groups',
+                'tab' => 'students',
+                'default' => array(
+                    'sm_system_admin' => true,
+                    'sm_principal' => true,
+                    'sm_supervisor' => true,
+                    'sm_coordinator' => false,
+                    'sm_hod' => true,
+                    'sm_teacher' => true,
+                    'sm_student' => false,
+                    'sm_parent' => false,
+                    'sm_discipline_supervisor' => true,
+                    'sm_activities_supervisor' => false,
+                    'sm_transportation_supervisor' => false,
+                    'sm_bus_supervisor' => false,
+                    'sm_hr' => false,
+                )
+            ),
             'stats' => array(
                 'label' => 'سجل سلوك الطلاب',
                 'dashicon' => 'dashicons-list-view',
@@ -460,6 +523,26 @@ class SM_Settings {
                     'sm_activities_supervisor' => true,
                     'sm_transportation_supervisor' => true,
                     'sm_bus_supervisor' => true,
+                    'sm_hr' => false,
+                )
+            ),
+            'grades' => array(
+                'label' => 'إدارة الدرجات والنتائج',
+                'dashicon' => 'dashicons-welcome-learn-more',
+                'tab' => 'grades',
+                'default' => array(
+                    'sm_system_admin' => true,
+                    'sm_principal' => true,
+                    'sm_supervisor' => true,
+                    'sm_coordinator' => true,
+                    'sm_hod' => true,
+                    'sm_teacher' => true,
+                    'sm_student' => true,
+                    'sm_parent' => true,
+                    'sm_discipline_supervisor' => false,
+                    'sm_activities_supervisor' => false,
+                    'sm_transportation_supervisor' => false,
+                    'sm_bus_supervisor' => false,
                     'sm_hr' => false,
                 )
             ),
@@ -503,64 +586,6 @@ class SM_Settings {
                     'sm_hr' => false,
                 )
             ),
-            'grades' => array(
-                'label' => 'إدارة الدرجات والنتائج',
-                'dashicon' => 'dashicons-welcome-learn-more',
-                'tab' => 'grades',
-                'default' => array(
-                    'sm_system_admin' => true,
-                    'sm_principal' => true,
-                    'sm_supervisor' => true,
-                    'sm_coordinator' => true,
-                    'sm_hod' => true,
-                    'sm_teacher' => true,
-                    'sm_student' => true,
-                    'sm_parent' => true,
-                    'sm_discipline_supervisor' => false,
-                    'sm_activities_supervisor' => false,
-                    'sm_transportation_supervisor' => false,
-                    'sm_bus_supervisor' => false,
-                    'sm_hr' => false,
-                )
-            ),
-            'attendance' => array(
-                'label' => 'سجل الحضور والغياب',
-                'dashicon' => 'dashicons-calendar-alt',
-                'tab' => 'attendance',
-                'default' => array(
-                    'sm_system_admin' => true,
-                    'sm_principal' => true,
-                    'sm_supervisor' => true,
-                    'sm_coordinator' => false,
-                    'sm_teacher' => true,
-                    'sm_student' => false,
-                    'sm_parent' => false,
-                    'sm_discipline_supervisor' => false,
-                    'sm_activities_supervisor' => false,
-                    'sm_transportation_supervisor' => false,
-                    'sm_bus_supervisor' => false,
-                    'sm_hr' => false,
-                )
-            ),
-            'employee-profile' => array(
-                'label' => 'الملف الوظيفي',
-                'dashicon' => 'dashicons-businessman',
-                'tab' => 'employee-profile',
-                'default' => array(
-                    'sm_system_admin' => true,
-                    'sm_principal' => true,
-                    'sm_supervisor' => true,
-                    'sm_coordinator' => true,
-                    'sm_teacher' => true,
-                    'sm_student' => false,
-                    'sm_parent' => false,
-                    'sm_discipline_supervisor' => true,
-                    'sm_activities_supervisor' => true,
-                    'sm_transportation_supervisor' => true,
-                    'sm_bus_supervisor' => true,
-                    'sm_hr' => true,
-                )
-            ),
             'hr-evaluation' => array(
                 'label' => 'تقييم الموظفين',
                 'dashicon' => 'dashicons-awards',
@@ -597,44 +622,6 @@ class SM_Settings {
                     'sm_transportation_supervisor' => false,
                     'sm_bus_supervisor' => false,
                     'sm_hr' => true,
-                )
-            ),
-            'lesson-plans' => array(
-                'label' => 'تحضير الدروس',
-                'dashicon' => 'dashicons-welcome-write-blog',
-                'tab' => 'lesson-plans',
-                'default' => array(
-                    'sm_system_admin' => true,
-                    'sm_principal' => true,
-                    'sm_supervisor' => true,
-                    'sm_coordinator' => true,
-                    'sm_teacher' => true,
-                    'sm_student' => false,
-                    'sm_parent' => false,
-                    'sm_discipline_supervisor' => false,
-                    'sm_activities_supervisor' => false,
-                    'sm_transportation_supervisor' => false,
-                    'sm_bus_supervisor' => false,
-                    'sm_hr' => false,
-                )
-            ),
-            'assignments' => array(
-                'label' => 'الواجبات المدرسية',
-                'dashicon' => 'dashicons-portfolio',
-                'tab' => 'assignments',
-                'default' => array(
-                    'sm_system_admin' => true,
-                    'sm_principal' => false,
-                    'sm_supervisor' => false,
-                    'sm_coordinator' => false,
-                    'sm_teacher' => true,
-                    'sm_student' => true,
-                    'sm_parent' => false,
-                    'sm_discipline_supervisor' => false,
-                    'sm_activities_supervisor' => false,
-                    'sm_transportation_supervisor' => false,
-                    'sm_bus_supervisor' => false,
-                    'sm_hr' => false,
                 )
             ),
             'documents' => array(
@@ -713,7 +700,28 @@ class SM_Settings {
                     'sm_hr' => false,
                 )
             ),
+            'employee-profile' => array(
+                'label' => 'الملف الوظيفي',
+                'dashicon' => 'dashicons-businessman',
+                'tab' => 'employee-profile',
+                'default' => array(
+                    'sm_system_admin' => true,
+                    'sm_principal' => true,
+                    'sm_supervisor' => true,
+                    'sm_coordinator' => true,
+                    'sm_teacher' => true,
+                    'sm_student' => false,
+                    'sm_parent' => false,
+                    'sm_discipline_supervisor' => true,
+                    'sm_activities_supervisor' => true,
+                    'sm_transportation_supervisor' => true,
+                    'sm_bus_supervisor' => true,
+                    'sm_hr' => true,
+                )
+            ),
         );
+
+        return $modules;
     }
 
     public static function user_has_module_capability($key, $user_id = null) {
