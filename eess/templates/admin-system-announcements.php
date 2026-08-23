@@ -21,6 +21,15 @@ $announcements = $wpdb->get_results("SELECT a.*, u.display_name as author_name F
 
 // User tracking activity query
 $activity_logs = $wpdb->get_results("SELECT ua.*, a.title as announcement_title, u.display_name, u.user_login FROM {$wpdb->prefix}sm_user_announcements ua INNER JOIN {$wpdb->prefix}sm_system_announcements a ON ua.announcement_id = a.id INNER JOIN {$wpdb->users} u ON ua.user_id = u.ID ORDER BY ua.updated_at DESC LIMIT 200");
+
+// Support & Feedback Requests query with filters
+$s_cat    = sanitize_text_field($_GET['support_cat'] ?? 'all');
+$s_search = sanitize_text_field($_GET['support_search'] ?? '');
+
+$support_requests = SM_DB::get_support_requests(array(
+    'category' => $s_cat,
+    'search'   => $s_search
+));
 ?>
 
 <div class="sm-container" style="padding: 10px 0; font-family: 'Cairo', sans-serif !important; direction: rtl;">
@@ -167,7 +176,7 @@ $activity_logs = $wpdb->get_results("SELECT ua.*, a.title as announcement_title,
     </div>
 
     <!-- Detailed User Audit Log & Show Again Action Card -->
-    <div style="background: #ffffff; border-radius: 16px; padding: 25px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+    <div style="background: #ffffff; border-radius: 16px; padding: 25px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 30px;">
         <h3 style="margin: 0 0 20px 0; font-size: 16px; font-weight: 800; color: #0f172a; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; align-items: center; gap: 8px;">
             <span class="dashicons dashicons-admin-users" style="color: #2563eb;"></span>
             سجل تفاعل المستخدمين الفردي وإعادة إظهار الإشعار (Show Again)
@@ -221,7 +230,271 @@ $activity_logs = $wpdb->get_results("SELECT ua.*, a.title as announcement_title,
             </table>
         </div>
     </div>
+
+    <!-- SUPPORT & FEEDBACK RECORDS MANAGEMENT CARD -->
+    <div id="eess-support-management-card" style="background: #ffffff; border-radius: 16px; padding: 25px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+        <h3 style="margin: 0 0 20px 0; font-size: 16px; font-weight: 800; color: #0f172a; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+            <span class="dashicons dashicons-sos" style="color: #2563eb;"></span>
+            سجلات الدعم الفني والتقييمات (Support & Feedback Records)
+        </h3>
+
+        <!-- Search & Category Filters -->
+        <form method="get" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
+            <input type="hidden" name="sm_tab" value="global-settings">
+
+            <div style="flex: 1; min-width: 200px;">
+                <label style="display: block; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px;">البحث الشامل</label>
+                <input type="text" name="support_search" value="<?php echo esc_attr($s_search); ?>" placeholder="اسم المرسل، الرقم الوظيفي، العنوان..." class="sm-input" style="height: 38px; font-size: 12px; width: 100%;">
+            </div>
+
+            <div style="width: 180px;">
+                <label style="display: block; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px;">تصنيف الرسالة</label>
+                <select name="support_cat" class="sm-select" style="height: 38px; font-size: 12px; width: 100%;">
+                    <option value="all" <?php selected($s_cat, 'all'); ?>>الكل (All)</option>
+                    <option value="suggestion" <?php selected($s_cat, 'suggestion'); ?>>المقترحات (Suggestions)</option>
+                    <option value="technical_issue" <?php selected($s_cat, 'technical_issue'); ?>>المشاكل الفنية (Technical Issues)</option>
+                    <option value="rating" <?php selected($s_cat, 'rating'); ?>>التقييمات والشكر (Ratings)</option>
+                </select>
+            </div>
+
+            <div style="display: flex; align-items: flex-end; gap: 8px;">
+                <button type="submit" class="sm-btn" style="height: 38px; background: #2563eb; padding: 0 16px; font-size: 12px;">تصفية</button>
+                <a href="<?php echo add_query_arg('sm_tab', 'global-settings'); ?>" class="sm-btn sm-btn-outline" style="height: 38px; padding: 0 16px; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center;">إعادة ضبط</a>
+            </div>
+        </form>
+
+        <!-- Table of Support Records -->
+        <div style="overflow-x: auto;">
+            <table class="sm-table" style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                <thead>
+                    <tr style="background: #f8fafc; text-align: right; border-bottom: 2px solid #e2e8f0;">
+                        <th style="padding: 12px;">المرسل</th>
+                        <th style="padding: 12px;">التصنيف</th>
+                        <th style="padding: 12px;">العنوان / التقييم</th>
+                        <th style="padding: 12px;">التاريخ</th>
+                        <th style="padding: 12px; text-align: center;">الحالة</th>
+                        <th style="padding: 12px; text-align: center;">المرفق</th>
+                        <th style="padding: 12px; text-align: center;">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($support_requests)): ?>
+                        <tr><td colspan="7" style="padding: 20px; text-align: center; color: #94a3b8;">لا توجد رسائل أو طلبات دعم متطابقة حالياً.</td></tr>
+                    <?php else: ?>
+                        <?php foreach ($support_requests as $s_req):
+                            $sender_emp_id = get_user_meta($s_req->user_id, 'eess_employee_number', true) ?: ($s_req->user_login ?? '');
+                            $cat_map = array(
+                                'suggestion'      => array('label' => 'مقترح', 'bg' => '#fef3c7', 'color' => '#92400e'),
+                                'technical_issue' => array('label' => 'مشكلة فنية', 'bg' => '#fee2e2', 'color' => '#991b1b'),
+                                'rating'          => array('label' => 'تقييم وشكر', 'bg' => '#dbeafe', 'color' => '#1e40af'),
+                            );
+                            $cat_badge = $cat_map[$s_req->category] ?? array('label' => $s_req->category, 'bg' => '#f1f5f9', 'color' => '#475569');
+
+                            $status_map = array(
+                                'new'         => array('label' => 'جديد', 'bg' => '#fef9c3', 'color' => '#a16207'),
+                                'in_progress' => array('label' => 'قيد المراجعة', 'bg' => '#e0f2fe', 'color' => '#0369a1'),
+                                'resolved'    => array('label' => 'تم الحل', 'bg' => '#dcfce7', 'color' => '#15803d'),
+                                'closed'      => array('label' => 'مغلق', 'bg' => '#f1f5f9', 'color' => '#475569'),
+                            );
+                            $st_badge = $status_map[$s_req->status] ?? array('label' => $s_req->status, 'bg' => '#f1f5f9', 'color' => '#475569');
+                        ?>
+                            <tr id="support-req-row-<?php echo $s_req->id; ?>" style="border-bottom: 1px solid #f1f5f9;">
+                                <td style="padding: 12px; font-weight: 700; color: #0f172a;">
+                                    <?php echo esc_html($s_req->display_name ?: $s_req->user_login); ?>
+                                    <div style="font-size: 10px; color: #64748b; font-weight: normal; margin-top: 2px;">رقم الموظف: <?php echo esc_html($sender_emp_id); ?></div>
+                                </td>
+                                <td style="padding: 12px;">
+                                    <span style="background: <?php echo $cat_badge['bg']; ?>; color: <?php echo $cat_badge['color']; ?>; padding: 3px 8px; border-radius: 50px; font-weight: 800; font-size: 10px;">
+                                        <?php echo $cat_badge['label']; ?>
+                                    </span>
+                                </td>
+                                <td style="padding: 12px; font-weight: 700;">
+                                    <?php echo esc_html($s_req->title); ?>
+                                    <?php if ($s_req->category === 'rating' && $s_req->rating_stars > 0): ?>
+                                        <div style="color: #f59e0b; font-size: 12px; margin-top: 2px;">
+                                            <?php echo str_repeat('★', $s_req->rating_stars) . str_repeat('☆', 5 - $s_req->rating_stars); ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </td>
+                                <td style="padding: 12px; color: #64748b; font-size: 11px;"><?php echo esc_html($s_req->created_at); ?></td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <span style="background: <?php echo $st_badge['bg']; ?>; color: <?php echo $st_badge['color']; ?>; padding: 3px 8px; border-radius: 50px; font-weight: 800; font-size: 10px;">
+                                        <?php echo $st_badge['label']; ?>
+                                    </span>
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <?php if (!empty($s_req->attachment_url)): ?>
+                                        <a href="<?php echo esc_url($s_req->attachment_url); ?>" target="_blank" style="color: #2563eb; text-decoration: underline; font-weight: 700;">🖼️ عرض المرفق</a>
+                                    <?php else: ?>
+                                        <span style="color: #94a3b8;">لا يوجد</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td style="padding: 12px; text-align: center; display: flex; gap: 6px; justify-content: center;">
+                                    <button type="button" onclick="eessViewSupportRecord(<?php echo $s_req->id; ?>)" style="background: #334155; color: white; border: none; border-radius: 6px; padding: 5px 10px; font-size: 11px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                        <span class="dashicons dashicons-visibility" style="font-size: 14px; width: 14px; height: 14px;"></span>
+                                        عرض التفاصيل
+                                    </button>
+                                    <button type="button" onclick="eessDeleteSupportRecord(<?php echo $s_req->id; ?>)" style="background: #dc2626; color: white; border: none; border-radius: 6px; padding: 5px 10px; font-size: 11px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                        <span class="dashicons dashicons-trash" style="font-size: 14px; width: 14px; height: 14px;"></span>
+                                        حذف
+                                    </button>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
+<!-- VIEW SUPPORT RECORD MODAL -->
+<div id="eess-view-support-modal" style="display: none; position: fixed; inset: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif; direction: rtl;">
+    <div style="background: #ffffff; border-radius: 16px; max-width: 600px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; display: flex; flex-direction: column; max-height: 90vh;">
+        <div style="background: #1e293b; color: #ffffff; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; font-size: 15px; font-weight: 800;">تفاصيل طلب الدعم / الرسالة</h3>
+            <button type="button" onclick="document.getElementById('eess-view-support-modal').style.display='none'" style="background: none; border: none; color: #ffffff; font-size: 22px; cursor: pointer; line-height: 1;">&times;</button>
+        </div>
+        <div style="padding: 20px; overflow-y: auto; flex: 1; box-sizing: border-box;" id="support-modal-content-body">
+            <!-- Rendered dynamically -->
+        </div>
+    </div>
+</div>
+
+<script>
+const eessSupportRequestsJS = <?php
+    $support_js_map = array();
+    if (!empty($support_requests)) {
+        foreach ($support_requests as $s_r) {
+            $user_obj = get_userdata($s_r->user_id);
+            $roles = $user_obj ? (array)$user_obj->roles : array();
+            $role_label = !empty($roles) ? ($roles_list[reset($roles)] ?? reset($roles)) : 'غير محدد';
+            $inst = get_user_meta($s_r->user_id, 'eess_school_name', true) ?: (get_user_meta($s_r->user_id, 'institution', true) ?: 'غير محدد');
+
+            $support_js_map[$s_r->id] = array(
+                'id' => $s_r->id,
+                'sender_name' => $s_r->display_name ?: $s_r->user_login,
+                'sender_role' => $role_label,
+                'institution' => $inst,
+                'category' => $s_r->category,
+                'title' => $s_r->title,
+                'details' => $s_r->details,
+                'rating_stars' => $s_r->rating_stars,
+                'status' => $s_r->status,
+                'created_at' => $s_r->created_at,
+                'attachment_url' => $s_r->attachment_url
+            );
+        }
+    }
+    echo json_encode($support_js_map);
+?>;
+
+function eessViewSupportRecord(id) {
+    const data = eessSupportRequestsJS[id];
+    if (!data) return;
+
+    let attachmentHtml = '';
+    if (data.attachment_url) {
+        attachmentHtml = `
+            <div style="margin-top: 15px; border-top: 1px solid #cbd5e1; padding-top: 12px;">
+                <strong style="display: block; font-size: 12px; color: #334155; margin-bottom: 8px;">لقطة الشاشة / المرفق:</strong>
+                <a href="${data.attachment_url}" target="_blank">
+                    <img src="${data.attachment_url}" style="max-width: 100%; max-height: 250px; border-radius: 8px; border: 1px solid #cbd5e1; object-fit: contain;">
+                </a>
+            </div>
+        `;
+    }
+
+    let starsHtml = '';
+    if (data.category === 'rating' && data.rating_stars > 0) {
+        starsHtml = `
+            <div style="margin-bottom: 12px;">
+                <strong>التقييم:</strong> <span style="color: #f59e0b; font-size: 16px;">${'★'.repeat(data.rating_stars)}${'☆'.repeat(5 - data.rating_stars)}</span> (${data.rating_stars} من 5)
+            </div>
+        `;
+    }
+
+    const html = `
+        <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 15px; font-size: 12px; line-height: 1.8;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div><strong>المرسل:</strong> ${data.sender_name}</div>
+                <div><strong>الرتبة الوظيفية:</strong> ${data.sender_role}</div>
+                <div><strong>المؤسسة/المدرسة:</strong> ${data.institution}</div>
+                <div><strong>التاريخ:</strong> ${data.created_at}</div>
+            </div>
+        </div>
+
+        ${starsHtml}
+
+        <div style="margin-bottom: 15px;">
+            <strong style="display: block; font-size: 13px; color: #0f172a; margin-bottom: 6px;">عنوان الرسالة:</strong>
+            <div style="font-size: 14px; font-weight: 800; color: #1e293b;">${data.title}</div>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <strong style="display: block; font-size: 13px; color: #0f172a; margin-bottom: 6px;">التفاصيل الكاملة:</strong>
+            <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; font-size: 13px; line-height: 1.7; color: #334155; white-space: pre-line;">${data.details}</div>
+        </div>
+
+        ${attachmentHtml}
+
+        <div style="margin-top: 20px; border-top: 2px dashed #cbd5e1; padding-top: 15px;">
+            <label style="display: block; font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 6px;">تحديث حالة الطلب:</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <select id="update_support_status_select" class="sm-select" style="height: 38px; font-size: 12px; flex: 1;">
+                    <option value="new" ${data.status === 'new' ? 'selected' : ''}>جديد (New)</option>
+                    <option value="in_progress" ${data.status === 'in_progress' ? 'selected' : ''}>قيد المراجعة (In Progress)</option>
+                    <option value="resolved" ${data.status === 'resolved' ? 'selected' : ''}>تم الحل (Resolved)</option>
+                    <option value="closed" ${data.status === 'closed' ? 'selected' : ''}>مغلق (Closed)</option>
+                </select>
+                <button type="button" onclick="eessSaveSupportStatus(${data.id})" class="sm-btn" style="background: #16a34a; height: 38px; font-size: 12px; padding: 0 16px;">تطبيق الحالة</button>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('support-modal-content-body').innerHTML = html;
+    document.getElementById('eess-view-support-modal').style.display = 'flex';
+}
+
+function eessSaveSupportStatus(id) {
+    const status = document.getElementById('update_support_status_select').value;
+    const formData = new FormData();
+    formData.append('action', 'eess_update_support_status');
+    formData.append('id', id);
+    formData.append('status', status);
+
+    fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success) {
+            alert(res.data.message);
+            location.reload();
+        } else {
+            alert(res.data);
+        }
+    });
+}
+
+function eessDeleteSupportRecord(id) {
+    if (!confirm('هل أنت تأكد من رغبتك في حذف سجل الدعم/التقييم هذا نهائياً مع المرفق الخاص به؟')) return;
+
+    const formData = new FormData();
+    formData.append('action', 'eess_delete_support_request');
+    formData.append('id', id);
+
+    fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success) {
+            alert(res.data.message);
+            const row = document.getElementById('support-req-row-' + id);
+            if (row) row.remove();
+        } else {
+            alert(res.data);
+        }
+    });
+}
+</script>
 
 <script>
 function eessCreateAnnouncement(e) {

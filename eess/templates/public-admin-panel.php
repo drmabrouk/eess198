@@ -525,7 +525,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
 
     <div class="sm-admin-layout" style="display: flex; min-height: 800px;">
         <!-- SIDEBAR -->
-        <div class="sm-sidebar" style="width: 220px; flex-shrink: 0; background: var(--sm-bg-light); border-left: 1px solid var(--sm-border-color); padding: 20px 0;">
+        <div class="sm-sidebar" style="width: 220px; flex-shrink: 0; background: var(--sm-bg-light); border-left: 1px solid var(--sm-border-color); padding: 20px 0; display: flex; flex-direction: column; justify-content: space-between;">
             <ul style="list-style: none; padding: 0; margin: 0;">
                 <?php foreach (SM_Settings::get_system_modules() as $key => $module):
                     // 1. Check if the module is visible for the role (or is super admin)
@@ -551,6 +551,14 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                     </li>
                 <?php endforeach; ?>
             </ul>
+
+            <!-- Absolute Bottom Sidebar Technical Support Capsule -->
+            <div style="padding: 15px; margin-top: auto; border-top: 1px solid #e2e8f0;">
+                <button type="button" onclick="eessOpenSupportHelpCapsule()" style="width: 100%; height: 38px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; color: #1e293b; font-weight: 700; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                    <span class="dashicons dashicons-sos" style="font-size: 16px; width: 16px; height: 16px; color: #ef4444; margin: 0;"></span>
+                    <span>الدعم الفني والمساعدة</span>
+                </button>
+            </div>
         </div>
 
         <!-- CONTENT AREA -->
@@ -1974,4 +1982,301 @@ jQuery(document).ready(function($) {
 
     document.addEventListener('DOMContentLoaded', initAnnouncementsEngine);
 })();
+</script>
+
+<!-- TECHNICAL SUPPORT & HELP CAPSULE MODAL -->
+<div id="eess-support-capsule-modal" style="display: none; position: fixed; inset: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif; direction: rtl;">
+    <div style="background: #ffffff; border-radius: 16px; max-width: 520px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; display: flex; flex-direction: column;">
+        <!-- Header -->
+        <div style="background: #1e293b; color: #ffffff; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                <span class="dashicons dashicons-sos" style="color: #ef4444; font-size: 20px; width: 20px; height: 20px; margin: 0;"></span>
+                <span>الدعم الفني والمساعدة</span>
+            </h3>
+            <button type="button" onclick="eessCloseSupportHelpCapsule()" style="background: none; border: none; color: #ffffff; font-size: 22px; cursor: pointer; line-height: 1;">&times;</button>
+        </div>
+
+        <!-- Body -->
+        <div style="padding: 24px; box-sizing: border-box;">
+            <div id="eess-capsule-msg" style="display: none; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 12px; font-weight: 700;"></div>
+
+            <!-- Main Menu Options -->
+            <div id="capsule-menu-view">
+                <p style="font-size: 13px; color: #64748b; margin: 0 0 20px 0; line-height: 1.6;">يرجى اختيار إحدى الخدمات المتاحة للبدء في التواصل مع فريق الدعم والتطوير:</p>
+
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <button type="button" onclick="eessSelectCapsuleOption('suggestion')" style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; text-align: right; transition: all 0.2s ease;">
+                        <span class="dashicons dashicons-lightbulb" style="font-size: 24px; width: 24px; height: 24px; color: #eab308; margin: 0;"></span>
+                        <div>
+                            <div style="font-weight: 800; font-size: 14px; color: #0f172a;">تقديم مقترح</div>
+                            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">شاركونا بأفكاركم واقتراحاتكم لتطوير المنظومة التعليمية.</div>
+                        </div>
+                    </button>
+
+                    <button type="button" onclick="eessSelectCapsuleOption('technical_issue')" style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; text-align: right; transition: all 0.2s ease;">
+                        <span class="dashicons dashicons-warning" style="font-size: 24px; width: 24px; height: 24px; color: #dc2626; margin: 0;"></span>
+                        <div>
+                            <div style="font-weight: 800; font-size: 14px; color: #0f172a;">مشكلة فنية</div>
+                            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">الإبلاغ عن خلل تقني أو خطأ في الصفحة مرفقاً بلقطة شاشة.</div>
+                        </div>
+                    </button>
+
+                    <button type="button" onclick="eessSelectCapsuleOption('rating')" style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; text-align: right; transition: all 0.2s ease;">
+                        <span class="dashicons dashicons-star-filled" style="font-size: 24px; width: 24px; height: 24px; color: #2563eb; margin: 0;"></span>
+                        <div>
+                            <div style="font-weight: 800; font-size: 14px; color: #0f172a;">أشكرنا</div>
+                            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">تقييم أداء الخدمة والمنظومة وإرسال كلمة شكر لفريق العمل.</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Option 1: Suggestion Form -->
+            <div id="capsule-suggestion-view" style="display: none;">
+                <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 800; color: #0f172a; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px;">تقديم مقترح وتطوير</h4>
+                <form id="eess_capsule_sug_form" onsubmit="eessSubmitCapsuleSuggestion(event)">
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">عنوان المقترح <span style="color:#ef4444;">*</span></label>
+                        <input type="text" id="sug_title" required placeholder="عنوان مختصر للمقترح" style="width: 100%; height: 40px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 10px; font-size: 13px; box-sizing: border-box;">
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <label style="font-size: 12px; font-weight: 700; color: #334155;">تفاصيل المقترح <span style="color:#ef4444;">*</span></label>
+                            <span id="sug_counter" style="font-size: 11px; font-weight: 700; color: #64748b;">0 / 1000</span>
+                        </div>
+                        <textarea id="sug_details" required maxlength="1000" rows="4" oninput="document.getElementById('sug_counter').innerText = this.value.length + ' / 1000'" placeholder="اكتب تفاصيل مقترحك هنا بما يسهم في تحسين العمل..." style="width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 10px; font-size: 13px; box-sizing: border-box;"></textarea>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; justify-content: space-between;">
+                        <button type="button" onclick="eessBackToCapsuleMenu()" class="sm-btn sm-btn-outline" style="height: 38px; font-size: 12px;">← العودة للقائمة</button>
+                        <button type="submit" id="btn_sug_submit" class="sm-btn" style="background: #2563eb; height: 38px; font-size: 12px; padding: 0 20px;">إرسال المقترح</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Option 2: Technical Problem Wizard -->
+            <div id="capsule-tech-view" style="display: none;">
+                <!-- Step 1: Info -->
+                <div id="tech-step-1" style="display: block;">
+                    <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+                        <h4 style="margin: 0 0 6px 0; color: #991b1b; font-size: 14px; font-weight: 800;">الإبلاغ عن مشكلة فنية</h4>
+                        <p style="margin: 0; font-size: 12px; color: #b91c1c; line-height: 1.6;">أنت على وشك الإبلاغ عن مشكلة أو خلل تقني واجهته أثناء استخدام المنظومة. سيتم توجيه هذا البلاغ مباشرة للمهندسين المختصين ومتابعته.</p>
+                    </div>
+                    <div style="display: flex; gap: 10px; justify-content: space-between;">
+                        <button type="button" onclick="eessBackToCapsuleMenu()" class="sm-btn sm-btn-outline" style="height: 38px; font-size: 12px;">← العودة للقائمة</button>
+                        <button type="button" onclick="document.getElementById('tech-step-1').style.display='none'; document.getElementById('tech-step-2').style.display='block';" class="sm-btn" style="background: #2563eb; height: 38px; font-size: 12px; padding: 0 20px;">المتابعة للخطوة التالية →</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Form -->
+                <div id="tech-step-2" style="display: none;">
+                    <form id="eess_capsule_tech_form" onsubmit="eessSubmitCapsuleTechnicalIssue(event)">
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">عنوان المشكلة <span style="color:#ef4444;">*</span></label>
+                            <input type="text" id="tech_title" required placeholder="عنوان مختصر للمشكلة" style="width: 100%; height: 40px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 10px; font-size: 13px; box-sizing: border-box;">
+                        </div>
+
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">تفاصيل المشكلة <span style="color:#ef4444;">*</span></label>
+                            <textarea id="tech_details" required rows="3" placeholder="شرح المشكلة والخطوات التي أدت لظهورها..." style="width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 10px; font-size: 13px; box-sizing: border-box;"></textarea>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">رفع لقطة شاشة (Screenshot)</label>
+                            <input type="file" id="tech_file" accept="image/*" style="width: 100%; font-size: 12px; padding: 4px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box;">
+                        </div>
+
+                        <div style="display: flex; gap: 10px; justify-content: space-between;">
+                            <button type="button" onclick="document.getElementById('tech-step-2').style.display='none'; document.getElementById('tech-step-1').style.display='block';" class="sm-btn sm-btn-outline" style="height: 38px; font-size: 12px;">← السابق</button>
+                            <button type="submit" id="btn_tech_submit" class="sm-btn" style="background: #dc2626; height: 38px; font-size: 12px; padding: 0 20px;">إرسال المشكلة</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Option 3: Thank Us & Rating Form -->
+            <div id="capsule-rating-view" style="display: none;">
+                <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 800; color: #0f172a; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px;">أشكرنا وتقييم الخدمة</h4>
+                <form id="eess_capsule_rating_form" onsubmit="eessSubmitCapsuleRating(event)">
+                    <!-- Star Rating Selector -->
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 8px;">اختر تقييمك للخدمة:</label>
+                        <div id="capsule-star-rating" style="display: inline-flex; gap: 8px; font-size: 28px; cursor: pointer; color: #f59e0b;">
+                            <span onclick="eessSetRatingStars(1)" id="star-1">★</span>
+                            <span onclick="eessSetRatingStars(2)" id="star-2">★</span>
+                            <span onclick="eessSetRatingStars(3)" id="star-3">★</span>
+                            <span onclick="eessSetRatingStars(4)" id="star-4">★</span>
+                            <span onclick="eessSetRatingStars(5)" id="star-5">★</span>
+                        </div>
+                        <input type="hidden" id="rating_stars_val" value="5">
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <label style="font-size: 12px; font-weight: 700; color: #334155;">تعليق أو رسالة شكر</label>
+                            <span id="rating_counter" style="font-size: 11px; font-weight: 700; color: #64748b;">0 / 250</span>
+                        </div>
+                        <textarea id="rating_comment" maxlength="250" rows="3" oninput="document.getElementById('rating_counter').innerText = this.value.length + ' / 250'" placeholder="اكتب كلمة شكر أو انطباعك عن المنظومة..." style="width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 10px; font-size: 13px; box-sizing: border-box;"></textarea>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; justify-content: space-between;">
+                        <button type="button" onclick="eessBackToCapsuleMenu()" class="sm-btn sm-btn-outline" style="height: 38px; font-size: 12px;">← العودة للقائمة</button>
+                        <button type="submit" id="btn_rating_submit" class="sm-btn" style="background: #16a34a; height: 38px; font-size: 12px; padding: 0 20px;">إرسال التقييم</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+let eessSelectedStars = 5;
+
+function eessOpenSupportHelpCapsule() {
+    eessBackToCapsuleMenu();
+    document.getElementById('eess-support-capsule-modal').style.display = 'flex';
+}
+
+function eessCloseSupportHelpCapsule() {
+    document.getElementById('eess-support-capsule-modal').style.display = 'none';
+}
+
+function eessBackToCapsuleMenu() {
+    document.getElementById('eess-capsule-msg').style.display = 'none';
+    document.getElementById('capsule-menu-view').style.display = 'block';
+    document.getElementById('capsule-suggestion-view').style.display = 'none';
+    document.getElementById('capsule-tech-view').style.display = 'none';
+    document.getElementById('capsule-rating-view').style.display = 'none';
+    document.getElementById('tech-step-1').style.display = 'block';
+    document.getElementById('tech-step-2').style.display = 'none';
+}
+
+function eessSelectCapsuleOption(option) {
+    document.getElementById('capsule-menu-view').style.display = 'none';
+    document.getElementById('eess-capsule-msg').style.display = 'none';
+
+    if (option === 'suggestion') {
+        document.getElementById('capsule-suggestion-view').style.display = 'block';
+    } else if (option === 'technical_issue') {
+        document.getElementById('capsule-tech-view').style.display = 'block';
+    } else if (option === 'rating') {
+        document.getElementById('capsule-rating-view').style.display = 'block';
+        eessSetRatingStars(5);
+    }
+}
+
+function eessSetRatingStars(count) {
+    eessSelectedStars = count;
+    document.getElementById('rating_stars_val').value = count;
+    for (let i = 1; i <= 5; i++) {
+        const star = document.getElementById('star-' + i);
+        if (i <= count) {
+            star.style.color = '#f59e0b';
+        } else {
+            star.style.color = '#cbd5e1';
+        }
+    }
+}
+
+function eessShowCapsuleMsg(msg, isError) {
+    const box = document.getElementById('eess-capsule-msg');
+    box.innerText = msg;
+    box.style.display = 'block';
+    if (isError) {
+        box.style.background = '#fef2f2';
+        box.style.color = '#991b1b';
+        box.style.border = '1px solid #fecaca';
+    } else {
+        box.style.background = '#f0fdf4';
+        box.style.color = '#166534';
+        box.style.border = '1px solid #bbf7d0';
+    }
+}
+
+function eessSubmitCapsuleSuggestion(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn_sug_submit');
+    btn.disabled = true;
+    btn.innerText = 'جاري الإرسال...';
+
+    const formData = new FormData();
+    formData.append('action', 'eess_submit_support_request');
+    formData.append('category', 'suggestion');
+    formData.append('title', document.getElementById('sug_title').value);
+    formData.append('details', document.getElementById('sug_details').value);
+
+    fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(res => {
+        btn.disabled = false;
+        btn.innerText = 'إرسال المقترح';
+        if (res.success) {
+            eessShowCapsuleMsg(res.data.message, false);
+            document.getElementById('eess_capsule_sug_form').reset();
+            document.getElementById('sug_counter').innerText = '0 / 1000';
+        } else {
+            eessShowCapsuleMsg(res.data, true);
+        }
+    });
+}
+
+function eessSubmitCapsuleTechnicalIssue(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn_tech_submit');
+    btn.disabled = true;
+    btn.innerText = 'جاري الإرسال...';
+
+    const formData = new FormData();
+    formData.append('action', 'eess_submit_support_request');
+    formData.append('category', 'technical_issue');
+    formData.append('title', document.getElementById('tech_title').value);
+    formData.append('details', document.getElementById('tech_details').value);
+
+    const fileInput = document.getElementById('tech_file');
+    if (fileInput.files.length > 0) {
+        formData.append('screenshot', fileInput.files[0]);
+    }
+
+    fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(res => {
+        btn.disabled = false;
+        btn.innerText = 'إرسال المشكلة';
+        if (res.success) {
+            eessShowCapsuleMsg(res.data.message, false);
+            document.getElementById('eess_capsule_tech_form').reset();
+        } else {
+            eessShowCapsuleMsg(res.data, true);
+        }
+    });
+}
+
+function eessSubmitCapsuleRating(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn_rating_submit');
+    btn.disabled = true;
+    btn.innerText = 'جاري الإرسال...';
+
+    const formData = new FormData();
+    formData.append('action', 'eess_submit_support_request');
+    formData.append('category', 'rating');
+    formData.append('rating_stars', document.getElementById('rating_stars_val').value);
+    formData.append('comment', document.getElementById('rating_comment').value);
+
+    fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(res => {
+        btn.disabled = false;
+        btn.innerText = 'إرسال التقييم';
+        if (res.success) {
+            eessShowCapsuleMsg(res.data.message, false);
+            document.getElementById('eess_capsule_rating_form').reset();
+            document.getElementById('rating_counter').innerText = '0 / 250';
+        } else {
+            eessShowCapsuleMsg(res.data, true);
+        }
+    });
+}
 </script>

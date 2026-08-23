@@ -316,10 +316,29 @@ class SM_Activator {
             KEY status (status)
         ) $charset_collate;";
 
+        // Technical Support & Feedback Requests Table
+        $sql_support_requests = "CREATE TABLE {$wpdb->prefix}sm_support_requests (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) NOT NULL,
+            category varchar(50) NOT NULL,
+            title varchar(255) DEFAULT '' NOT NULL,
+            details text DEFAULT NULL,
+            attachment_url varchar(255) DEFAULT '' NOT NULL,
+            rating_stars int(11) DEFAULT 0 NOT NULL,
+            status varchar(50) DEFAULT 'new' NOT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+            PRIMARY KEY  (id),
+            KEY user_id (user_id),
+            KEY category (category),
+            KEY status (status)
+        ) $charset_collate;";
+
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
         dbDelta($sql_announcements);
         dbDelta($sql_user_announcements);
+        dbDelta($sql_support_requests);
 
         self::add_custom_roles();
         self::seed_demo_data();
