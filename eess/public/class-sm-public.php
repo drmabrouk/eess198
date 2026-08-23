@@ -4104,6 +4104,47 @@ class SM_Public {
         }
     }
 
+    public function ajax_submit_behavior_referral() {
+        if (!is_user_logged_in()) {
+            wp_send_json_error('عفواً، يجب تسجيل الدخول لتقديم المخالفة السلوكية.');
+        }
+
+        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'sm_record_action')) {
+            wp_send_json_error('انتهت صلاحية الجلسة. يرجى إعادة المحاولة.');
+        }
+
+        $student_id     = intval($_POST['student_id'] ?? 0);
+        $title          = sanitize_text_field($_POST['title'] ?? '');
+        $classification = sanitize_text_field($_POST['classification'] ?? 'inside_class');
+        $degree         = intval($_POST['degree'] ?? 1);
+        $details        = sanitize_textarea_field($_POST['details'] ?? '');
+
+        if (!$student_id || empty($title) || empty($details)) {
+            wp_send_json_error('جميع الحقول الأساسية مطلوبة.');
+        }
+
+        $user = wp_get_current_user();
+
+        // Save referral record
+        $record_id = SM_DB::add_record(array(
+            'student_id'     => $student_id,
+            'teacher_id'     => $user->ID,
+            'type'           => $title,
+            'classification' => $classification,
+            'severity'       => ($degree == 3) ? 'high' : (($degree == 2) ? 'medium' : 'low'),
+            'degree'         => $degree,
+            'details'        => $details,
+            'status'         => 'submitted' // Under review by Discipline Supervisor
+        ));
+
+        if ($record_id) {
+            SM_Logger::log('تقديم مخالفة سلوكية لطالب', "قدم المعلم {$user->display_name} إحالة سلوكية لطالب ID: $student_id بعنوان: $title");
+            wp_send_json_success(array('record_id' => $record_id, 'message' => 'تم تقديم المخالفة السلوكية بنجاح وهي قيد مراجعة وتأكيد مشرف السلوك.'));
+        } else {
+            wp_send_json_error('حدث خطأ أثناء حفظ الإحالة السلوكية.');
+        }
+    }
+
     public function ajax_refresh_system() {
         if (!is_user_logged_in()) {
             wp_send_json_error('Unauthorized');

@@ -57,34 +57,33 @@ if ($is_reviewer) {
 
 <div class="sm-content-wrapper" dir="rtl" style="font-family: 'Cairo', sans-serif !important;">
 
-    <!-- Navigation Header / Progress Dashboard -->
-    <div style="background: #ffffff; padding: 24px 28px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 24px; box-shadow: 0 4px 18px rgba(0,0,0,0.02);">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; margin-bottom: 20px;">
-            <div style="display: flex; align-items: center; gap: 14px;">
-                <div style="width: 48px; height: 48px; background: #eff6ff; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #2563eb; border: 1px solid #dbeafe;">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                </div>
-                <div>
-                    <h2 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 800; color: #0f172a;">الخطة الفصلية والسنوية للمدرس</h2>
-                    <p style="margin: 0; font-size: 13px; color: #64748b;">إعداد وإدارة الخطط التعليمية والتوزيع الأسبوعي للمناهج الدراسية واعتمادها المباشر</p>
-                </div>
+    <!-- Single Consolidated Top Header Banner -->
+    <div style="background: #ffffff; padding: 22px 28px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 24px; box-shadow: 0 4px 18px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <div style="width: 50px; height: 50px; background: #eff6ff; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: #2563eb; border: 1px solid #dbeafe; flex-shrink: 0;">
+                <svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             </div>
-
-            <!-- Tab Switching & Print Buttons -->
-            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=annual_plan&teacher_id=' . $user_id); ?>" target="_blank" class="sm-btn" style="background: #16a34a; color: #fff !important; height: 38px; border-radius: 10px; padding: 0 16px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-                    🖨️ طباعة الخطة السنوية (PDF)
-                </a>
-                <button type="button" onclick="switchTermPlanTab('teacher-dashboard')" id="btn-tab-teacher" class="sm-btn" style="background: #2563eb; color: #fff; height: 38px; border-radius: 10px; padding: 0 18px; font-weight: 800; border: none; cursor: pointer;">
-                    إعداد وخطة المدرس
-                </button>
-                <?php if ($is_reviewer): ?>
-                    <button type="button" onclick="switchTermPlanTab('reviewer-dashboard')" id="btn-tab-reviewer" class="sm-btn" style="background: #f1f5f9; color: #475569; height: 38px; border-radius: 10px; padding: 0 18px; font-weight: 800; border: 1px solid #cbd5e1; cursor: pointer;">
-                        مراجعة واعتماد الخطط المقدمة
-                    </button>
-                <?php endif; ?>
+            <div>
+                <h2 style="margin: 0 0 4px 0; font-size: 21px; font-weight: 800; color: #0f172a;">الخطط الفصلية والسنوية للمدرس</h2>
+                <p style="margin: 0; font-size: 13px; color: #64748b; font-weight: 500;">إعداد وإدارة الخطط التعليمية والتوزيع الأسبوعي للمناهج الدراسية والاعتماد المباشر</p>
             </div>
         </div>
+
+        <!-- Primary Top Banner Actions -->
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=annual_plan&teacher_id=' . $user_id); ?>" target="_blank" class="sm-btn" style="background: #16a34a; color: #fff !important; height: 40px; border-radius: 12px; padding: 0 16px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                🖨️ طباعة الخطة السنوية
+            </a>
+            <button type="button" onclick="eessOpenPlanSetupWizard()" class="sm-btn" style="background: #2563eb; color: #fff; height: 40px; border-radius: 12px; padding: 0 18px; font-weight: 800; border: none; cursor: pointer;">
+                إعداد وخطة المدرس
+            </button>
+            <?php if ($is_reviewer): ?>
+                <button type="button" onclick="switchTermPlanTab('reviewer-dashboard')" id="btn-tab-reviewer" class="sm-btn" style="background: #f8fafc; color: #334155; height: 40px; border-radius: 12px; padding: 0 18px; font-weight: 800; border: 1px solid #cbd5e1; cursor: pointer;">
+                    مراجعة واعتماد الخطط المقدمة
+                </button>
+            <?php endif; ?>
+        </div>
+    </div>
 
         <!-- Annual Progress Overview Bar -->
         <div style="background: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0;">
@@ -300,6 +299,133 @@ if ($is_reviewer) {
 
 </div>
 
+<!-- Professional Multi-Step Plan Setup Wizard Modal -->
+<div id="eess-plan-setup-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif; direction: rtl;">
+    <div style="background: #ffffff; border-radius: 20px; max-width: 720px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); overflow: hidden; display: flex; flex-direction: column; max-height: 88vh;">
+        <!-- Wizard Header -->
+        <div style="background: #1e293b; color: #ffffff; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="dashicons dashicons-calendar-alt" style="color: #60a5fa; font-size: 22px; width: 22px; height: 22px; margin: 0;"></span>
+                <h3 style="margin: 0; font-size: 16px; font-weight: 800; font-family: 'Cairo', sans-serif;">معالج إعداد وخطة المدرس (الخطط الفصلية والسنوية)</h3>
+            </div>
+            <button type="button" onclick="eessClosePlanSetupWizard()" style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer; line-height: 1;">&times;</button>
+        </div>
+
+        <!-- Progress Steps -->
+        <div style="background: #f8fafc; padding: 12px 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+            <div id="wiz-step-node-1" class="ref-step-node ref-step-active">1. الإعدادات</div>
+            <div id="wiz-step-node-2" class="ref-step-node">2. التواريخ والأسابيع</div>
+            <div id="wiz-step-node-3" class="ref-step-node">3. تخطيط الدروس الأسبوعي</div>
+            <div id="wiz-step-node-4" class="ref-step-node">4. الاعتماد والتصدير</div>
+        </div>
+
+        <!-- Wizard Body Container -->
+        <form id="eess-wizard-setup-form" style="padding: 24px; overflow-y: auto; flex: 1;" onsubmit="eessSaveWizardPlanSubmit(event)">
+            <!-- Step 1 -->
+            <div id="wiz-step-1" class="wiz-step-content" style="display: block;">
+                <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 800; color: #0f172a;">الخطوة 1: تحديد المادة والصف ونظام الفصول</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">العام الأكاديمي *</label>
+                        <input type="text" id="wiz_academic_year" class="sm-input" value="<?php echo esc_attr($active_academic_year); ?>" required style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px;">
+                    </div>
+                    <div>
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">المادة الدراسية *</label>
+                        <select id="wiz_subject" class="sm-select" required style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 13px;">
+                            <option value="">-- اختر المادة --</option>
+                            <?php foreach ($unique_subjects as $subj): ?>
+                                <option value="<?php echo esc_attr($subj); ?>"><?php echo esc_html($subj); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">الصف الدراسي *</label>
+                        <select id="wiz_grade" class="sm-select" required style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 13px;">
+                            <option value="">-- اختر الصف --</option>
+                            <?php
+                            foreach ($academic['active_grades'] as $g) {
+                                echo "<option value='الصف $g'>الصف $g</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">الحصص الأسبوعية *</label>
+                        <input type="number" id="wiz_weekly_lessons" min="1" max="10" value="2" required style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div id="wiz-step-2" class="wiz-step-content" style="display: none;">
+                <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 800; color: #0f172a;">الخطوة 2: تحديد تاريخ البداية والنهاية وحساب الأسابيع</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">الفصل الدراسي المراد تخطيطه *</label>
+                        <select id="wiz_term_number" class="sm-select" style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 13px;">
+                            <option value="1">الفصل الدراسي الأول (Term 1)</option>
+                            <option value="2">الفصل الدراسي الثاني (Term 2)</option>
+                            <option value="3">الفصل الدراسي الثالث (Term 3)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">عدد الفصول بالعام</label>
+                        <select id="wiz_num_terms" class="sm-select" style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 13px;">
+                            <option value="3">3 فصول دراسية</option>
+                            <option value="2">فصلان دراسيان</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">تاريخ بداية الفصل *</label>
+                        <input type="date" id="wiz_start_date" onchange="wizCalculateWeeksAuto()" class="sm-input" required style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 12.5px;">
+                    </div>
+                    <div>
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">تاريخ نهاية الفصل *</label>
+                        <input type="date" id="wiz_end_date" onchange="wizCalculateWeeksAuto()" class="sm-input" required style="height: 40px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 12.5px;">
+                    </div>
+                </div>
+
+                <div style="background: #f0f9ff; border: 1px solid #bae6fd; padding: 12px 18px; border-radius: 12px; font-size: 13px; color: #0369a1; font-weight: 700;">
+                    إجمالي الأسابيع المحسوبة تلقائياً للفصل: <strong id="wiz_weeks_count_label" style="color: #2563eb; font-size: 15px;">0 أسابيع</strong>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div id="wiz-step-3" class="wiz-step-content" style="display: none;">
+                <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 800; color: #0f172a;">الخطوة 3: التوزيع الأسبوعي للدروس وملخص المحتوى</h4>
+                <div id="wiz_weekly_inputs_grid" style="display: flex; flex-direction: column; gap: 14px; max-height: 45vh; overflow-y: auto; padding-right: 5px;">
+                    <!-- Generated via JS -->
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div id="wiz-step-4" class="wiz-step-content" style="display: none;">
+                <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 800; color: #0f172a;">الخطوة 4: مراجعة الخطة والاعتماد / حفظ كمسودة</h4>
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 15px; font-size: 13px;">
+                    <div style="margin-bottom: 8px;"><strong>المادة والصف:</strong> <span id="wiz_rev_subj_grade">---</span></div>
+                    <div style="margin-bottom: 8px;"><strong>تاريخ الفصل:</strong> <span id="wiz_rev_dates">---</span></div>
+                    <div style="margin-bottom: 8px;"><strong>عدد الأسابيع المخططة:</strong> <span id="wiz_rev_weeks">---</span></div>
+                    <div style="color: #16a34a; font-weight: 700; margin-top: 10px;">✓ يتم حفظ التقدم تلقائياً كمسودة آمنة استعادة البيانات.</div>
+                </div>
+            </div>
+
+            <!-- Wizard Footer Buttons -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
+                <button type="button" id="wiz-prev-btn" onclick="wizNav(-1)" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 10px; padding: 8px 18px; font-weight: 700; font-size: 13px; cursor: pointer; display: none;">← السابق</button>
+                <div></div>
+                <button type="button" id="wiz-next-btn" onclick="wizNav(1)" style="background: #2563eb; color: #ffffff; border: none; border-radius: 10px; padding: 8px 22px; font-weight: 800; font-size: 13.5px; cursor: pointer;">المتابعة للخطوة التالية →</button>
+                <button type="submit" id="wiz-submit-btn" style="background: #16a34a; color: #ffffff; border: none; border-radius: 10px; padding: 8px 24px; font-weight: 800; font-size: 13.5px; cursor: pointer; display: none;">رفع الخطة المكتملة للاعتماد</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Inspection & Approval Modal -->
 <div id="tp_inspect_modal" class="sm-modal-overlay" style="display: none;">
     <div class="sm-modal-content" style="max-width: 750px; border-radius: 20px; padding: 28px;">
@@ -453,6 +579,143 @@ function saveTermPlanDraft(targetStatus = 'draft', isSilent = false) {
                     smShowNotification(targetStatus === 'submitted' ? 'تم رفع الخطة الفصلية للاعتماد بنجاح' : 'تم حفظ المسودة بنجاح');
                 }
             }
+        }
+    });
+}
+
+let wizCurrentStep = 1;
+
+function eessOpenPlanSetupWizard() {
+    wizCurrentStep = 1;
+    updateWizardUI();
+    document.getElementById('eess-plan-setup-modal').style.display = 'flex';
+}
+
+function eessClosePlanSetupWizard() {
+    document.getElementById('eess-plan-setup-modal').style.display = 'none';
+}
+
+function wizCalculateWeeksAuto() {
+    const sDate = document.getElementById('wiz_start_date').value;
+    const eDate = document.getElementById('wiz_end_date').value;
+    const label = document.getElementById('wiz_weeks_count_label');
+
+    if (sDate && eDate) {
+        const t1 = new Date(sDate).getTime();
+        const t2 = new Date(eDate).getTime();
+        if (t2 >= t1) {
+            const days = Math.floor((t2 - t1) / (1000 * 60 * 60 * 24));
+            const weeks = Math.max(1, Math.ceil(days / 7));
+            label.innerText = weeks + ' أسابيع';
+            return weeks;
+        }
+    }
+    label.innerText = '0 أسابيع';
+    return 0;
+}
+
+function wizNav(dir) {
+    if (dir === 1) {
+        if (wizCurrentStep === 1) {
+            if (!document.getElementById('wiz_subject').value || !document.getElementById('wiz_grade').value) {
+                alert('يرجى اختيار المادة والصف الدراسي');
+                return;
+            }
+        }
+        if (wizCurrentStep === 2) {
+            if (!document.getElementById('wiz_start_date').value || !document.getElementById('wiz_end_date').value) {
+                alert('يرجى تحديد بداية ونهاية الفصل الدراسي');
+                return;
+            }
+            generateWizWeeklyFields();
+        }
+    }
+
+    wizCurrentStep += dir;
+    if (wizCurrentStep < 1) wizCurrentStep = 1;
+    if (wizCurrentStep > 4) wizCurrentStep = 4;
+
+    if (wizCurrentStep === 4) {
+        document.getElementById('wiz_rev_subj_grade').innerText = document.getElementById('wiz_subject').value + ' - ' + document.getElementById('wiz_grade').value;
+        document.getElementById('wiz_rev_dates').innerText = document.getElementById('wiz_start_date').value + ' إلى ' + document.getElementById('wiz_end_date').value;
+        document.getElementById('wiz_rev_weeks').innerText = wizCalculateWeeksAuto() + ' أسابيع';
+    }
+
+    updateWizardUI();
+}
+
+function updateWizardUI() {
+    for (let i = 1; i <= 4; i++) {
+        document.getElementById('wiz-step-' + i).style.display = (i === wizCurrentStep) ? 'block' : 'none';
+        const node = document.getElementById('wiz-step-node-' + i);
+        if (node) {
+            if (i === wizCurrentStep) node.classList.add('ref-step-active');
+            else node.classList.remove('ref-step-active');
+        }
+    }
+
+    document.getElementById('wiz-prev-btn').style.display = (wizCurrentStep > 1) ? 'inline-block' : 'none';
+    document.getElementById('wiz-next-btn').style.display = (wizCurrentStep < 4) ? 'inline-block' : 'none';
+    document.getElementById('wiz-submit-btn').style.display = (wizCurrentStep === 4) ? 'inline-block' : 'none';
+}
+
+function generateWizWeeklyFields() {
+    const weeks = wizCalculateWeeksAuto();
+    const grid = document.getElementById('wiz_weekly_inputs_grid');
+    grid.innerHTML = '';
+
+    for (let i = 1; i <= weeks; i++) {
+        const card = document.createElement('div');
+        card.style.cssText = 'background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px;';
+        card.innerHTML = `
+            <div style="font-size: 13px; font-weight: 800; color: #2563eb;">الأسبوع ${i}</div>
+            <div>
+                <label style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px;">عنوان الدرس والموضوع الرئيسية:</label>
+                <input type="text" name="wiz_weeks[${i}][title]" class="sm-input wiz-week-input" placeholder="عنوان الدرس..." style="height: 38px; border-radius: 8px; padding: 0 10px; font-size: 12.5px; width: 100%;">
+            </div>
+            <div>
+                <label style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px;">ملخص المحتوى والأنشطة:</label>
+                <textarea name="wiz_weeks[${i}][summary]" class="sm-textarea wiz-week-input" rows="2" placeholder="ملخص المحتوى الأسبوعي..." style="border-radius: 8px; padding: 8px; font-size: 12.5px; width: 100%;"></textarea>
+            </div>
+        `;
+        grid.appendChild(card);
+    }
+}
+
+function eessSaveWizardPlanSubmit(e) {
+    e.preventDefault();
+    const btn = document.getElementById('wiz-submit-btn');
+    btn.disabled = true;
+    btn.innerText = 'جاري الحفظ والرفع...';
+
+    const formData = new FormData();
+    formData.append('action', 'sm_save_term_plan');
+    formData.append('sm_nonce', '<?php echo wp_create_nonce("sm_term_plan_action"); ?>');
+    formData.append('academic_year', document.getElementById('wiz_academic_year').value);
+    formData.append('subject', document.getElementById('wiz_subject').value);
+    formData.append('grade', document.getElementById('wiz_grade').value);
+    formData.append('weekly_lessons', document.getElementById('wiz_weekly_lessons').value);
+    formData.append('num_terms', document.getElementById('wiz_num_terms').value);
+    formData.append('term_number', document.getElementById('wiz_term_number').value);
+    formData.append('start_date', document.getElementById('wiz_start_date').value);
+    formData.append('end_date', document.getElementById('wiz_end_date').value);
+    formData.append('status', 'submitted');
+
+    document.querySelectorAll('.wiz-week-input').forEach(input => {
+        formData.append(input.name.replace('wiz_weeks', 'weeks'), input.value);
+    });
+
+    fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(res => {
+        btn.disabled = false;
+        btn.innerText = 'رفع الخطة المكتملة للاعتماد';
+        if (res.success) {
+            alert('تم إعداد ورفع الخطة الفصلية/السنوية بنجاح وبانتظار اعتماد المشرف.');
+            eessClosePlanSetupWizard();
+            setTimeout(() => location.reload(), 500);
+        } else {
+            alert('خطأ: ' + (res.data || 'تعذر حفظ البيانات'));
         }
     });
 }
