@@ -1,15 +1,36 @@
 <?php if (!defined('ABSPATH')) exit; ?>
-<div class="sm-content-wrapper" dir="rtl">
+<div class="sm-content-wrapper" dir="rtl" style="font-family: 'Cairo', sans-serif !important;">
 
-    <div style="background: var(--sm-bg-light); padding: 25px; border: 1px solid var(--sm-border-color); border-radius: 8px; margin-bottom: 30px;">
-        <form method="get" style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
-            <div style="flex: 1; min-width: 300px;">
-                <label class="sm-label">بحث عن ولي أمر (بالاسم أو البريد):</label>
-                <input type="text" name="parent_search" class="sm-input" value="<?php echo esc_attr(isset($_GET['parent_search']) ? $_GET['parent_search'] : ''); ?>" placeholder="أدخل بيانات ولي الأمر...">
+    <!-- Single Main Banner Header Card matching Reference UI -->
+    <div style="background: #ffffff; padding: 20px 24px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 18px; box-shadow: 0 4px 18px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 48px; height: 48px; background: #fef2f2; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #881337; border: 1px solid #fecdd3; flex-shrink: 0;">
+                <span class="dashicons dashicons-groups" style="font-size: 24px; width: 24px; height: 24px;"></span>
             </div>
-            <div style="display: flex; gap: 10px; align-self: flex-end;">
-                <button type="submit" class="sm-btn" style="width:auto;">بحث</button>
-                <a href="<?php echo remove_query_arg('parent_search'); ?>" class="sm-btn" style="width:auto; background:var(--sm-text-gray); text-decoration:none;">إعادة ضبط</a>
+            <div>
+                <h2 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 800; color: #0f172a;">إدارة أولياء الأمور</h2>
+                <p style="margin: 0; font-size: 12.5px; color: #64748b; font-weight: 500;">سجل واستدعاء أولياء الأمور ومتابعة علاقات الأبناء المسجلين في النظام</p>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button type="button" onclick="document.getElementById('add-parent-modal').style.display='flex'" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <span class="dashicons dashicons-plus-alt2" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
+                <span>إضافة ولي أمر جديد</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Search & Filter Card -->
+    <div style="background: #ffffff; padding: 18px 22px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+        <form method="get" style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 280px;">
+                <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px; display: block;">بحث عن ولي أمر (بالاسم، البريد، الجوال، أو اسم الطالب):</label>
+                <input type="text" name="parent_search" class="sm-input" value="<?php echo esc_attr(isset($_GET['parent_search']) ? $_GET['parent_search'] : ''); ?>" placeholder="أدخل اسم ولي الأمر أو بيانات الطالب..." style="height: 38px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 12.5px;">
+            </div>
+            <div style="display: flex; gap: 8px; align-self: flex-end;">
+                <button type="submit" class="sm-btn" style="background: #1e293b; color: #fff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer;">تطبيق البحث</button>
+                <a href="<?php echo remove_query_arg('parent_search'); ?>" class="sm-btn" style="background: #f1f5f9; color: #475569 !important; height: 38px; border-radius: 9999px !important; padding: 0 16px; font-weight: 700; font-size: 12.5px; border: 1px solid #cbd5e1; text-decoration: none; display: inline-flex; align-items: center;">إعادة ضبط</a>
             </div>
         </form>
     </div>
@@ -97,19 +118,28 @@
                         <?php endif; ?>
                     </div>
 
-                    <div style="flex: 1; display: flex; gap: 12px; justify-content: flex-end;">
+                    <!-- Standard 36px Circular Action Icons -->
+                    <div style="flex: 1; display: flex; gap: 8px; justify-content: flex-end; align-items: center;">
                         <?php
                             $parent_phone = get_user_meta($parent->ID, 'sm_phone', true);
                             $formatted_phone = SM_Settings::format_uae_phone($parent_phone);
+                            if (!empty($formatted_phone)):
+                                $wa_msg = rawurlencode("السلام عليكم ورحمة الله وبركاته، الأخ/ت العزيز/ة " . $parent->display_name);
                         ?>
-                        <button onclick="requestCallIn(<?php echo $parent->ID; ?>, '<?php echo esc_js($parent->display_name); ?>', '<?php echo esc_js($parent->user_email); ?>', '<?php echo esc_js($formatted_phone ?: ''); ?>')" class="sm-btn" style="background: #F8FAFC; color: #3182CE !important; border: 1px solid #BEE3F8; padding: 6px 15px; font-size: 11px; width: auto; font-weight: 800; box-shadow: none;">
-                            <span class="dashicons dashicons-calendar-alt" style="font-size:14px; margin-left:5px;"></span> طلب استدعاء
+                            <a href="https://wa.me/<?php echo $formatted_phone; ?>?text=<?php echo $wa_msg; ?>" target="_blank" title="تواصل عبر واتساب" style="width: 36px; height: 36px; border-radius: 50% !important; background: #dcfce7; color: #16a34a; border: 1px solid #86efac; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                <span class="dashicons dashicons-whatsapp" style="font-size: 18px; width: 18px; height: 18px; margin: 0;"></span>
+                            </a>
+                        <?php endif; ?>
+
+                        <button onclick="requestCallIn(<?php echo $parent->ID; ?>, '<?php echo esc_js($parent->display_name); ?>', '<?php echo esc_js($parent->user_email); ?>', '<?php echo esc_js($formatted_phone ?: ''); ?>')" title="طلب استدعاء ولي الأمر" style="width: 36px; height: 36px; border-radius: 50% !important; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                            <span class="dashicons dashicons-calendar-alt" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
                         </button>
+
                         <form method="post" style="display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف حساب ولي الأمر بالكامل؟')">
                             <?php wp_nonce_field('sm_user_action', 'sm_nonce'); ?>
                             <input type="hidden" name="delete_user_id" value="<?php echo $parent->ID; ?>">
-                            <button type="submit" name="sm_delete_user" class="sm-btn" style="background: #FFF5F5; color: #E53E3E !important; border: 1px solid #FED7D7; padding: 6px 15px; font-size: 11px; width: auto; font-weight: 800; box-shadow: none;">
-                                <span class="dashicons dashicons-trash" style="font-size:14px; margin-left:5px;"></span> حذف
+                            <button type="submit" name="sm_delete_user" title="حذف حساب ولي الأمر" style="width: 36px; height: 36px; border-radius: 50% !important; background: #fee2e2; color: #dc2626; border: 1px solid #fecdd3; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                <span class="dashicons dashicons-trash" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
                             </button>
                         </form>
                     </div>

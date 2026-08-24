@@ -426,12 +426,12 @@ $staff_users = get_users(array(
         </div>
     </div>
 
-    <!-- Complete Evaluation History Section -->
-    <div style="background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: var(--sm-shadow); padding: 25px;">
-        <h3 style="margin: 0 0 15px 0; font-weight: 800; color: #1e293b; font-size: 14px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">📈 أرشيف وسجل التقييمات التاريخي للعام الدراسي</h3>
+    <!-- Complete Evaluation History Section (Direct Clean Table without outer container framing) -->
+    <div style="margin-bottom: 25px;">
+        <h3 style="margin: 0 0 15px 0; font-weight: 800; color: #1e293b; font-size: 14px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">📈 أرشيف وسجل التقييمات التاريخي للعام الدراسي</h3>
 
-        <div class="sm-table-container">
-            <table class="sm-table" id="eess-eval-history-table" style="width:100%;">
+        <div style="overflow-x: auto;">
+            <table class="sm-table" id="eess-eval-history-table" style="width:100%; border-collapse: separate; border-spacing: 0; border: none;">
                 <thead>
                     <tr>
                         <th style="text-align: right; padding-right: 20px;">تفاصيل الموظف والتقييم</th>
