@@ -128,35 +128,64 @@ window.eessGoToStep = function(step) {
     }
 };
 
+window.eessToggleGradeCapsule = function(cb) {
+    if (!cb) return;
+    var parentLabel = cb.closest('.u-grade-capsule-label');
+    if (!parentLabel) return;
+
+    if (cb.checked) {
+        parentLabel.style.background = '#fef2f2';
+        parentLabel.style.borderColor = '#fecdd3';
+        parentLabel.style.color = '#881337';
+    } else {
+        parentLabel.style.background = '#f1f5f9';
+        parentLabel.style.borderColor = '#cbd5e1';
+        parentLabel.style.color = '#334155';
+    }
+};
+
 window.eessRenderStepSummary = function() {
     var fn = document.getElementById('u_first_name').value;
     var ln = document.getElementById('u_last_name').value;
-    var empId = document.getElementById('u_employee_id').value;
+    var nat = document.getElementById('u_nationality').value || 'غير محدد';
+    var dob = document.getElementById('u_dob').value || 'غير محدد';
     var email = document.getElementById('u_user_email').value;
     var phone = document.getElementById('u_country_code').value + ' ' + document.getElementById('u_phone_number').value;
-    var dob = document.getElementById('u_dob').value || 'غير محدد';
-    var nat = document.getElementById('u_nationality').value || 'غير محدد';
+    var country = document.getElementById('u_country_residence').value;
+    var emirate = document.getElementById('u_emirate').value || 'غير محدد';
+
+    var roleSel = document.getElementById('u_user_role');
+    var roleTxt = roleSel.options[roleSel.selectedIndex] ? roleSel.options[roleSel.selectedIndex].text : '-';
+    var roleVal = roleSel.value;
+    var empId = document.getElementById('u_employee_id').value;
 
     var instSel = document.getElementById('u_institution_id');
     var instTxt = instSel.options[instSel.selectedIndex] ? instSel.options[instSel.selectedIndex].text : '-';
 
-    var schSel = document.getElementById('u_school_id');
-    var schTxt = schSel.options[schSel.selectedIndex] ? schSel.options[schSel.selectedIndex].text : '-';
-
-    var roleSel = document.getElementById('u_user_role');
-    var roleTxt = roleSel.options[roleSel.selectedIndex] ? roleSel.options[roleSel.selectedIndex].text : '-';
-
     var specSel = document.getElementById('u_specialization');
     var specTxt = specSel.options[specSel.selectedIndex] ? specSel.options[specSel.selectedIndex].text : '-';
 
+    var checkedGrades = [];
+    document.querySelectorAll('input[name="assigned_grades[]"]:checked').forEach(function(g) {
+        checkedGrades.push(g.value);
+    });
+
     if (document.getElementById('rev_u_fullname')) document.getElementById('rev_u_fullname').innerText = fn + ' ' + ln;
-    if (document.getElementById('rev_u_empid')) document.getElementById('rev_u_empid').innerText = empId;
+    if (document.getElementById('rev_u_nat_dob')) document.getElementById('rev_u_nat_dob').innerText = nat + ' (' + dob + ')';
     if (document.getElementById('rev_u_email')) document.getElementById('rev_u_email').innerText = email;
     if (document.getElementById('rev_u_phone')) document.getElementById('rev_u_phone').innerText = phone;
-    if (document.getElementById('rev_u_dob')) document.getElementById('rev_u_dob').innerText = dob;
-    if (document.getElementById('rev_u_nationality')) document.getElementById('rev_u_nationality').innerText = nat;
-    if (document.getElementById('rev_u_school')) document.getElementById('rev_u_school').innerText = instTxt + ' / ' + schTxt;
-    if (document.getElementById('rev_u_role_subj')) document.getElementById('rev_u_role_subj').innerText = roleTxt + ' (' + specTxt + ')';
+    if (document.getElementById('rev_u_location')) document.getElementById('rev_u_location').innerText = country + ' - ' + emirate;
+    if (document.getElementById('rev_u_role_id')) document.getElementById('rev_u_role_id').innerText = roleTxt + ' (ID: ' + empId + ')';
+
+    if (roleVal === 'administrator') {
+        if (document.getElementById('rev_u_inst_container')) document.getElementById('rev_u_inst_container').style.display = 'none';
+        if (document.getElementById('rev_u_grades_container')) document.getElementById('rev_u_grades_container').style.display = 'none';
+    } else {
+        if (document.getElementById('rev_u_inst_container')) document.getElementById('rev_u_inst_container').style.display = 'block';
+        if (document.getElementById('rev_u_grades_container')) document.getElementById('rev_u_grades_container').style.display = 'block';
+        if (document.getElementById('rev_u_inst_subj')) document.getElementById('rev_u_inst_subj').innerText = instTxt + ' (' + specTxt + ')';
+        if (document.getElementById('rev_u_grades')) document.getElementById('rev_u_grades').innerText = checkedGrades.length > 0 ? checkedGrades.join('، ') : 'لا يوجد صوف محددة';
+    }
 };
 
 window.eessToggleChangePassword = function() {
@@ -199,13 +228,8 @@ window.eessValidateStep1 = function() {
     var valid = true;
     var firstName = document.getElementById('u_first_name');
     var lastName = document.getElementById('u_last_name');
-    var username = document.getElementById('u_username');
-    var email = document.getElementById('u_user_email');
-    var phone = document.getElementById('u_phone_number');
-    var empId = document.getElementById('u_employee_id');
-    var pass = document.getElementById('u_user_pass');
-    var passConf = document.getElementById('u_user_pass_confirm');
-    var passRow = document.getElementById('u_password_row');
+    var nationality = document.getElementById('u_nationality');
+    var dob = document.getElementById('u_dob');
 
     if (!firstName.value.trim()) {
         document.getElementById('err_u_first_name').style.display = 'block';
@@ -217,9 +241,29 @@ window.eessValidateStep1 = function() {
         valid = false;
     } else { document.getElementById('err_u_last_name').style.display = 'none'; }
 
-    if (!username.value.trim() && empId.value.trim()) {
-        username.value = empId.value.trim();
-    }
+    if (!nationality.value.trim()) {
+        document.getElementById('err_u_nationality').style.display = 'block';
+        valid = false;
+    } else { document.getElementById('err_u_nationality').style.display = 'none'; }
+
+    if (!dob.value.trim()) {
+        document.getElementById('err_u_dob').style.display = 'block';
+        valid = false;
+    } else { document.getElementById('err_u_dob').style.display = 'none'; }
+
+    return valid;
+};
+
+window.eessValidateStep2 = function() {
+    var valid = true;
+    var phone = document.getElementById('u_phone_number');
+    var email = document.getElementById('u_user_email');
+    var emirate = document.getElementById('u_emirate');
+
+    if (!phone.value.trim()) {
+        document.getElementById('err_u_phone_number').style.display = 'block';
+        valid = false;
+    } else { document.getElementById('err_u_phone_number').style.display = 'none'; }
 
     var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(email.value.trim())) {
@@ -227,40 +271,37 @@ window.eessValidateStep1 = function() {
         valid = false;
     } else { document.getElementById('err_u_user_email').style.display = 'none'; }
 
-    if (!phone.value.trim()) {
-        document.getElementById('err_u_phone_number').style.display = 'block';
+    if (!emirate.value) {
+        document.getElementById('err_u_emirate').style.display = 'block';
         valid = false;
-    } else { document.getElementById('err_u_phone_number').style.display = 'none'; }
+    } else { document.getElementById('err_u_emirate').style.display = 'none'; }
+
+    return valid;
+};
+
+window.eessValidateStep3 = function() {
+    var valid = true;
+    var role = document.getElementById('u_user_role');
+    var empId = document.getElementById('u_employee_id');
+    var inst = document.getElementById('u_institution_id');
+
+    if (!role.value) {
+        document.getElementById('err_u_user_role').style.display = 'block';
+        valid = false;
+    } else { document.getElementById('err_u_user_role').style.display = 'none'; }
 
     if (!empId.value.trim()) {
         document.getElementById('err_u_employee_id').style.display = 'block';
         valid = false;
     } else { document.getElementById('err_u_employee_id').style.display = 'none'; }
 
-    if (passRow && passRow.style.display !== 'none') {
-        if (!eessIsEditMode && pass.value.length < 6) {
-            document.getElementById('err_u_user_pass').style.display = 'block';
+    if (role.value !== 'administrator') {
+        if (!inst.value) {
+            document.getElementById('err_u_institution_id').style.display = 'block';
             valid = false;
-        } else { document.getElementById('err_u_user_pass').style.display = 'none'; }
-
-        if (pass.value !== passConf.value) {
-            document.getElementById('err_u_user_pass_confirm').style.display = 'block';
-            valid = false;
-        } else { document.getElementById('err_u_user_pass_confirm').style.display = 'none'; }
+        } else { document.getElementById('err_u_institution_id').style.display = 'none'; }
     }
 
-    return valid;
-};
-
-window.eessValidateStep2 = function() {
-    var valid = true;
-    var inst = document.getElementById('u_institution_id');
-    if (!inst.value) {
-        document.getElementById('err_u_institution_id').style.display = 'block';
-        valid = false;
-    } else {
-        document.getElementById('err_u_institution_id').style.display = 'none';
-    }
     return valid;
 };
 
@@ -299,19 +340,32 @@ window.eessCheckUniqueness = function(field) {
 
 window.eessOnRoleChanged = function() {
     var role = document.getElementById('u_user_role').value;
-    var subjWrapper = document.getElementById('u_subject_wrapper');
+    var isSysAdmin = (role === 'administrator');
+
+    var instWrapper = document.getElementById('u_inst_wrapper');
     var deptWrapper = document.getElementById('u_department_wrapper');
+    var subjWrapper = document.getElementById('u_subject_wrapper');
+    var gradesWrapper = document.getElementById('u_grades_wrapper');
+    var sectionsWrapper = document.getElementById('u_sections_wrapper');
 
-    if (role === 'sm_teacher' || role === 'teachers' || role === 'sm_hod') {
-        if (subjWrapper) subjWrapper.style.display = 'block';
-    } else {
-        if (subjWrapper) subjWrapper.style.display = 'none';
-    }
-
-    if (role === 'sm_principal' || role === 'school_manager' || role === 'administrator') {
+    if (isSysAdmin) {
+        if (instWrapper) instWrapper.style.display = 'none';
         if (deptWrapper) deptWrapper.style.display = 'none';
+        if (subjWrapper) subjWrapper.style.display = 'none';
+        if (gradesWrapper) gradesWrapper.style.display = 'none';
+        if (sectionsWrapper) sectionsWrapper.style.display = 'none';
+
+        var instSel = document.getElementById('u_institution_id');
+        if (instSel) instSel.required = false;
     } else {
+        if (instWrapper) instWrapper.style.display = 'block';
         if (deptWrapper) deptWrapper.style.display = 'block';
+        if (subjWrapper) subjWrapper.style.display = 'block';
+        if (gradesWrapper) gradesWrapper.style.display = 'block';
+        if (sectionsWrapper) sectionsWrapper.style.display = 'block';
+
+        var instSel = document.getElementById('u_institution_id');
+        if (instSel) instSel.required = true;
     }
 };
 
@@ -374,25 +428,31 @@ window.eessLoadUserData = function(userId) {
                 if (cc) cc.value = u.country_code;
             }
             document.getElementById('u_phone_number').value = u.phone_number || '';
-            document.getElementById('u_user_status').value = u.user_status || 'active';
             document.getElementById('u_civil_id').value = u.civil_id || '';
             if (document.getElementById('u_dob')) document.getElementById('u_dob').value = u.dob || '';
             if (document.getElementById('u_nationality')) document.getElementById('u_nationality').value = u.nationality || '';
+            if (document.getElementById('u_emirate') && u.emirate) document.getElementById('u_emirate').value = u.emirate;
 
             var normalizedRole = u.role || 'sm_teacher';
             if (normalizedRole === 'teachers') normalizedRole = 'sm_teacher';
             if (normalizedRole === 'school_manager') normalizedRole = 'sm_principal';
             if (normalizedRole === 'educational_supervisor') normalizedRole = 'sm_supervisor';
             if (normalizedRole === 'clinic') normalizedRole = 'sm_clinic';
-            if (normalizedRole === 'accountant') normalizedRole = 'sm_accountant';
 
             document.getElementById('u_user_role').value = normalizedRole;
-            document.getElementById('u_access_scope').value = u.access_scope || 'school';
             document.getElementById('u_institution_id').value = u.institution_id || '';
-            document.getElementById('u_school_id').value = u.school_id || '';
             document.getElementById('u_department').value = u.department || '';
             document.getElementById('u_specialization').value = u.specialization || '';
-            document.getElementById('u_official_title').value = u.official_title || '';
+            if (document.getElementById('u_assigned_sections') && u.assigned_sections) {
+                document.getElementById('u_assigned_sections').value = u.assigned_sections;
+            }
+
+            // Bind Grade Capsules
+            var assignedGrades = Array.isArray(u.assigned_grades) ? u.assigned_grades : [];
+            document.querySelectorAll('input[name="assigned_grades[]"]').forEach(function(cb) {
+                cb.checked = assignedGrades.includes(cb.value);
+                eessToggleGradeCapsule(cb);
+            });
 
             if (u.photo_url) {
                 document.getElementById('u_photo_preview').src = u.photo_url;

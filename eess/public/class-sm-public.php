@@ -6562,40 +6562,48 @@ class SM_Public {
         $civil_id     = get_user_meta($user_id, 'eess_civil_id', true);
         $dob          = get_user_meta($user_id, 'dob', true) ?: get_user_meta($user_id, 'sm_dob', true);
         $nationality  = get_user_meta($user_id, 'nationality', true) ?: get_user_meta($user_id, 'sm_nationality', true);
+        $emirate      = get_user_meta($user_id, 'eess_emirate', true) ?: '';
         $access_scope = get_user_meta($user_id, 'eess_access_scope', true) ?: 'school';
 
-        $institution_id = get_user_meta($user_id, 'eess_institution_id', true);
+        $institution_id = get_user_meta($user_id, 'eess_school_id', true) ?: get_user_meta($user_id, 'eess_institution_id', true);
         $school_id      = get_user_meta($user_id, 'eess_school_id', true) ?: get_user_meta($user_id, 'sm_school_id', true);
         $department     = get_user_meta($user_id, 'department', true) ?: get_user_meta($user_id, 'sm_department', true);
         $specialization = get_user_meta($user_id, 'specialization', true) ?: get_user_meta($user_id, 'sm_specialization', true);
-        $official_title = get_user_meta($user_id, 'official_title', true);
+        $assigned_sections = get_user_meta($user_id, 'eess_assigned_sections', true) ?: '';
 
-        $photo_url = get_user_meta($user_id, 'sm_profile_photo_url', true);
+        $assigned_grades = get_user_meta($user_id, 'eess_assigned_grades', true);
+        if (!is_array($assigned_grades)) {
+            $assigned_grades = json_decode($assigned_grades, true) ?: array();
+        }
+
+        $photo_url = get_user_meta($user_id, 'eess_profile_photo', true) ?: get_user_meta($user_id, 'sm_profile_photo_url', true);
         if (!$photo_url) {
             $photo_url = get_avatar_url($user_id);
         }
 
         wp_send_json_success(array(
-            'id'             => $user_id,
-            'first_name'     => $first_name,
-            'last_name'      => $last_name,
-            'user_login'     => $user->user_login,
-            'user_email'     => $user->user_email,
-            'country_code'   => $country_code,
-            'phone_number'   => $phone_number,
-            'employee_id'    => $employee_id,
-            'user_status'    => $user_status,
-            'civil_id'       => $civil_id,
-            'dob'            => $dob,
-            'nationality'    => $nationality,
-            'role'           => $role,
-            'access_scope'   => $access_scope,
-            'institution_id' => $institution_id,
-            'school_id'      => $school_id,
-            'department'     => $department,
-            'specialization' => $specialization,
-            'official_title' => $official_title,
-            'photo_url'      => $photo_url,
+            'id'                => $user_id,
+            'first_name'        => $first_name,
+            'last_name'         => $last_name,
+            'user_login'        => $user->user_login,
+            'user_email'        => $user->user_email,
+            'country_code'      => $country_code,
+            'phone_number'      => $phone_number,
+            'employee_id'       => $employee_id,
+            'user_status'       => $user_status,
+            'civil_id'          => $civil_id,
+            'dob'               => $dob,
+            'nationality'       => $nationality,
+            'emirate'           => $emirate,
+            'role'              => $role,
+            'access_scope'      => $access_scope,
+            'institution_id'    => $institution_id,
+            'school_id'         => $school_id,
+            'department'        => $department,
+            'specialization'    => $specialization,
+            'assigned_grades'   => $assigned_grades,
+            'assigned_sections' => $assigned_sections,
+            'photo_url'         => $photo_url,
         ));
     }
 
@@ -6641,13 +6649,19 @@ class SM_Public {
         $school_id      = intval($_POST['school_id'] ?? 0);
         $department     = sanitize_text_field($_POST['department'] ?? '');
         $specialization = sanitize_text_field($_POST['specialization'] ?? '');
-        $official_title = sanitize_text_field($_POST['official_title'] ?? '');
         $nationality    = sanitize_text_field($_POST['nationality'] ?? '');
         $dob            = sanitize_text_field($_POST['dob'] ?? '');
-        $institution_name = sanitize_text_field($_POST['institution_name'] ?? '');
+        $emirate        = sanitize_text_field($_POST['emirate'] ?? '');
+        $country_res    = sanitize_text_field($_POST['country_residence'] ?? 'الإمارات العربية المتحدة');
+        $sections       = sanitize_text_field($_POST['assigned_sections'] ?? '');
+        $grades         = isset($_POST['assigned_grades']) ? array_map('sanitize_text_field', (array)$_POST['assigned_grades']) : array();
 
-        if (empty($first_name) || empty($last_name) || empty($email) || empty($employee_id)) {
+        if (empty($first_name) || empty($last_name) || empty($email) || empty($raw_phone)) {
             wp_send_json_error('يرجى استكمال جميع الحقول الأساسية المطلوبة.');
+        }
+
+        if ($user_role !== 'administrator' && empty($employee_id)) {
+            wp_send_json_error('الرقم الوظيفي إلزامي.');
         }
 
         $display_name = trim($first_name . ' ' . $last_name);
@@ -7065,7 +7079,7 @@ class SM_Public {
     }
 
     public function ajax_submit_mobile_lesson() {
-        if (!wp_verify_nonce($_POST['sm_nonce'] ?? '', 'sm_mobile_prep_action') && !wp_verify_nonce($_POST['sm_nonce'] ?? '', 'sm_term_plan_action')) {
+        if (!wp_verify_nonce($_POST['sm_nonce'] ?? '', 'sm_mobile_prep_nonce') && !wp_verify_nonce($_POST['sm_nonce'] ?? '', 'sm_mobile_prep_action') && !wp_verify_nonce($_POST['sm_nonce'] ?? '', 'sm_term_plan_action')) {
             wp_send_json_error('فشل التوثيق الأمني للجلسة.');
         }
 
