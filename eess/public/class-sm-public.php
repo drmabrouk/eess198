@@ -382,17 +382,17 @@ class SM_Public {
                 </div>
             </div>
 
-            <!-- STEP 1: Employee ID Verification -->
+            <!-- STEP 1: Employee ID / Registered Phone Verification -->
             <div id="m-step-verify" style="background: #ffffff; border-radius: 16px; padding: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
                 <h3 style="margin: 0 0 15px 0; font-size: 15px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
                     <span style="background: #2563eb; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px;">1</span>
                     التحقق من هوية المعلم
                 </h3>
-                <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">أدخل الرقم الوظيفي / رقم الموظف الخاص بك للتحقق واسترجاع حسابك تلقائياً:</p>
+                <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">أدخل الرقم الوظيفي أو رقم الهاتف المحمول المسجل باسمك للتحقق واسترجاع حسابك تلقائياً:</p>
 
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px;">الرقم الوظيفي (Employee ID) <span style="color: #ef4444;">*</span></label>
-                    <input type="text" id="m_emp_id_input" placeholder="مثال: 10245" style="width: 100%; height: 44px; border: 1px solid #cbd5e1; border-radius: 10px; padding: 0 12px; font-size: 14px; font-weight: 700; box-sizing: border-box; outline: none;">
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px;">الرقم الوظيفي أو رقم الهاتف المحمول المسجل <span style="color: #ef4444;">*</span></label>
+                    <input type="text" id="m_emp_id_input" placeholder="أدخل رقم الموظف (مثال: 10245) أو رقم الجوال (مثال: 0501234567)" style="width: 100%; height: 44px; border: 1px solid #cbd5e1; border-radius: 10px; padding: 0 12px; font-size: 13.5px; font-weight: 700; box-sizing: border-box; outline: none;">
                 </div>
 
                 <div id="m_verify_msg" style="display: none; margin-bottom: 15px; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 700;"></div>
@@ -406,15 +406,17 @@ class SM_Public {
             <div id="m-step-confirm" style="display: none; background: #ffffff; border-radius: 16px; padding: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-top: 15px;">
                 <h3 style="margin: 0 0 15px 0; font-size: 15px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
                     <span style="background: #16a34a; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px;">✓</span>
-                    تأكيد هوية المعلم
+                    تأكيد هوية المعلم والتسكين
                 </h3>
 
-                <div style="background: #f1f5f9; border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 15px;">
                     <div style="font-size: 11px; color: #64748b; font-weight: 700;">اسم المعلم المعتمد:</div>
                     <div id="m_confirmed_name" style="font-size: 16px; font-weight: 800; color: #0f172a; margin-top: 2px;">-</div>
-                    <div style="display: flex; gap: 15px; margin-top: 8px; font-size: 12px; color: #475569;">
-                        <div><strong>المادة:</strong> <span id="m_confirmed_subject">-</span></div>
-                        <div><strong>الرقم:</strong> <span id="m_confirmed_empid">-</span></div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; font-size: 12px; color: #334155; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;">
+                        <div>🏫 <strong>المدرسة:</strong> <span id="m_confirmed_school">-</span></div>
+                        <div>📚 <strong>المادة:</strong> <span id="m_confirmed_subject">-</span></div>
+                        <div>📇 <strong>الرقم:</strong> <span id="m_confirmed_empid">-</span></div>
+                        <div>🏢 <strong>القسم:</strong> <span id="m_confirmed_dept">-</span></div>
                     </div>
                 </div>
 
@@ -510,7 +512,7 @@ class SM_Public {
                     msgBox.style.display = 'block';
                     msgBox.style.background = '#fef2f2';
                     msgBox.style.color = '#991b1b';
-                    msgBox.innerText = 'يرجى إدخال الرقم الوظيفي أولاً.';
+                    msgBox.innerText = 'يرجى إدخال الرقم الوظيفي أو رقم الجوال أولاً.';
                     return;
                 }
 
@@ -528,8 +530,10 @@ class SM_Public {
                     if (res.success) {
                         currentTeacherData = res.data;
                         document.getElementById('m_confirmed_name').innerText = res.data.teacher_name;
-                        document.getElementById('m_confirmed_subject').innerText = res.data.subject;
+                        document.getElementById('m_confirmed_school').innerText = res.data.school || 'المدرسة الرئيسية';
+                        document.getElementById('m_confirmed_subject').innerText = res.data.subject || 'عام';
                         document.getElementById('m_confirmed_empid').innerText = res.data.emp_id;
+                        document.getElementById('m_confirmed_dept').innerText = res.data.department || 'قسم المادة';
 
                         document.getElementById('m-step-confirm').style.display = 'block';
                         document.getElementById('m-step-confirm').scrollIntoView({ behavior: 'smooth' });
@@ -537,7 +541,7 @@ class SM_Public {
                         msgBox.style.display = 'block';
                         msgBox.style.background = '#fef2f2';
                         msgBox.style.color = '#991b1b';
-                        msgBox.innerText = res.data || 'الرقم الوظيفي غير صحيح.';
+                        msgBox.innerText = res.data || 'بيانات الاستدلال المدخلة غير مسجلة بالنظام.';
                     }
                 });
             }
@@ -557,9 +561,57 @@ class SM_Public {
                     }
                 }
 
+                if (currentTeacherData.grade) {
+                    document.getElementById('m_grade').value = currentTeacherData.grade;
+                }
+                if (currentTeacherData.section) {
+                    document.getElementById('m_section').value = currentTeacherData.section;
+                }
+
+                // Auto-restore LocalStorage draft if available
+                eessRestoreMobileDraft(currentTeacherData.teacher_id);
+
                 document.getElementById('m-step-form').style.display = 'block';
                 document.getElementById('m-step-form').scrollIntoView({ behavior: 'smooth' });
             }
+
+            function eessSaveMobileDraftAuto() {
+                if (!currentTeacherData) return;
+                const draft = {
+                    title: document.getElementById('m_title').value,
+                    subject: document.getElementById('m_subject').value,
+                    grade: document.getElementById('m_grade').value,
+                    section: document.getElementById('m_section').value,
+                    objectives: document.getElementById('m_objectives').value,
+                    warmup: document.getElementById('m_warmup').value,
+                    activities: document.getElementById('m_activities').value,
+                    evaluation: document.getElementById('m_evaluation').value
+                };
+                try {
+                    localStorage.setItem('eess_mobile_draft_' + currentTeacherData.teacher_id, JSON.stringify(draft));
+                } catch(e) {}
+            }
+
+            function eessRestoreMobileDraft(teacherId) {
+                try {
+                    const raw = localStorage.getItem('eess_mobile_draft_' + teacherId);
+                    if (raw) {
+                        const d = JSON.parse(raw);
+                        if (d.title && !document.getElementById('m_title').value) document.getElementById('m_title').value = d.title;
+                        if (d.grade && !document.getElementById('m_grade').value) document.getElementById('m_grade').value = d.grade;
+                        if (d.section && !document.getElementById('m_section').value) document.getElementById('m_section').value = d.section;
+                        if (d.objectives) document.getElementById('m_objectives').value = d.objectives;
+                        if (d.warmup) document.getElementById('m_warmup').value = d.warmup;
+                        if (d.activities) document.getElementById('m_activities').value = d.activities;
+                        if (d.evaluation) document.getElementById('m_evaluation').value = d.evaluation;
+                    }
+                } catch(e) {}
+            }
+
+            // Bind input listeners for auto-saving drafts
+            jQuery(document).on('input change', '#eess_mobile_prep_form input, #eess_mobile_prep_form textarea, #eess_mobile_prep_form select', function() {
+                eessSaveMobileDraftAuto();
+            });
 
             function eessSubmitMobileLesson(e) {
                 e.preventDefault();
@@ -6772,22 +6824,31 @@ class SM_Public {
     public function ajax_verify_employee_id() {
         $emp_id = isset($_POST['emp_id']) ? sanitize_text_field($_POST['emp_id']) : '';
         if (empty($emp_id)) {
-            wp_send_json_error('يرجى إدخال الرقم الوظيفي بشكل صحيح.');
+            wp_send_json_error('يرجى إدخال الرقم الوظيفي أو رقم الجوال بشكل صحيح.');
         }
 
-        $teacher = SM_DB::get_teacher_by_employee_id($emp_id);
+        $teacher = SM_DB::get_teacher_by_employee_id_or_phone($emp_id);
         if (!$teacher) {
-            wp_send_json_error('الرقم الوظيفي المدخل غير مسجل في ملفات المعلمين بالنظام.');
+            wp_send_json_error('بيانات الاستدلال المدخلة (الرقم الوظيفي / رقم الجوال) غير مسجلة في ملفات المعلمين بالنظام.');
         }
 
-        $subject = get_user_meta($teacher->ID, 'sm_specialization', true) ?: (get_user_meta($teacher->ID, 'subject', true) ?: 'عام');
+        $subject = get_user_meta($teacher->ID, 'sm_specialization', true) ?: (get_user_meta($teacher->ID, 'specialization', true) ?: (get_user_meta($teacher->ID, 'subject', true) ?: 'عام'));
+        $school  = get_user_meta($teacher->ID, 'eess_school_name', true) ?: (get_user_meta($teacher->ID, 'sm_school_name', true) ?: 'المدرسة الرئيسية');
+        $dept    = get_user_meta($teacher->ID, 'eess_department', true) ?: 'قسم المادة';
         $classes = get_user_meta($teacher->ID, 'sm_assigned_classes', true) ?: array();
+        $grade   = get_user_meta($teacher->ID, 'sm_grade_level', true) ?: (get_user_meta($teacher->ID, 'grade', true) ?: '');
+        $section = get_user_meta($teacher->ID, 'sm_class_section', true) ?: (get_user_meta($teacher->ID, 'section', true) ?: '');
+        $emp_code= get_user_meta($teacher->ID, 'eess_employee_number', true) ?: (get_user_meta($teacher->ID, 'sm_employee_id', true) ?: $emp_id);
 
         wp_send_json_success(array(
             'teacher_id'   => $teacher->ID,
-            'emp_id'       => $emp_id,
+            'emp_id'       => $emp_code,
             'teacher_name' => $teacher->display_name,
+            'school'       => $school,
+            'department'   => $dept,
             'subject'      => $subject,
+            'grade'        => $grade,
+            'section'      => $section,
             'classes'      => $classes
         ));
     }
