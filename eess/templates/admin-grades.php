@@ -24,24 +24,6 @@ $students = SM_DB::get_students();
                 <button class="sm-tab-btn" onclick="smOpenInternalTab('subject-mgmt', this)">إدارة المواد</button>
             <?php endif; ?>
         </div>
-        <div style="display: flex; gap: 10px;">
-            <a href="<?php echo admin_url('admin-ajax.php?action=sm_export_grades_csv'); ?>" class="sm-btn" style="background: #16a34a; color: white !important; font-size: 12px; height: 36px; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; text-decoration: none;">
-                <span class="dashicons dashicons-download" style="font-size: 16px; width: 16px; height: 16px;"></span> تصدير نموذج Excel
-            </a>
-            <button type="button" onclick="jQuery('#import-grades-form-card').slideToggle()" class="sm-btn" style="background: #2563eb; color: white !important; font-size: 12px; height: 36px; display: inline-flex; align-items: center; gap: 6px; font-weight: 700;">
-                <span class="dashicons dashicons-upload" style="font-size: 16px; width: 16px; height: 16px;"></span> استيراد درجات Excel
-            </button>
-        </div>
-    </div>
-
-    <!-- Excel Grades Import Drawer -->
-    <div id="import-grades-form-card" style="display: none; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
-        <h4 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 800; color: #0f172a;">استيراد درجات الطلاب عبر ملف Excel (10 أعمدة)</h4>
-        <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">قم بتحميل النموذج المعتمد بالضغط على زر "تصدير نموذج Excel"، واملأ الدرجات والملاحظات ثم ارفع الملف هنا:</p>
-        <form id="eess-import-grades-form" onsubmit="eessSubmitImportGrades(event)">
-            <input type="file" name="csv_file" accept=".csv" required style="font-size: 12px; margin-bottom: 15px; display: block;">
-            <button type="submit" class="sm-btn" style="background: #16a34a; width: 180px; height: 36px; font-size: 12px;">بدء رفع واستيراد الدرجات</button>
-        </form>
     </div>
 
     <script>

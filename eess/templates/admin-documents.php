@@ -99,7 +99,6 @@
         <?php endif; ?>
     </div>
 
-    <?php if (current_user_can('إدارة_النظام')): ?>
     <!-- Add Document Modal -->
     <div id="add-doc-modal" class="sm-modal-overlay">
         <div class="sm-modal-content" style="max-width: 500px;">
@@ -194,7 +193,6 @@
             </form>
         </div>
     </div>
-    <?php endif; ?>
 
     <script>
     function printPDF(url) {
