@@ -5,9 +5,10 @@ $user = wp_get_current_user();
 $user_id = $user->ID;
 $user_roles = (array) $user->roles;
 
+$is_activities_sup = in_array('sm_activities_supervisor', $user_roles);
 $is_admin = current_user_can('manage_options') || in_array('administrator', $user_roles) || in_array('sm_system_admin', $user_roles);
-$is_reviewer = $is_admin || in_array('sm_principal', $user_roles) || in_array('sm_supervisor', $user_roles) || in_array('sm_coordinator', $user_roles) || in_array('sm_hod', $user_roles);
-$is_teacher = in_array('sm_teacher', $user_roles) || $is_admin;
+$is_reviewer = $is_admin || in_array('sm_principal', $user_roles) || in_array('sm_supervisor', $user_roles) || in_array('sm_coordinator', $user_roles) || in_array('sm_hod', $user_roles) || $is_activities_sup;
+$is_teacher = (in_array('sm_teacher', $user_roles) || $is_admin) && !$is_activities_sup;
 
 global $wpdb;
 
@@ -425,6 +426,7 @@ $arabic_term_names = array(
 
         <!-- Wizard Body Container -->
         <form id="eess-wizard-setup-form" style="padding: 24px; overflow-y: auto; flex: 1;" onsubmit="eessSaveWizardPlanSubmit(event)">
+            <input type="hidden" name="plan_id" id="tp_plan_id" value="0">
             <!-- Step 1 -->
             <div id="wiz-step-1" class="wiz-step-content" style="display: block;">
                 <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 800; color: #0f172a;">الخطوة 1: تحديد المادة والصف ونظام الفصول</h4>

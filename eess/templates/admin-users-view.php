@@ -75,12 +75,32 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
 
 <div class="sm-content-wrapper" style="font-family: 'Cairo', sans-serif;" dir="rtl">
 
+    <!-- Single Header Card matching Reference UI -->
+    <div style="background: #ffffff; padding: 20px 24px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px; box-shadow: 0 4px 18px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 48px; height: 48px; background: #fef2f2; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #881337; border: 1px solid #fecdd3; flex-shrink: 0;">
+                <span class="dashicons dashicons-admin-users" style="font-size: 24px; width: 24px; height: 24px;"></span>
+            </div>
+            <div>
+                <h2 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 800; color: #0f172a;">إدارة مستخدمي النظام</h2>
+                <p style="margin: 0; font-size: 12.5px; color: #64748b; font-weight: 500;">إدارة وتعديل حسابات الكادر التعليمي والإداري، التخصصات والصلاحيات في المنصة</p>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button type="button" onclick="eessOpenUnifiedUserModal('add_user', 0)" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <span class="dashicons dashicons-plus-alt2" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
+                <span>إضافة مستخدم جديد</span>
+            </button>
+        </div>
+    </div>
+
     <!-- User Management Tabs -->
-    <div style="display: flex; gap: 15px; margin-bottom: 25px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
-        <button onclick="switchUsersTab('users-list-tab', this)" class="sm-tab-btn sm-active" style="border: none; font-size: 14px; font-weight: 800; padding: 8px 20px; border-radius: 6px; cursor: pointer;">
+    <div style="display: flex; gap: 15px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+        <button onclick="switchUsersTab('users-list-tab', this)" class="sm-tab-btn sm-active" style="border: none; font-size: 14px; font-weight: 800; padding: 8px 20px; border-radius: 9999px; cursor: pointer;">
             إدارة المستخدمين النشطين
         </button>
-        <button onclick="switchUsersTab('registration-requests-tab', this)" class="sm-tab-btn" style="border: none; font-size: 14px; font-weight: 800; padding: 8px 20px; border-radius: 6px; cursor: pointer; position: relative;">
+        <button onclick="switchUsersTab('registration-requests-tab', this)" class="sm-tab-btn" style="border: none; font-size: 14px; font-weight: 800; padding: 8px 20px; border-radius: 9999px; cursor: pointer; position: relative;">
             طلبات التسجيل المعلقة
             <?php if (!empty($pending_users)): ?>
                 <span style="background: #e53e3e; color: white; border-radius: 10px; padding: 1px 7px; font-size: 10px; font-weight: 800; margin-right: 5px; position: absolute; top: -5px; left: -5px;">
@@ -289,7 +309,7 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                         </a>
                                     <?php endif; ?>
 
-                                    <button type="button" onclick='editSmGenericUser(<?php echo htmlspecialchars(json_encode($u_data)); ?>)' title="تعديل المستخدم" style="width: 36px; height: 36px; border-radius: 50% !important; flex-shrink: 0; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                    <button type="button" onclick="eessOpenUnifiedUserModal('edit_user', <?php echo $u->ID; ?>)" title="تعديل المستخدم" style="width: 36px; height: 36px; border-radius: 50% !important; flex-shrink: 0; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
                                         <span class="dashicons dashicons-edit" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
                                     </button>
 
