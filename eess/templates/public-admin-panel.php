@@ -922,403 +922,321 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
 
                 case 'school-structure':
                     if ($is_admin || current_user_can('إدارة_النظام')) {
+                        $institutions = EESS_Org_Helper::get_institutions();
+                        $all_users = get_users();
                         ?>
-                        <div id="school-structure" class="sm-internal-tab" style="display:block;">
-                            <div class="sm-tabs-wrapper" style="display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 10px; overflow-x: auto;">
-                                <button class="eess-org-sub-tab-btn sm-tab-btn sm-active" onclick="eessOpenOrgSubTab('eess-org-tree-tab', this)">الهيكل التعليمي والأكاديمي</button>
-                                <button class="eess-org-sub-tab-btn sm-tab-btn" onclick="eessOpenOrgSubTab('eess-org-assignments-tab', this)">التكليفات والتعيينات</button>
-                                <button class="eess-org-sub-tab-btn sm-tab-btn" onclick="eessOpenOrgSubTab('eess-org-import-tab', this)">استيراد البيانات المؤسسية</button>
-                            </div>
+                        <div id="school-structure" class="sm-content-wrapper" style="font-family: 'Cairo', sans-serif;" dir="rtl">
 
-                            <script>
-                            function eessOpenOrgSubTab(tabId, el) {
-                                document.querySelectorAll('.eess-org-sub-tab-content').forEach(p => p.style.setProperty('display', 'none', 'important'));
-                                document.getElementById(tabId).style.setProperty('display', 'block', 'important');
-                                el.parentElement.querySelectorAll('.eess-org-sub-tab-btn').forEach(b => b.classList.remove('sm-active'));
-                                el.classList.add('sm-active');
-                            }
-                            </script>
-
-                            <!-- SUB-TAB 1: HIERARCHICAL TREE -->
-                            <div id="eess-org-tree-tab" class="eess-org-sub-tab-content" style="display: block;">
-                                <?php
-                                $institutions = EESS_Org_Helper::get_institutions();
-                                $schools = EESS_Org_Helper::get_schools();
-                                $divisions = EESS_Org_Helper::get_divisions();
-                                $grades = EESS_Org_Helper::get_grades();
-                                $classes = EESS_Org_Helper::get_classes();
-                                ?>
-                                <!-- Institutional Search Bar -->
-                                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #cbd5e1; margin-bottom: 20px;">
-                                    <div style="display: flex; gap: 12px; align-items: center;">
-                                        <div style="flex: 1;" class="eess-float-container">
-                                            <input type="text" id="eess-inst-search-input" onkeyup="eessFilterInstitutionalStructure()" class="eess-float-input" placeholder=" ">
-                                            <label for="eess-inst-search-input" class="eess-float-label">🔍 البحث السريع في المؤسسات والفروع والأقسام...</label>
-                                        </div>
+                            <!-- Top Header Banner Card -->
+                            <div style="background: #ffffff; padding: 20px 24px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px; box-shadow: 0 4px 18px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                                <div style="display: flex; align-items: center; gap: 14px;">
+                                    <div style="width: 48px; height: 48px; background: #fef2f2; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #881337; border: 1px solid #fecdd3; flex-shrink: 0;">
+                                        <span class="dashicons dashicons-bank" style="font-size: 24px; width: 24px; height: 24px;"></span>
+                                    </div>
+                                    <div>
+                                        <h2 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 800; color: #0f172a;">الهيكل التنظيمي والإداري</h2>
+                                        <p style="margin: 0; font-size: 12.5px; color: #64748b; font-weight: 500;">إدارة المؤسسات التعليمية، مراكز التدريب، الكليات والجامعات المعتمدة مع التكليفات والكوادر مباشرة</p>
                                     </div>
                                 </div>
 
-                                <script>
-                                function eessFilterInstitutionalStructure() {
-                                    var query = document.getElementById('eess-inst-search-input').value.toLowerCase().trim();
-                                    var instCards = document.querySelectorAll('.eess-inst-card');
-                                    instCards.forEach(function(card) {
-                                        var text = card.innerText.toLowerCase();
-                                        if (!query || text.indexOf(query) !== -1) {
-                                            card.style.display = 'block';
-                                        } else {
-                                            card.style.display = 'none';
-                                        }
-                                    });
-                                }
-                                </script>
+                                <div>
+                                    <button type="button" onclick="eessOpenAddInstitutionModal()" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                                        <span class="dashicons dashicons-plus-alt2" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
+                                        <span>إضافة مؤسسة جديدة</span>
+                                    </button>
+                                </div>
+                            </div>
 
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                                    <!-- List Area -->
-                                    <div style="background: #fff; padding: 20px; border: 1px solid #cbd5e1; border-radius: 8px;">
-                                        <h4 style="margin: 0 0 15px 0; font-weight: 800; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px;">الهيكل الحالي والمؤسسات</h4>
-                                        <div style="max-height: 500px; overflow-y: auto;">
-                                            <?php if (empty($institutions)): ?>
-                                                <p style="color: #64748b; text-align: center;">الهيكل فارغ حالياً.</p>
-                                            <?php else: ?>
-                                                <?php foreach ($institutions as $inst): ?>
-                                                    <div class="eess-inst-card" style="background: #f8fafc; padding: 10px; border-radius: 6px; margin-bottom: 10px; border: 1px solid #cbd5e1;">
-                                                        <div style="display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: #1e293b;">
-                                                            <span>🏛️ <?php echo esc_html($inst->name); ?></span>
-                                                            <form method="post" style="display: inline;" onsubmit="return confirm('حذف هذه المؤسسة وكافة الفروع التابعة لها؟')">
-                                                                <?php wp_nonce_field('sm_admin_action', 'sm_admin_nonce'); ?>
-                                                                <input type="hidden" name="eess_save_org_structure" value="1">
-                                                                <input type="hidden" name="eess_org_action" value="delete_institution">
-                                                                <input type="hidden" name="inst_id" value="<?php echo $inst->id; ?>">
-                                                                <button type="submit" style="background: none; border: none; color: #dc2626; cursor: pointer; font-size: 11px;">[حذف]</button>
-                                                            </form>
-                                                        </div>
-                                                        <!-- Schools -->
-                                                        <div style="margin-right: 20px; margin-top: 8px; border-right: 2px dashed #cbd5e1; padding-right: 15px;">
-                                                            <?php
-                                                            $inst_schools = array_filter($schools, function($s) use ($inst){ return $s->institution_id == $inst->id; });
-                                                            foreach ($inst_schools as $sch):
-                                                            ?>
-                                                                <div style="margin-bottom: 8px;">
-                                                                    <div style="display: flex; justify-content: space-between; align-items: center; font-weight: 700; color: var(--sm-primary-color); font-size: 13px;">
-                                                                        <span>🏫 <?php echo esc_html($sch->name); ?></span>
-                                                                        <form method="post" style="display: inline;" onsubmit="return confirm('حذف هذه المدرسة والصفوف التابعة لها؟')">
-                                                                            <?php wp_nonce_field('sm_admin_action', 'sm_admin_nonce'); ?>
-                                                                            <input type="hidden" name="eess_save_org_structure" value="1">
-                                                                            <input type="hidden" name="eess_org_action" value="delete_school">
-                                                                            <input type="hidden" name="school_id" value="<?php echo $sch->id; ?>">
-                                                                            <button type="submit" style="background: none; border: none; color: #dc2626; cursor: pointer; font-size: 10px;">[حذف]</button>
-                                                                        </form>
-                                                                    </div>
-                                                                    <!-- Divisions/Cycles -->
-                                                                    <div style="margin-right: 15px; margin-top: 4px; border-right: 1px dashed var(--sm-primary-color); padding-right: 10px;">
-                                                                        <?php
-                                                                        $sch_divs = array_filter($divisions, function($d) use ($sch){ return $d->school_id == $sch->id; });
-                                                                        foreach ($sch_divs as $div):
-                                                                        ?>
-                                                                            <div style="margin-bottom: 8px;">
-                                                                                <div style="display: flex; justify-content: space-between; align-items: center; font-weight: 700; color: #1e293b; font-size: 12px;">
-                                                                                    <span>🔄 <?php echo esc_html($div->name); ?></span>
-                                                                                    <form method="post" style="display: inline;" onsubmit="return confirm('حذف هذا النطاق/الحلقة؟')">
-                                                                                        <?php wp_nonce_field('sm_admin_action', 'sm_admin_nonce'); ?>
-                                                                                        <input type="hidden" name="eess_save_org_structure" value="1">
-                                                                                        <input type="hidden" name="eess_org_action" value="delete_division">
-                                                                                        <input type="hidden" name="div_id" value="<?php echo $div->id; ?>">
-                                                                                        <button type="submit" style="background: none; border: none; color: #dc2626; cursor: pointer; font-size: 10px;">[حذف]</button>
-                                                                                    </form>
-                                                                                </div>
-                                                                                <!-- Grades -->
-                                                                                <div style="margin-right: 15px; margin-top: 4px; border-right: 1px solid #cbd5e1; padding-right: 10px;">
-                                                                                    <?php
-                                                                                    $div_grades = array_filter($grades, function($g) use ($sch, $div){ return $g->school_id == $sch->id && ($g->division_id == $div->id || empty($g->division_id)); });
-                                                                                    foreach ($div_grades as $gr):
-                                                                                    ?>
-                                                                                        <div style="margin-bottom: 6px;">
-                                                                                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 600;">
-                                                                                                <span>📚 <?php echo esc_html($gr->name); ?></span>
-                                                                                                <form method="post" style="display: inline;" onsubmit="return confirm('حذف هذا الصف والشعب التابعة له؟')">
-                                                                                                    <?php wp_nonce_field('sm_admin_action', 'sm_admin_nonce'); ?>
-                                                                                                    <input type="hidden" name="eess_save_org_structure" value="1">
-                                                                                                    <input type="hidden" name="eess_org_action" value="delete_grade">
-                                                                                                    <input type="hidden" name="grade_id" value="<?php echo $gr->id; ?>">
-                                                                                                    <button type="submit" style="background: none; border: none; color: #dc2626; cursor: pointer; font-size: 9px;">[حذف]</button>
-                                                                                                </form>
-                                                                                            </div>
-                                                                                            <!-- Classes -->
-                                                                                            <div style="margin-right: 15px; display: flex; gap: 8px; flex-wrap: wrap; margin-top: 2px;">
-                                                                                                <?php
-                                                                                                $gr_classes = array_filter($classes, function($c) use ($gr){ return $c->grade_id == $gr->id; });
-                                                                                                foreach ($gr_classes as $cl):
-                                                                                                ?>
-                                                                                                    <span style="background: #e2e8f0; color: #1e293b; font-size: 11px; padding: 2px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 5px;">
-                                                                                                        <span>👥 شعبة <?php echo esc_html($cl->name); ?></span>
-                                                                                                        <form method="post" style="display: inline;" onsubmit="return confirm('حذف هذه الشعبة؟')">
-                                                                                                            <?php wp_nonce_field('sm_admin_action', 'sm_admin_nonce'); ?>
-                                                                                                            <input type="hidden" name="eess_save_org_structure" value="1">
-                                                                                                            <input type="hidden" name="eess_org_action" value="delete_class">
-                                                                                                            <input type="hidden" name="class_id" value="<?php echo $cl->id; ?>">
-                                                                                                            <button type="submit" style="background: none; border: none; color: #dc2626; cursor: pointer; font-size: 9px; padding: 0;">&times;</button>
-                                                                                                        </form>
-                                                                                                    </span>
-                                                                                                <?php endforeach; ?>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    <?php endforeach; ?>
-                                                                                </div>
-                                                                            </div>
-                                                                        <?php endforeach; ?>
-                                                                    </div>
-                                                                </div>
-                                                            <?php endforeach; ?>
-                                                        </div>
-                                                    </div>
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
-                                        </div>
+                            <!-- Search & Filtering Card -->
+                            <div style="background: #f8fafc; padding: 18px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 24px;">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;">
+                                    <div>
+                                        <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px;">البحث الفوري</label>
+                                        <input type="text" id="eess-inst-search-text" onkeyup="eessFilterInstitutionCards()" placeholder="ابحث باسم المؤسسة، المدير، العنوان..." class="sm-input" style="height: 38px; font-size: 12.5px;">
                                     </div>
+                                    <div>
+                                        <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px;">نوع المؤسسة</label>
+                                        <select id="eess-inst-search-type" onchange="eessFilterInstitutionCards()" class="sm-select" style="height: 38px; font-size: 12.5px;">
+                                            <option value="">كافة الأنواع</option>
+                                            <option value="مدرسة">مدرسة</option>
+                                            <option value="مركز علمي">مركز علمي</option>
+                                            <option value="مركز تدريب">مركز تدريب</option>
+                                            <option value="جامعة">جامعة</option>
+                                            <option value="كلية">كلية</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px;">الدولة / الموقع</label>
+                                        <input type="text" id="eess-inst-search-country" onkeyup="eessFilterInstitutionCards()" placeholder="تصفية حسب الدولة..." class="sm-input" style="height: 38px; font-size: 12.5px;">
+                                    </div>
+                                </div>
+                            </div>
 
-                                    <!-- Forms Area -->
-                                    <div style="display: flex; flex-direction: column; gap: 20px;">
-                                        <!-- Add Institution -->
-                                        <div style="background: #f8fafc; padding: 15px; border: 1px solid #cbd5e1; border-radius: 8px;">
-                                            <h5 style="margin: 0 0 10px 0; font-weight: 800;">🏛️ إضافة مؤسسة تعليمية جديدة</h5>
-                                            <form method="post" style="display: flex; gap: 10px;">
+                            <!-- Institutions Cards Grid Container -->
+                            <div id="eess-institutions-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
+                                <?php if (empty($institutions)): ?>
+                                    <div style="grid-column: 1 / -1; background: #ffffff; border-radius: 16px; border: 1px dashed #cbd5e1; padding: 40px; text-align: center; color: #64748b;">
+                                        <span class="dashicons dashicons-bank" style="font-size: 40px; width: 40px; height: 40px; color: #cbd5e1; margin-bottom: 10px;"></span>
+                                        <div style="font-size: 15px; font-weight: 800; color: #0f172a;">لا توجد مؤسسات مسجلة حالياً</div>
+                                        <p style="font-size: 12.5px; margin-top: 4px;">انقر على زر "إضافة مؤسسة جديدة" في الأعلى للبدء.</p>
+                                    </div>
+                                <?php else: ?>
+                                    <?php foreach ($institutions as $inst):
+                                        $type_badge_bg = '#f1f5f9'; $type_badge_col = '#475569';
+                                        if ($inst->type === 'جامعة' || $inst->type === 'كلية') { $type_badge_bg = '#e0f2fe'; $type_badge_col = '#0369a1'; }
+                                        elseif ($inst->type === 'مركز علمي' || $inst->type === 'مركز تدريب') { $type_badge_bg = '#fef3c7'; $type_badge_col = '#b45309'; }
+                                        elseif ($inst->type === 'مدرسة') { $type_badge_bg = '#fef2f2'; $type_badge_col = '#881337'; }
+
+                                        $manager_name = $inst->manager_display_name ?: ($inst->director_name ?: 'غير محدد');
+
+                                        // Fetch assigned staff count for this single-level institution
+                                        global $wpdb;
+                                        $assigned_staff_ids = $wpdb->get_col($wpdb->prepare(
+                                            "SELECT DISTINCT user_id FROM {$wpdb->prefix}eess_user_assignments WHERE institution_id = %d",
+                                            $inst->id
+                                        ));
+                                        $staff_count = count($assigned_staff_ids);
+                                    ?>
+                                    <div class="eess-institution-card"
+                                         data-id="<?php echo $inst->id; ?>"
+                                         data-name="<?php echo esc_attr(strtolower($inst->name)); ?>"
+                                         data-type="<?php echo esc_attr($inst->type); ?>"
+                                         data-country="<?php echo esc_attr(strtolower($inst->country)); ?>"
+                                         data-manager="<?php echo esc_attr(strtolower($manager_name)); ?>"
+                                         style="background: #ffffff; border-radius: 18px; border: 1px solid #e2e8f0; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; gap: 16px; transition: transform 0.2s, box-shadow 0.2s;"
+                                         onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.06)';"
+                                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.02)';"
+                                    >
+                                        <div>
+                                            <!-- Top Card Bar -->
+                                            <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px;">
+                                                <div style="display: flex; align-items: center; gap: 12px;">
+                                                    <?php if (!empty($inst->logo_url)): ?>
+                                                        <img src="<?php echo esc_url($inst->logo_url); ?>" style="width: 46px; height: 48px; border-radius: 12px; object-fit: cover; border: 1px solid #e2e8f0; flex-shrink: 0;">
+                                                    <?php else: ?>
+                                                        <div style="width: 48px; height: 48px; border-radius: 12px; background: #f8fafc; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; color: #881337; flex-shrink: 0;">
+                                                            <span class="dashicons dashicons-bank" style="font-size: 22px; width: 22px; height: 22px;"></span>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                    <div>
+                                                        <h3 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 800; color: #0f172a; line-height: 1.3;"><?php echo esc_html($inst->name); ?></h3>
+                                                        <span style="display: inline-block; padding: 2px 10px; border-radius: 9999px; background: <?php echo $type_badge_bg; ?>; color: <?php echo $type_badge_col; ?>; font-size: 10.5px; font-weight: 800;">
+                                                            <?php echo esc_html($inst->type); ?>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Metadata List -->
+                                            <div style="background: #f8fafc; border-radius: 12px; padding: 12px; border: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: #334155;">
+                                                <div style="display: flex; align-items: center; gap: 6px;">
+                                                    <span class="dashicons dashicons-admin-users" style="font-size: 15px; width: 15px; height: 15px; color: #881337;"></span>
+                                                    <span><strong>المدير / المسؤول:</strong> <?php echo esc_html($manager_name); ?></span>
+                                                </div>
+                                                <div style="display: flex; align-items: center; gap: 6px;">
+                                                    <span class="dashicons dashicons-location" style="font-size: 15px; width: 15px; height: 15px; color: #0284c7;"></span>
+                                                    <span><strong>الدولة والجهة:</strong> <?php echo esc_html($inst->country ?: 'الإمارات'); ?><?php echo !empty($inst->address) ? ' - ' . esc_html($inst->address) : ''; ?></span>
+                                                </div>
+                                                <?php if (!empty($inst->phone)): ?>
+                                                <div style="display: flex; align-items: center; gap: 6px;">
+                                                    <span class="dashicons dashicons-phone" style="font-size: 15px; width: 15px; height: 15px; color: #16a34a;"></span>
+                                                    <span><strong>الهاتف:</strong> <?php echo esc_html($inst->phone); ?></span>
+                                                </div>
+                                                <?php endif; ?>
+                                                <div style="display: flex; align-items: center; gap: 6px;">
+                                                    <span class="dashicons dashicons-groups" style="font-size: 15px; width: 15px; height: 15px; color: #475569;"></span>
+                                                    <span><strong>الكادر والمنسقون المسندون:</strong> <strong style="color: #881337;"><?php echo $staff_count; ?> موظف/كادر</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Circular Action Buttons -->
+                                        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; border-top: 1px dashed #e2e8f0; padding-top: 12px;">
+                                            <button type="button" onclick='eessOpenEditInstitutionModal(<?php echo json_encode($inst); ?>, <?php echo json_encode($assigned_staff_ids); ?>)' title="تعديل المؤسسة وتكليفات الكادر" style="width: 36px; height: 36px; border-radius: 50% !important; flex-shrink: 0; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                                <span class="dashicons dashicons-edit" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
+                                            </button>
+
+                                            <form method="post" style="display: inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذه المؤسسة نهائياً بكل بياناتها؟')">
                                                 <?php wp_nonce_field('sm_admin_action', 'sm_admin_nonce'); ?>
-                                                <input type="hidden" name="eess_save_org_structure" value="1">
-                                                <input type="hidden" name="eess_org_action" value="add_institution">
-                                                <input type="text" name="inst_name" placeholder="اسم المؤسسة" class="sm-input" required style="flex: 1;">
-                                                <button type="submit" class="sm-btn">إضافة</button>
+                                                <input type="hidden" name="eess_save_single_inst" value="1">
+                                                <input type="hidden" name="inst_action" value="delete">
+                                                <input type="hidden" name="inst_id" value="<?php echo $inst->id; ?>">
+                                                <button type="submit" title="حذف المؤسسة" style="width: 36px; height: 36px; border-radius: 50% !important; flex-shrink: 0; background: #fee2e2; color: #dc2626; border: none; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                                    <span class="dashicons dashicons-trash" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
+                                                </button>
                                             </form>
                                         </div>
+                                    </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </div>
 
-                                        <!-- Add School -->
-                                        <div style="background: #f8fafc; padding: 15px; border: 1px solid #cbd5e1; border-radius: 8px;">
-                                            <h5 style="margin: 0 0 10px 0; font-weight: 800;">🏫 إضافة مدرسة جديدة</h5>
-                                            <form method="post" style="display: flex; flex-direction: column; gap: 10px;">
-                                                <?php wp_nonce_field('sm_admin_action', 'sm_admin_nonce'); ?>
-                                                <input type="hidden" name="eess_save_org_structure" value="1">
-                                                <input type="hidden" name="eess_org_action" value="add_school">
-                                                <select name="inst_id" class="sm-select" required>
-                                                    <option value="">-- اختر المؤسسة --</option>
-                                                    <?php foreach ($institutions as $inst): ?>
-                                                        <option value="<?php echo $inst->id; ?>"><?php echo esc_html($inst->name); ?></option>
+                        </div>
+
+                        <!-- ADD / EDIT INSTITUTION IN-SYSTEM MODAL -->
+                        <div id="eess-inst-modal" class="sm-modal-overlay" style="display: none; position: fixed; inset: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif;">
+                            <div style="background: #ffffff; border-radius: 20px; max-width: 720px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; max-height: 90vh;">
+
+                                <!-- Flush Modal Dark Header -->
+                                <div style="background: #0f172a; color: #ffffff; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b;">
+                                    <h3 id="inst-modal-title" style="margin: 0; font-size: 16px; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 10px;">
+                                        <span class="dashicons dashicons-bank" style="font-size: 20px; width: 20px; height: 20px; color: #f43f5e;"></span>
+                                        <span>إضافة / تعديل بيانات المؤسسة التعليمية</span>
+                                    </h3>
+                                    <button type="button" onclick="document.getElementById('eess-inst-modal').style.display='none';" style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer; line-height: 1;">&times;</button>
+                                </div>
+
+                                <form method="post" id="eess-inst-form" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
+                                    <?php wp_nonce_field('sm_admin_action', 'sm_admin_nonce'); ?>
+                                    <input type="hidden" name="eess_save_single_inst" value="1">
+                                    <input type="hidden" name="inst_action" id="inst_form_action" value="add">
+                                    <input type="hidden" name="inst_id" id="inst_form_id" value="0">
+
+                                    <div style="padding: 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 18px;">
+
+                                        <!-- Profile Information Grid -->
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                            <div style="grid-column: span 2;">
+                                                <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px;">اسم المؤسسة التعليمية <span style="color:#ef4444;">*</span></label>
+                                                <input type="text" name="inst_name" id="inst_input_name" required placeholder="مثال: مدرسة الأمل النموذجية، جامعة الإمارات..." class="sm-input" style="width: 100%; height: 40px;">
+                                            </div>
+
+                                            <div>
+                                                <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px;">نوع المؤسسة <span style="color:#ef4444;">*</span></label>
+                                                <select name="inst_type" id="inst_input_type" required class="sm-select" style="width: 100%; height: 40px;">
+                                                    <option value="مدرسة">مدرسة</option>
+                                                    <option value="مركز علمي">مركز علمي</option>
+                                                    <option value="مركز تدريب">مركز تدريب</option>
+                                                    <option value="جامعة">جامعة</option>
+                                                    <option value="كلية">كلية</option>
+                                                </select>
+                                            </div>
+
+                                            <div>
+                                                <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px;">الدولة / الموقع <span style="color:#ef4444;">*</span></label>
+                                                <input type="text" name="inst_country" id="inst_input_country" value="الإمارات العربية المتحدة" required class="sm-input" style="width: 100%; height: 40px;">
+                                            </div>
+
+                                            <div>
+                                                <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px;">المدير / المسؤول المباشر</label>
+                                                <select name="inst_manager_id" id="inst_input_manager_id" class="sm-select" style="width: 100%; height: 40px;">
+                                                    <option value="">-- اختر مديراً من مستخدمي النظام --</option>
+                                                    <?php foreach ($all_users as $u): ?>
+                                                        <option value="<?php echo $u->ID; ?>"><?php echo esc_html($u->display_name); ?> (@<?php echo esc_html($u->user_login); ?>)</option>
                                                     <?php endforeach; ?>
                                                 </select>
-                                                <input type="text" name="school_name" placeholder="اسم المدرسة" class="sm-input" required>
-                                                <button type="submit" class="sm-btn">إضافة مدرسة</button>
-                                            </form>
+                                            </div>
+
+                                            <div>
+                                                <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px;">اسم المدير المستقل (نصي خارجي)</label>
+                                                <input type="text" name="inst_director_name" id="inst_input_director_name" placeholder="مثال: د. أحمد المنصوري" class="sm-input" style="width: 100%; height: 40px;">
+                                            </div>
+
+                                            <div>
+                                                <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px;">رقم هاتف المؤسسة</label>
+                                                <input type="text" name="inst_phone" id="inst_input_phone" placeholder="0500000000" class="sm-input" style="width: 100%; height: 40px;">
+                                            </div>
+
+                                            <div>
+                                                <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px;">رابط الشعار الرسمي (Official Logo URL)</label>
+                                                <div style="display: flex; gap: 8px;">
+                                                    <input type="text" name="inst_logo_url" id="inst_input_logo_url" placeholder="https://..." class="sm-input" style="width: 100%; height: 40px;">
+                                                    <button type="button" onclick="smOpenMediaUploader('inst_input_logo_url')" class="sm-btn" style="background: #475569; height: 40px; padding: 0 12px; flex-shrink: 0;">رفع</button>
+                                                </div>
+                                            </div>
+
+                                            <div style="grid-column: span 2;">
+                                                <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px;">العنوان التفصيلي</label>
+                                                <textarea name="inst_address" id="inst_input_address" rows="2" placeholder="المنطقة، الشارع، المبنى..." class="sm-input" style="width: 100%; padding: 8px;"></textarea>
+                                            </div>
                                         </div>
+
+                                        <!-- Integrated Staff & Position Assignments Section -->
+                                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px;">
+                                            <h4 style="margin: 0 0 8px 0; font-size: 13.5px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                                                <span class="dashicons dashicons-groups" style="color: #881337;"></span>
+                                                <span>تكليف وتعيين الكادر الوظيفي للمؤسسة (Staff Assignments)</span>
+                                            </h4>
+                                            <p style="margin: 0 0 12px 0; font-size: 11.5px; color: #64748b; line-height: 1.5;">اختر الكوادر، المعلمين والموجهين التابعين لهذه المؤسسة للربط المباشر مع صلاحياتهم:</p>
+
+                                            <div style="max-height: 140px; overflow-y: auto; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
+                                                <?php foreach ($all_users as $u):
+                                                    $u_role = !empty($u->roles) ? $u->roles[0] : '';
+                                                ?>
+                                                <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #1e293b; cursor: pointer; padding: 4px; border-radius: 6px;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
+                                                    <input type="checkbox" name="assigned_staff_ids[]" value="<?php echo $u->ID; ?>" class="inst-staff-checkbox">
+                                                    <span><strong><?php echo esc_html($u->display_name); ?></strong> <small style="color: #64748b;">(<?php echo esc_html($role_map[$u_role] ?? $u_role); ?>)</small></span>
+                                                </label>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        </div>
+
                                     </div>
-                                </div>
-                            </div>
 
-                            <!-- SUB-TAB 2: EMPLOYEE ASSIGNMENTS -->
-                            <div id="eess-org-assignments-tab" class="eess-org-sub-tab-content" style="display: none;">
-                                <div style="background: #fff; padding: 25px; border: 1px solid #cbd5e1; border-radius: 8px;">
-                                    <h4 style="margin: 0 0 15px 0; font-weight: 800; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px;">👤 تعيين وتكليف الكوادر والوظائف</h4>
-                                    <form method="post">
-                                        <?php wp_nonce_field('sm_admin_action', 'sm_admin_nonce'); ?>
-                                        <input type="hidden" name="eess_save_org_structure" value="1">
-                                        <input type="hidden" name="eess_org_action" value="save_assignment">
-
-                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px;">
-                                            <div class="eess-form-group">
-                                                <div class="eess-float-container">
-                                                    <select name="assign_user_id" class="eess-float-input" required>
-                                                        <option value="">-- اختر الموظف --</option>
-                                                        <?php
-                                                        $users = get_users();
-                                                        foreach ($users as $u):
-                                                            $r_lbl = !empty($u->roles) ? ($role_map[$u->roles[0]] ?? $u->roles[0]) : 'مستبعد';
-                                                        ?>
-                                                            <option value="<?php echo $u->ID; ?>"><?php echo esc_html($u->display_name); ?> (<?php echo esc_html($r_lbl); ?>)</option>
-                                                        <?php endforeach; ?>
-                                                    </select>
-                                                    <label class="eess-float-label">اختر الموظف / الكادر *</label>
-                                                </div>
-                                            </div>
-
-                                            <div class="eess-form-group">
-                                                <div class="eess-float-container">
-                                                    <select name="assign_inst_id[]" class="eess-float-input">
-                                                        <option value="">-- اختر المؤسسة --</option>
-                                                        <?php foreach ($institutions as $inst): ?>
-                                                            <option value="<?php echo $inst->id; ?>"><?php echo esc_html($inst->name); ?></option>
-                                                        <?php endforeach; ?>
-                                                    </select>
-                                                    <label class="eess-float-label">تعيين المؤسسة الرئيسية</label>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div style="margin-bottom: 20px;">
-                                            <label style="font-size: 12px; font-weight: bold; color: #334155; display: block; margin-bottom: 6px;">تحديد المدارس والفروع التابعة التكليف بها (اختيار متعدد):</label>
-                                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #cbd5e1; max-height: 120px; overflow-y: auto;">
-                                                <?php foreach ($schools as $sch): ?>
-                                                    <label style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
-                                                        <input type="checkbox" name="assign_school_id[]" value="<?php echo $sch->id; ?>">
-                                                        <span>🏫 <?php echo esc_html($sch->name); ?></span>
-                                                    </label>
-                                                <?php endforeach; ?>
-                                            </div>
-                                        </div>
-
-                                            <?php if (!empty($grades)): ?>
-                                                <div class="sm-form-group">
-                                                    <label class="sm-label">تعيين الصفوف الدراسية (متعدد):</label>
-                                                    <select name="assign_grade_id[]" class="sm-select" multiple style="height: 100px;">
-                                                        <?php foreach ($grades as $gr): ?>
-                                                            <option value="<?php echo $gr->id; ?>"><?php echo esc_html($gr->name); ?> (<?php echo esc_html($gr->school_name ?? ''); ?>)</option>
-                                                        <?php endforeach; ?>
-                                                    </select>
-                                                </div>
-                                            <?php endif; ?>
-
-                                            <?php if (!empty($classes)): ?>
-                                                <div class="sm-form-group" style="grid-column: span 2;">
-                                                    <label class="sm-label">تعيين الشعب والفصول التابعة (متعدد):</label>
-                                                    <select name="assign_class_id[]" class="sm-select" multiple style="height: 120px;">
-                                                        <?php foreach ($classes as $cl): ?>
-                                                            <option value="<?php echo $cl->id; ?>">شعبة <?php echo esc_html($cl->name); ?> - <?php echo esc_html($cl->grade_name ?? ''); ?> (<?php echo esc_html($cl->school_name ?? ''); ?>)</option>
-                                                        <?php endforeach; ?>
-                                                    </select>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-
-                                        <button type="submit" class="sm-btn" style="margin-top: 15px;">حفظ وتثبيت التكليف الإداري</button>
-                                    </form>
-                                </div>
-                            </div>
-
-                            <!-- SUB-TAB 3: INSTITUTIONAL IMPORTER -->
-                            <div id="eess-org-import-tab" class="eess-org-sub-tab-content" style="display: none;">
-                                <div style="background: #fff; padding: 25px; border: 1px solid #cbd5e1; border-radius: 8px;">
-                                    <h4 style="margin: 0 0 15px 0; font-weight: 800; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px;">📥 استيراد ومزامنة البيانات المؤسسية (CSV)</h4>
-                                    <form method="post" enctype="multipart/form-data">
-                                        <?php wp_nonce_field('sm_admin_action', 'sm_admin_nonce'); ?>
-                                        <input type="hidden" name="eess_import_org_csv" value="1">
-
-                                        <div class="sm-form-group" style="margin-bottom: 20px;">
-                                            <label class="sm-label" style="font-weight: 700;">المدرسة المستهدفة بالاستيراد:</label>
-                                            <select name="target_school_id" class="sm-select" required>
-                                                <option value="">-- اختر المدرسة --</option>
-                                                <?php foreach ($schools as $sch): ?>
-                                                    <option value="<?php echo $sch->id; ?>"><?php echo esc_html($sch->name); ?></option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                        </div>
-
-                                        <div class="sm-form-group" style="margin-bottom: 20px;">
-                                            <label class="sm-label" style="font-weight: 700;">نوع البيانات المستوردة:</label>
-                                            <select name="import_type" class="sm-select" required onchange="eessShowImportTemplate(this.value)">
-                                                <option value="">-- اختر نوع البيانات --</option>
-                                                <option value="students">الطلاب وشؤون الطلاب (Students)</option>
-                                                <option value="teachers">المعلمين وأعضاء هيئة التدريس (Employees/Staff)</option>
-                                                <option value="parents">أولياء الأمور والمرافقين (Parents/Guardians)</option>
-                                                <option value="users">مستخدمي النظام والمشرفين (System Users/Accounts)</option>
-                                            </select>
-                                        </div>
-
-                                        <!-- Interactive Column Mapping Reference Guide -->
-                                        <div id="eess-import-template-info" style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; line-height: 1.6;">
-                                            <h5 style="margin: 0 0 10px 0; font-weight: 800; color: #0f172a;">📋 دليل تخطيط أعمدة ملفات Excel / CSV المعتمد:</h5>
-                                            <div class="sm-table-container">
-                                                <table class="sm-table" style="font-size: 12px; margin: 0;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>اسم العمود بملف Excel</th>
-                                                            <th>الحقل المقابل بالنظام</th>
-                                                            <th>إلزامي</th>
-                                                            <th>مثال توضيحي</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="eess-mapping-guide-rows">
-                                                        <tr><td colspan="4" style="text-align: center; color: #64748b;">يرجى اختيار نوع البيانات بالأسفل لعرض الدليل الخاص به.</td></tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-
-                                        <script>
-                                        function eessShowImportTemplate(type) {
-                                            var tbody = document.getElementById('eess-mapping-guide-rows');
-                                            if (!tbody) return;
-
-                                            var guides = {
-                                                'students': [
-                                                    { col: 'الاسم / Student Name', sys: 'اسم الطالب', req: 'نعم', ex: 'أحمد محمد علي' },
-                                                    { col: 'الصف / Grade', sys: 'الصف الدراسي', req: 'نعم', ex: 'الصف 10' },
-                                                    { col: 'الشعبة / Section', sys: 'الشعبة / الفصل', req: 'حسب الحاجة', ex: 'أ' },
-                                                    { col: 'الجنسية / Nationality', sys: 'الجنسية', req: 'لا', ex: 'إماراتي' },
-                                                    { col: 'البريد / Email', sys: 'بريد ولي الأمر', req: 'لا', ex: 'parent@domain.com' },
-                                                    { col: 'الهاتف / Phone', sys: 'جوال ولي الأمر', req: 'لا', ex: '0501234567' },
-                                                    { col: 'الهوية / Student ID', sys: 'كود / رقم الهوية', req: 'لا', ex: '784-1990-1234567-1' }
-                                                ],
-                                                'teachers': [
-                                                    { col: 'اسم المستخدم / Username', sys: 'اسم المستخدم / الرقم الوظيفي', req: 'نعم', ex: '00025' },
-                                                    { col: 'البريد / Email', sys: 'البريد الإلكتروني', req: 'نعم', ex: 'teacher@school.ae' },
-                                                    { col: 'الاسم الكامل / Name', sys: 'الاسم الكامل', req: 'نعم', ex: 'سارة أحمد' },
-                                                    { col: 'الهاتف / Phone', sys: 'رقم الهاتف', req: 'لا', ex: '0507654321' },
-                                                    { col: 'كلمة المرور / Password', sys: 'كلمة المرور', req: 'لا (تولد تلقائياً)', ex: 'Pass1234' },
-                                                    { col: 'التخصص / Subject', sys: 'المادة التخصصية', req: 'لا', ex: 'الرياضيات' }
-                                                ],
-                                                'parents': [
-                                                    { col: 'اسم المستخدم / Username', sys: 'اسم المستخدم', req: 'نعم', ex: 'p_00025' },
-                                                    { col: 'البريد / Email', sys: 'البريد الإلكتروني', req: 'نعم', ex: 'parent@domain.com' },
-                                                    { col: 'الاسم / Name', sys: 'اسم ولي الأمر', req: 'نعم', ex: 'خالد عبدالله' },
-                                                    { col: 'كود الابن / Child ID', sys: 'ربط كود الطالب', req: 'لا', ex: 'ST10025' }
-                                                ],
-                                                'users': [
-                                                    { col: 'اسم المستخدم / Username', sys: 'اسم المستخدم', req: 'نعم', ex: 'supervisor1' },
-                                                    { col: 'البريد / Email', sys: 'البريد الإلكتروني', req: 'نعم', ex: 'user@school.ae' },
-                                                    { col: 'الاسم / Name', sys: 'الاسم الكامل', req: 'نعم', ex: 'عمر محمود' },
-                                                    { col: 'الرتبة / Role', sys: 'الدور / الرتبة', req: 'نعم', ex: 'sm_supervisor' }
-                                                ]
-                                            };
-
-                                            var selectedGuide = guides[type];
-                                            if (selectedGuide && selectedGuide.length > 0) {
-                                                var html = '';
-                                                selectedGuide.forEach(function(r) {
-                                                    html += '<tr>' +
-                                                        '<td style="font-weight: bold; color: #1e293b;">' + r.col + '</td>' +
-                                                        '<td style="color: #0284c7; font-weight: bold;">' + r.sys + '</td>' +
-                                                        '<td><span style="padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; background: ' + (r.req === 'نعم' ? '#fee2e2; color: #991b1b;' : '#f1f5f9; color: #475569;') + '">' + r.req + '</span></td>' +
-                                                        '<td style="color: #64748b;">' + r.ex + '</td>' +
-                                                        '</tr>';
-                                                });
-                                                tbody.innerHTML = html;
-                                            } else {
-                                                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #64748b;">يرجى اختيار نوع البيانات بالأسفل لعرض الدليل الخاص به.</td></tr>';
-                                            }
-                                        }
-                                        </script>
-
-                                        <script>
-                                        function eessShowImportTemplate(type) {
-                                            const info = document.getElementById('eess-import-template-info');
-                                            if (!type) {
-                                                info.style.display = 'none';
-                                                return;
-                                            }
-                                            info.style.display = 'block';
-                                            document.getElementById('template-students').style.display = type === 'students' ? 'block' : 'none';
-                                            document.getElementById('template-teachers').style.display = type === 'teachers' ? 'block' : 'none';
-                                            document.getElementById('template-managers').style.display = (type === 'parents' || type === 'users') ? 'block' : 'none';
-                                        }
-                                        </script>
-
-                                        <div class="sm-form-group" style="margin-bottom: 20px;">
-                                            <label class="sm-label" style="font-weight: 700;">اختر ملف CSV المعتمد:</label>
-                                            <input type="file" name="csv_file" class="sm-input" accept=".csv" required style="height: auto; padding: 6px;">
-                                        </div>
-
-                                        <button type="submit" class="sm-btn" style="width: 100%;">بدء الاستيراد والمزامنة الفورية</button>
-                                    </form>
-                                </div>
+                                    <!-- Footer Bar -->
+                                    <div style="padding: 16px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                                        <button type="button" onclick="document.getElementById('eess-inst-modal').style.display='none';" class="sm-btn sm-btn-outline" style="height: 38px; font-weight: 700; font-size: 12px;">إلغاء</button>
+                                        <button type="submit" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; padding: 0 24px; font-weight: 800; font-size: 12.5px; border-radius: 9999px !important;">حفظ وتثبيت البيانات</button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
+
+                        <script>
+                        function eessOpenAddInstitutionModal() {
+                            document.getElementById('inst_form_action').value = 'add';
+                            document.getElementById('inst_form_id').value = '0';
+                            document.getElementById('inst-modal-title').innerText = 'إضافة مؤسسة تعليمية جديدة';
+                            document.getElementById('eess-inst-form').reset();
+                            document.querySelectorAll('.inst-staff-checkbox').forEach(cb => cb.checked = false);
+                            document.getElementById('eess-inst-modal').style.display = 'flex';
+                        }
+
+                        function eessOpenEditInstitutionModal(inst, assignedStaff) {
+                            document.getElementById('inst_form_action').value = 'edit';
+                            document.getElementById('inst_form_id').value = inst.id;
+                            document.getElementById('inst-modal-title').innerText = 'تعديل بيانات وتكليفات: ' + inst.name;
+
+                            document.getElementById('inst_input_name').value = inst.name || '';
+                            document.getElementById('inst_input_type').value = inst.type || 'مدرسة';
+                            document.getElementById('inst_input_country').value = inst.country || 'الإمارات العربية المتحدة';
+                            document.getElementById('inst_input_manager_id').value = inst.manager_id || '';
+                            document.getElementById('inst_input_director_name').value = inst.director_name || '';
+                            document.getElementById('inst_input_phone').value = inst.phone || '';
+                            document.getElementById('inst_input_logo_url').value = inst.logo_url || '';
+                            document.getElementById('inst_input_address').value = inst.address || '';
+
+                            document.querySelectorAll('.inst-staff-checkbox').forEach(cb => {
+                                const uid = parseInt(cb.value);
+                                cb.checked = Array.isArray(assignedStaff) && assignedStaff.includes(uid);
+                            });
+
+                            document.getElementById('eess-inst-modal').style.display = 'flex';
+                        }
+
+                        function eessFilterInstitutionCards() {
+                            const qText = document.getElementById('eess-inst-search-text').value.toLowerCase().trim();
+                            const qType = document.getElementById('eess-inst-search-type').value;
+                            const qCountry = document.getElementById('eess-inst-search-country').value.toLowerCase().trim();
+
+                            document.querySelectorAll('.eess-institution-card').forEach(card => {
+                                const cName = card.getAttribute('data-name') || '';
+                                const cManager = card.getAttribute('data-manager') || '';
+                                const cType = card.getAttribute('data-type') || '';
+                                const cCountry = card.getAttribute('data-country') || '';
+
+                                const matchText = !qText || cName.includes(qText) || cManager.includes(qText);
+                                const matchType = !qType || cType === qType;
+                                const matchCountry = !qCountry || cCountry.includes(qCountry);
+
+                                if (matchText && matchType && matchCountry) {
+                                    card.style.display = 'flex';
+                                } else {
+                                    card.style.display = 'none';
+                                }
+                            });
+                        }
+                        </script>
                         <?php
                     }
                     break;
