@@ -135,6 +135,7 @@
                             <span class="dashicons dashicons-calendar-alt" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
                         </button>
 
+                        <?php if (current_user_can('manage_options') || current_user_can('edit_users')): ?>
                         <form method="post" style="display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف حساب ولي الأمر بالكامل؟')">
                             <?php wp_nonce_field('sm_user_action', 'sm_nonce'); ?>
                             <input type="hidden" name="delete_user_id" value="<?php echo $parent->ID; ?>">
@@ -142,6 +143,7 @@
                                 <span class="dashicons dashicons-trash" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
                             </button>
                         </form>
+                        <?php endif; ?>
                     </div>
                 </div>
             <?php endforeach; ?>
