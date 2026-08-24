@@ -805,7 +805,9 @@ class SM_Settings {
                 'eess_forgot_verify',
                 'eess_forgot_reset',
                 'eess_register_otp',
-                'eess_register_submit'
+                'eess_register_submit',
+                'sm_verify_employee_id',
+                'sm_submit_mobile_lesson'
             );
             return in_array($action, $public_actions);
         }
