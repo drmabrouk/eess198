@@ -4520,60 +4520,67 @@ class SM_Public {
         }
         $processed = true;
 
-        // Handle Organizational & Administrative Structure CRUD and Assignments
-        if (isset($_POST['eess_save_org_structure']) && wp_verify_nonce($_POST['sm_admin_nonce'], 'sm_admin_action')) {
+        // Handle Single-Level Institution Model CRUD and Staff Assignments
+        if (isset($_POST['eess_save_single_inst']) && wp_verify_nonce($_POST['sm_admin_nonce'], 'sm_admin_action')) {
             if (current_user_can('إدارة_النظام')) {
-                $action_type = sanitize_text_field($_POST['eess_org_action']);
+                $action = sanitize_text_field($_POST['inst_action'] ?? '');
+                $inst_id = intval($_POST['inst_id'] ?? 0);
 
-                if ($action_type === 'add_institution') {
-                    EESS_Org_Helper::add_institution(sanitize_text_field($_POST['inst_name']));
-                } elseif ($action_type === 'edit_institution') {
-                    EESS_Org_Helper::update_institution(intval($_POST['inst_id']), sanitize_text_field($_POST['inst_name']));
-                } elseif ($action_type === 'delete_institution') {
-                    EESS_Org_Helper::delete_institution(intval($_POST['inst_id']));
-                }
-
-                elseif ($action_type === 'add_school') {
-                    EESS_Org_Helper::add_school(intval($_POST['inst_id']), sanitize_text_field($_POST['school_name']));
-                } elseif ($action_type === 'edit_school') {
-                    EESS_Org_Helper::update_school(intval($_POST['school_id']), sanitize_text_field($_POST['school_name']), intval($_POST['inst_id']));
-                } elseif ($action_type === 'delete_school') {
-                    EESS_Org_Helper::delete_school(intval($_POST['school_id']));
-                }
-
-                elseif ($action_type === 'add_division') {
-                    EESS_Org_Helper::add_division(intval($_POST['school_id']), sanitize_text_field($_POST['div_name']));
-                } elseif ($action_type === 'edit_division') {
-                    EESS_Org_Helper::update_division(intval($_POST['div_id']), sanitize_text_field($_POST['div_name']), intval($_POST['school_id']));
-                } elseif ($action_type === 'delete_division') {
-                    EESS_Org_Helper::delete_division(intval($_POST['div_id']));
-                }
-
-                elseif ($action_type === 'add_grade') {
-                    EESS_Org_Helper::add_grade(intval($_POST['school_id']), sanitize_text_field($_POST['grade_name']));
-                } elseif ($action_type === 'edit_grade') {
-                    EESS_Org_Helper::update_grade(intval($_POST['grade_id']), sanitize_text_field($_POST['grade_name']), intval($_POST['school_id']));
-                } elseif ($action_type === 'delete_grade') {
-                    EESS_Org_Helper::delete_grade(intval($_POST['grade_id']));
-                }
-
-                elseif ($action_type === 'add_class') {
-                    EESS_Org_Helper::add_class(intval($_POST['grade_id']), sanitize_text_field($_POST['class_name']));
-                } elseif ($action_type === 'edit_class') {
-                    EESS_Org_Helper::update_class(intval($_POST['class_id']), sanitize_text_field($_POST['class_name']), intval($_POST['grade_id']));
-                } elseif ($action_type === 'delete_class') {
-                    EESS_Org_Helper::delete_class(intval($_POST['class_id']));
-                }
-
-                elseif ($action_type === 'save_assignment') {
-                    $user_id = intval($_POST['assign_user_id']);
-                    $assignment_data = array(
-                        'institutions' => isset($_POST['assign_inst_id']) ? array_map('intval', (array)$_POST['assign_inst_id']) : array(),
-                        'schools' => isset($_POST['assign_school_id']) ? array_map('intval', (array)$_POST['assign_school_id']) : array(),
-                        'grades' => isset($_POST['assign_grade_id']) ? array_map('intval', (array)$_POST['assign_grade_id']) : array(),
-                        'classes' => isset($_POST['assign_class_id']) ? array_map('intval', (array)$_POST['assign_class_id']) : array()
+                if ($action === 'add' || $action === 'edit') {
+                    $inst_data = array(
+                        'name'          => sanitize_text_field($_POST['inst_name'] ?? ''),
+                        'type'          => sanitize_text_field($_POST['inst_type'] ?? 'مدرسة'),
+                        'country'       => sanitize_text_field($_POST['inst_country'] ?? 'الإمارات العربية المتحدة'),
+                        'manager_id'    => !empty($_POST['inst_manager_id']) ? intval($_POST['inst_manager_id']) : null,
+                        'director_name' => sanitize_text_field($_POST['inst_director_name'] ?? ''),
+                        'phone'         => sanitize_text_field($_POST['inst_phone'] ?? ''),
+                        'logo_url'      => esc_url_raw($_POST['inst_logo_url'] ?? ''),
+                        'address'       => sanitize_textarea_field($_POST['inst_address'] ?? '')
                     );
-                    EESS_Org_Helper::save_user_assignments($user_id, $assignment_data);
+
+                    if ($action === 'add') {
+                        $inst_id = EESS_Org_Helper::add_institution($inst_data);
+                    } else {
+                        EESS_Org_Helper::update_institution($inst_id, $inst_data);
+                    }
+
+                    // Save integrated staff assignments for this institution
+                    if ($inst_id > 0) {
+                        $assigned_staff = isset($_POST['assigned_staff_ids']) ? array_map('intval', (array)$_POST['assigned_staff_ids']) : array();
+
+                        // Get existing users currently assigned to this institution
+                        global $wpdb;
+                        $currently_assigned = $wpdb->get_col($wpdb->prepare(
+                            "SELECT DISTINCT user_id FROM {$wpdb->prefix}eess_user_assignments WHERE institution_id = %d",
+                            $inst_id
+                        ));
+
+                        // Unassign users no longer checked
+                        foreach ($currently_assigned as $c_uid) {
+                            if (!in_array(intval($c_uid), $assigned_staff)) {
+                                $wpdb->delete("{$wpdb->prefix}eess_user_assignments", array('user_id' => $c_uid, 'institution_id' => $inst_id));
+                            }
+                        }
+
+                        // Assign newly checked staff
+                        foreach ($assigned_staff as $s_uid) {
+                            $exists = $wpdb->get_var($wpdb->prepare(
+                                "SELECT id FROM {$wpdb->prefix}eess_user_assignments WHERE user_id = %d AND institution_id = %d",
+                                $s_uid, $inst_id
+                            ));
+                            if (!$exists) {
+                                $wpdb->insert("{$wpdb->prefix}eess_user_assignments", array(
+                                    'user_id' => $s_uid,
+                                    'institution_id' => $inst_id
+                                ));
+                            }
+                            // Also update profile meta for institution display name
+                            update_user_meta($s_uid, 'eess_school_name', $inst_data['name']);
+                            update_user_meta($s_uid, 'eess_school_id', $inst_id);
+                        }
+                    }
+                } elseif ($action === 'delete' && $inst_id > 0) {
+                    EESS_Org_Helper::delete_institution($inst_id);
                 }
 
                 wp_redirect(add_query_arg('sm_admin_msg', 'settings_saved', $_SERVER['REQUEST_URI']));

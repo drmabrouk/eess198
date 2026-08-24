@@ -256,20 +256,76 @@ class EESS_Org_Helper {
         }
     }
 
+    /**
+     * Ensures eess_institutions table has all single-level model columns
+     */
+    public static function ensure_institutions_columns_exist() {
+        global $wpdb;
+        $table = "{$wpdb->prefix}eess_institutions";
+
+        $cols = array(
+            'type' => "VARCHAR(100) DEFAULT 'مدرسة' NOT NULL",
+            'logo_url' => "VARCHAR(255) DEFAULT '' NOT NULL",
+            'country' => "VARCHAR(100) DEFAULT 'الإمارات العربية المتحدة' NOT NULL",
+            'address' => "TEXT DEFAULT NULL",
+            'phone' => "VARCHAR(50) DEFAULT '' NOT NULL",
+            'manager_id' => "BIGINT(20) DEFAULT NULL",
+            'director_name' => "VARCHAR(255) DEFAULT '' NOT NULL"
+        );
+
+        foreach ($cols as $col => $def) {
+            $check = $wpdb->get_results("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '$table' AND COLUMN_NAME = '$col'");
+            if (empty($check)) {
+                $wpdb->query("ALTER TABLE $table ADD COLUMN $col $def");
+            }
+        }
+    }
+
     // --- ORGANIZATIONAL CRUD METHODS ---
     public static function get_institutions() {
         global $wpdb;
-        return $wpdb->get_results("SELECT * FROM {$wpdb->prefix}eess_institutions ORDER BY name ASC");
+        self::ensure_institutions_columns_exist();
+        return $wpdb->get_results("SELECT i.*, u.display_name as manager_display_name FROM {$wpdb->prefix}eess_institutions i LEFT JOIN {$wpdb->users} u ON i.manager_id = u.ID ORDER BY i.name ASC");
     }
 
-    public static function add_institution($name) {
+    public static function add_institution($data) {
         global $wpdb;
-        return $wpdb->insert("{$wpdb->prefix}eess_institutions", array('name' => $name, 'status' => 'active'));
+        self::ensure_institutions_columns_exist();
+        if (is_string($data)) {
+            $data = array('name' => $data);
+        }
+        $insert = array(
+            'name'          => sanitize_text_field($data['name'] ?? ''),
+            'type'          => sanitize_text_field($data['type'] ?? 'مدرسة'),
+            'logo_url'      => esc_url_raw($data['logo_url'] ?? ''),
+            'country'       => sanitize_text_field($data['country'] ?? 'الإمارات العربية المتحدة'),
+            'address'       => sanitize_textarea_field($data['address'] ?? ''),
+            'phone'         => sanitize_text_field($data['phone'] ?? ''),
+            'manager_id'    => !empty($data['manager_id']) ? intval($data['manager_id']) : null,
+            'director_name' => sanitize_text_field($data['director_name'] ?? ''),
+            'status'        => 'active'
+        );
+        $wpdb->insert("{$wpdb->prefix}eess_institutions", $insert);
+        return $wpdb->insert_id;
     }
 
-    public static function update_institution($id, $name) {
+    public static function update_institution($id, $data) {
         global $wpdb;
-        return $wpdb->update("{$wpdb->prefix}eess_institutions", array('name' => $name), array('id' => $id));
+        self::ensure_institutions_columns_exist();
+        if (is_string($data)) {
+            $data = array('name' => $data);
+        }
+        $update = array(
+            'name'          => sanitize_text_field($data['name'] ?? ''),
+            'type'          => sanitize_text_field($data['type'] ?? 'مدرسة'),
+            'logo_url'      => esc_url_raw($data['logo_url'] ?? ''),
+            'country'       => sanitize_text_field($data['country'] ?? 'الإمارات العربية المتحدة'),
+            'address'       => sanitize_textarea_field($data['address'] ?? ''),
+            'phone'         => sanitize_text_field($data['phone'] ?? ''),
+            'manager_id'    => !empty($data['manager_id']) ? intval($data['manager_id']) : null,
+            'director_name' => sanitize_text_field($data['director_name'] ?? '')
+        );
+        return $wpdb->update("{$wpdb->prefix}eess_institutions", $update, array('id' => intval($id)));
     }
 
     public static function delete_institution($id) {
