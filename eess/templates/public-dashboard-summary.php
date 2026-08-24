@@ -79,16 +79,28 @@ $dash_data = SM_DB::get_personalized_dashboard_data($user_id);
     </div>
 
     <!-- Teacher Quick Actions Bar -->
-    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 16px; padding: 18px; margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-        <div style="font-weight: 800; font-size: 13px; color: #0f172a; display: flex; align-items: center; gap: 6px;">
-            <span class="dashicons dashicons-bolt" style="color: #f59e0b;"></span>
-            إجراءات سريعة للمعلم:
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 18px 24px; margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
+        <div style="font-weight: 800; font-size: 14px; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+            <span class="dashicons dashicons-bolt" style="color: #f59e0b; font-size: 20px; width: 20px; height: 20px;"></span>
+            <span>إجراءات سريعة للمعلم:</span>
         </div>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <a href="<?php echo home_url('/attendance/'); ?>" class="sm-btn" style="height: 36px; padding: 0 14px; font-size: 12px; background: #2563eb; color: white !important; text-decoration: none;">تسجيل غياب للحصة الحالية</a>
-            <a href="<?php echo add_query_arg('sm_tab', 'grades'); ?>" class="sm-btn" style="height: 36px; padding: 0 14px; font-size: 12px; background: #000; color: white !important; text-decoration: none;">رصد درجات / تقييم جديد</a>
-            <a href="<?php echo add_query_arg('sm_tab', 'assignments'); ?>" class="sm-btn" style="height: 36px; padding: 0 14px; font-size: 12px; background: #475569; color: white !important; text-decoration: none;">إضافة واجب / تكليف</a>
-            <button type="button" onclick="eessOpenQuickParentNoteModal()" class="sm-btn sm-btn-outline" style="height: 36px; padding: 0 14px; font-size: 12px; background: white;">إرسال ملاحظة لولي الأمر</button>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+            <a href="<?php echo home_url('/attendance/'); ?>" class="sm-btn" style="height: 38px; padding: 0 18px; font-size: 12.5px; background: #2563eb; color: #ffffff !important; border-radius: 9999px !important; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                <span class="dashicons dashicons-calendar-alt" style="font-size: 15px; width: 15px; height: 15px;"></span>
+                <span>تسجيل غياب للحصة الحالية</span>
+            </a>
+            <a href="<?php echo add_query_arg('sm_tab', 'grades'); ?>" class="sm-btn" style="height: 38px; padding: 0 18px; font-size: 12.5px; background: #000000; color: #ffffff !important; border-radius: 9999px !important; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                <span class="dashicons dashicons-welcome-write-blog" style="font-size: 15px; width: 15px; height: 15px;"></span>
+                <span>رصد درجات / تقييم جديد</span>
+            </a>
+            <a href="<?php echo add_query_arg('sm_tab', 'assignments'); ?>" class="sm-btn" style="height: 38px; padding: 0 18px; font-size: 12.5px; background: #475569; color: #ffffff !important; border-radius: 9999px !important; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                <span class="dashicons dashicons-edit" style="font-size: 15px; width: 15px; height: 15px;"></span>
+                <span>إضافة واجب / تكليف</span>
+            </a>
+            <button type="button" onclick="eessOpenQuickParentNoteModal()" class="sm-btn" style="height: 38px; padding: 0 20px; font-size: 12.5px; background: #881337; color: #ffffff !important; border-radius: 9999px !important; font-weight: 800; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <span class="dashicons dashicons-email-alt" style="font-size: 15px; width: 15px; height: 15px;"></span>
+                <span>إرسال ملاحظة لولي الأمر</span>
+            </button>
         </div>
     </div>
 <?php else: ?>
@@ -210,4 +222,94 @@ function smDownloadChart(chartId, fileName) {
     if (document.readyState === 'complete') initSummaryCharts();
     else window.addEventListener('load', initSummaryCharts);
 })();
+</script>
+
+<!-- Quick Parent Note Modal -->
+<div id="eess-quick-parent-note-modal" class="sm-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif; direction: rtl;">
+    <div style="background: #ffffff; border-radius: 20px; max-width: 520px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); overflow: hidden; display: flex; flex-direction: column;">
+        <div style="background: #0f172a; color: #ffffff; padding: 16px 22px; display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="dashicons dashicons-email-alt" style="color: #ffffff; font-size: 20px; width: 20px; height: 20px;"></span>
+                <h3 style="margin: 0; font-size: 15.5px; font-weight: 800; color: #ffffff;">إرسال ملاحظة أو استفسار لولي الأمر</h3>
+            </div>
+            <button type="button" onclick="document.getElementById('eess-quick-parent-note-modal').style.display='none'" style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer; line-height: 1;">&times;</button>
+        </div>
+
+        <div style="padding: 22px;">
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px;">اختر الطالب المستهدف *</label>
+                <select id="eess_note_student_id" class="sm-select" style="width: 100%; height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 13px;">
+                    <option value="">-- اختر اسم الطالب --</option>
+                    <?php
+                    $all_st_list = SM_DB::get_students();
+                    foreach ($all_st_list as $st) {
+                        echo "<option value='{$st->id}'>" . esc_html($st->name) . " (" . esc_html($st->class_name) . " - " . esc_html($st->section) . ")</option>";
+                    }
+                    ?>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px;">نص الملاحظة أو الاستفسار *</label>
+                <textarea id="eess_note_text" rows="4" class="sm-textarea" placeholder="اكتب الملاحظة أو المتابعة المطلوبة لولي الأمر هنا..." style="width: 100%; border-radius: 12px; border: 1px solid #cbd5e1; padding: 12px; font-size: 13px; box-sizing: border-box;"></textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" onclick="document.getElementById('eess-quick-parent-note-modal').style.display='none'" class="sm-btn sm-btn-outline" style="height: 38px; padding: 0 18px; border-radius: 9999px !important; font-size: 12.5px; color: #475569; font-weight: 700;">إلغاء</button>
+                <button type="button" id="eess-btn-send-note" onclick="eessSubmitQuickParentNote()" class="sm-btn" style="height: 38px; padding: 0 24px; border-radius: 9999px !important; font-size: 12.5px; background: #881337; color: #ffffff !important; font-weight: 800; border: none; cursor: pointer;">إرسال الملاحظة الآن</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function eessOpenQuickParentNoteModal() {
+    document.getElementById('eess-quick-parent-note-modal').style.display = 'flex';
+}
+
+function eessSubmitQuickParentNote() {
+    const studentId = document.getElementById('eess_note_student_id').value;
+    const noteText  = document.getElementById('eess_note_text').value.trim();
+
+    if (!studentId || !noteText) {
+        if (typeof smShowNotification === 'function') {
+            smShowNotification('يرجى اختيار الطالب وكتابة نص الملاحظة', true);
+        } else {
+            alert('يرجى اختيار الطالب وكتابة نص الملاحظة');
+        }
+        return;
+    }
+
+    const btn = document.getElementById('eess-btn-send-note');
+    btn.disabled = true;
+    btn.innerText = 'جاري الإرسال...';
+
+    const formData = new FormData();
+    formData.append('action', 'eess_send_quick_parent_note');
+    formData.append('student_id', studentId);
+    formData.append('note', noteText);
+
+    fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(res => {
+        btn.disabled = false;
+        btn.innerText = 'إرسال الملاحظة الآن';
+
+        if (res.success) {
+            if (typeof smShowNotification === 'function') {
+                smShowNotification(res.data.message || 'تم إرسال الملاحظة بنجاح إلى ولي الأمر');
+            } else {
+                alert(res.data.message || 'تم إرسال الملاحظة بنجاح إلى ولي الأمر');
+            }
+            document.getElementById('eess-quick-parent-note-modal').style.display = 'none';
+            document.getElementById('eess_note_text').value = '';
+        } else {
+            if (typeof smShowNotification === 'function') {
+                smShowNotification(res.data || 'حدث خطأ أثناء إرسال الملاحظة', true);
+            } else {
+                alert(res.data || 'حدث خطأ أثناء إرسال الملاحظة');
+            }
+        }
+    });
+}
 </script>

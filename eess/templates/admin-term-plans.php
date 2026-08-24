@@ -96,7 +96,7 @@ $arabic_term_names = array(
             <?php if ($is_teacher && !$is_reviewer): ?>
             <button type="button" onclick="eessOpenPlanSetupWizard(1)" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                 <span class="dashicons dashicons-plus-alt2" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
-                <span>إعداد وخطة المدرس</span>
+                <span>إعداد الدرس</span>
             </button>
             <?php endif; ?>
         </div>
@@ -181,7 +181,7 @@ $arabic_term_names = array(
                     <tbody>
                         <?php if (empty($teacher_plans)): ?>
                             <tr>
-                                <td colspan="5" style="padding: 40px; text-align: center; color: #94a3b8; font-weight: 700;">لا توجد خطط فصلية أو سنوية مسجلة لك حالياً. اضغط "إعداد وخطة المدرس" للبدء.</td>
+                                <td colspan="5" style="padding: 40px; text-align: center; color: #94a3b8; font-weight: 700;">لا توجد خطط فصلية أو سنوية مسجلة لك حالياً. اضغط "إعداد الدرس" للبدء.</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($teacher_plans as $tp):

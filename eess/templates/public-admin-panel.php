@@ -779,7 +779,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                 $header_map['assignments']['button'] = '<button onclick="document.getElementById(\'add-assignment-modal\').style.display=\'flex\'" class="sm-btn" style="background:#000; border:1px solid #000; color:#fff; border-radius:8px; font-weight:700; height:38px; display:inline-flex; align-items:center; gap:8px; cursor:pointer;"><span class="dashicons dashicons-plus-alt"></span> إضافة واجب جديد</button>';
             }
             if ($active_tab === 'documents') {
-                $header_map['documents']['button'] = '<button onclick="document.getElementById(\'add-doc-modal\').style.display=\'flex\'" class="sm-btn" style="background:#000; border:1px solid #000; color:#fff; border-radius:8px; font-weight:700; height:38px; display:inline-flex; align-items:center; gap:8px; cursor:pointer;"><span class="dashicons dashicons-plus-alt"></span> إضافة مستند جديد</button>';
+                $header_map['documents']['button'] = '<button onclick="document.getElementById(\'add-doc-modal\').style.display=\'flex\'" class="sm-btn" style="background:#881337; border:none; color:#ffffff !important; border-radius:9999px !important; font-weight:800; height:38px; padding:0 20px; font-size:12.5px; display:inline-flex; align-items:center; gap:6px; cursor:pointer;"><span class="dashicons dashicons-plus-alt2" style="font-size:15px; width:15px; height:15px;"></span> إضافة مستند جديد</button>';
             }
             if ($active_tab === 'clinic') {
                 $btn_html = '<div style="display: flex; align-items: center; gap: 10px;">';
