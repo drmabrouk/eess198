@@ -1077,16 +1077,27 @@ class SM_DB {
         $clean_phone = preg_replace('/[^0-9]/', '', $identifier);
 
         // 1. Check user meta for employee IDs or registered phone numbers
-        $meta_user = $wpdb->get_row($wpdb->prepare(
-            "SELECT u.* FROM {$wpdb->users} u
-             INNER JOIN {$wpdb->usermeta} um ON u.ID = um.user_id
-             WHERE (um.meta_key IN ('sm_employee_id', 'eess_employee_number', 'sm_employee_code', 'employee_id', 'job_number') AND um.meta_value = %s)
-             OR (um.meta_key IN ('sm_phone', 'phone_number', 'mobile_number', 'guardian_phone') AND (um.meta_value = %s OR um.meta_value LIKE %s))
-             LIMIT 1",
-            $identifier,
-            $identifier,
-            '%' . $wpdb->esc_like($clean_phone) . '%'
-        ));
+        if (!empty($clean_phone) && strlen($clean_phone) >= 7) {
+            $meta_user = $wpdb->get_row($wpdb->prepare(
+                "SELECT u.* FROM {$wpdb->prefix}users u
+                 INNER JOIN {$wpdb->prefix}usermeta um ON u.ID = um.user_id
+                 WHERE (um.meta_key IN ('sm_employee_id', 'eess_employee_number', 'sm_employee_code', 'employee_id', 'job_number') AND um.meta_value = %s)
+                 OR (um.meta_key IN ('sm_phone', 'phone_number', 'mobile_number', 'guardian_phone') AND (um.meta_value = %s OR um.meta_value LIKE %s OR REPLACE(REPLACE(um.meta_value, '+', ''), ' ', '') LIKE %s))
+                 LIMIT 1",
+                $identifier,
+                $identifier,
+                '%' . $wpdb->esc_like($clean_phone) . '%',
+                '%' . $wpdb->esc_like($clean_phone) . '%'
+            ));
+        } else {
+            $meta_user = $wpdb->get_row($wpdb->prepare(
+                "SELECT u.* FROM {$wpdb->prefix}users u
+                 INNER JOIN {$wpdb->prefix}usermeta um ON u.ID = um.user_id
+                 WHERE um.meta_key IN ('sm_employee_id', 'eess_employee_number', 'sm_employee_code', 'employee_id', 'job_number') AND um.meta_value = %s
+                 LIMIT 1",
+                $identifier
+            ));
+        }
 
         if ($meta_user) {
             return $meta_user;
