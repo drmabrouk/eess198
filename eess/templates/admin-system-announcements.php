@@ -30,6 +30,9 @@ $support_requests = SM_DB::get_support_requests(array(
     'category' => $s_cat,
     'search'   => $s_search
 ));
+
+// Shared Educational Inputs query for Admin Library
+$edu_inputs = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}sm_educational_inputs ORDER BY usage_count DESC, id DESC LIMIT 150");
 ?>
 
 <div class="sm-container" style="padding: 10px 0; font-family: 'Cairo', sans-serif !important; direction: rtl;">
@@ -494,9 +497,72 @@ function eessDeleteSupportRecord(id) {
         }
     });
 }
+    <!-- Shared Educational Input Library Card for System Admins -->
+    <div style="background: #ffffff; border-radius: 16px; padding: 25px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-top: 30px;">
+        <h3 style="margin: 0 0 15px 0; font-size: 16px; font-weight: 800; color: #0f172a; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="dashicons dashicons-book" style="color: #881337;"></span>
+                <span>مكتبة المدوّنات والمدخلات التعليمية المشتركة (تخطيط الدروس والفصول)</span>
+            </div>
+            <span style="font-size: 12px; color: #64748b; font-weight: 600;">(إدارة الاقتراحات والمصطلحات التلقائية للمدرسين)</span>
+        </h3>
+
+        <div style="overflow-x: auto;">
+            <table class="sm-table" style="width: 100%; border-collapse: collapse; text-align: right;">
+                <thead>
+                    <tr style="background: #212121; color: #ffffff;">
+                        <th style="padding: 10px 14px; font-size: 12px; font-weight: 800;">المادة الدراسية</th>
+                        <th style="padding: 10px 14px; font-size: 12px; font-weight: 800;">نوع المدخل</th>
+                        <th style="padding: 10px 14px; font-size: 12px; font-weight: 800;">محتوى النص المقترح</th>
+                        <th style="padding: 10px 14px; font-size: 12px; font-weight: 800; text-align: center;">مرات الاستخدام</th>
+                        <th style="padding: 10px 14px; font-size: 12px; font-weight: 800; text-align: center;">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($edu_inputs)): ?>
+                        <tr><td colspan="5" style="padding: 30px; text-align: center; color: #94a3b8; font-weight: 700;">لا توجد مدخلات تعليمية مسجلة في المكتبة حالياً.</td></tr>
+                    <?php else: ?>
+                        <?php foreach ($edu_inputs as $inp): ?>
+                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                <td style="padding: 10px 14px; font-weight: 800; font-size: 12.5px; color: #0f172a;"><?php echo esc_html($inp->subject); ?></td>
+                                <td style="padding: 10px 14px; font-size: 12px; color: #334155;">
+                                    <span style="padding: 2px 8px; border-radius: 6px; background: #f1f5f9; font-weight: 700; font-size: 11px;">
+                                        <?php echo esc_html($inp->input_type === 'title' ? 'عنوان درس' : ($inp->input_type === 'objective' ? 'هدف تعليمي' : 'نشاط/محتوى')); ?>
+                                    </span>
+                                </td>
+                                <td style="padding: 10px 14px; font-size: 12.5px; color: #1e293b; font-weight: 600;"><?php echo esc_html($inp->content); ?></td>
+                                <td style="padding: 10px 14px; text-align: center;">
+                                    <span style="padding: 2px 8px; border-radius: 9999px; background: #eff6ff; color: #2563eb; font-weight: 800; font-size: 11.5px;">
+                                        <?php echo intval($inp->usage_count); ?>
+                                    </span>
+                                </td>
+                                <td style="padding: 10px 14px; text-align: center;">
+                                    <button type="button" onclick="eessDeleteEducationalInput(<?php echo $inp->id; ?>)" title="حذف المدخل" style="width: 32px; height: 32px; border-radius: 50% !important; background: #fee2e2; color: #dc2626; border: 1px solid #fecdd3; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;">
+                                        <span class="dashicons dashicons-trash" style="font-size: 15px; width: 15px; height: 15px; margin: 0;"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </script>
 
 <script>
+function eessDeleteEducationalInput(id) {
+    if (!confirm('هل أنت متأكد من حذف هذا المدخل التعليمي من اقتراحات المكتبة؟')) return;
+    jQuery.post('<?php echo admin_url('admin-ajax.php'); ?>', {
+        action: 'sm_save_educational_input',
+        delete_id: id,
+        subject: 'حذف',
+        content: 'حذف'
+    }, function() {
+        location.reload();
+    });
+}
+
 function eessCreateAnnouncement(e) {
     e.preventDefault();
     const btn = document.getElementById('btn-save-announcement');

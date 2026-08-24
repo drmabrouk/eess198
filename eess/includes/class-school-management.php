@@ -167,6 +167,8 @@ class School_Management {
         $this->loader->add_action('wp_ajax_eess_update_support_status', $plugin_public, 'ajax_update_support_status');
         $this->loader->add_action('wp_ajax_eess_delete_support_request', $plugin_public, 'ajax_delete_support_request');
         $this->loader->add_action('wp_ajax_eess_send_quick_parent_note', $plugin_public, 'ajax_send_quick_parent_note');
+        $this->loader->add_action('wp_ajax_sm_get_educational_suggestions', $plugin_public, 'ajax_get_educational_suggestions');
+        $this->loader->add_action('wp_ajax_sm_save_educational_input', $plugin_public, 'ajax_save_educational_input');
     }
 
     public function run() {
