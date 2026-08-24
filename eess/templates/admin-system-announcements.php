@@ -560,7 +560,6 @@ function eessDeleteSupportRecord(id) {
             </table>
         </div>
     </div>
-</script>
 
 <script>
 function eessDeleteEducationalInput(id) {

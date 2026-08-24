@@ -382,14 +382,6 @@ class SM_Public {
         ?>
         <div class="eess-mobile-prep-app" style="max-width: 500px; margin: 0 auto; background: #f8fafc; min-height: 100vh; font-family: 'Cairo', sans-serif; direction: rtl; padding: 15px; box-sizing: border-box; color: #1e293b;">
 
-            <!-- Encouragement Desktop Banner -->
-            <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 12px 15px; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 10px;">
-                <span class="dashicons dashicons-desktop" style="color: #2563eb; font-size: 20px; margin-top: 2px;"></span>
-                <div style="font-size: 12px; color: #1e40af; line-height: 1.5; font-weight: 600;">
-                    لإدارة حسابك الكامل، واستعراض التحضيرات السابقة، ومتابعة التقارير، يُرجى تسجيل الدخول من جهاز الكمبيوتر أو المحمول.
-                </div>
-            </div>
-
             <!-- Header Card -->
             <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.3);">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
@@ -578,6 +570,14 @@ class SM_Public {
                 <button type="button" onclick="eessVerifyMobileEmp()" id="m_btn_verify" style="width: 100%; height: 44px; background: #2563eb; color: white; border: none; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
                     <span>تسجيل الدخول والتحقق</span>
                 </button>
+
+                <!-- Subtle Soft Pastel Red Informational Notice Below Login Form -->
+                <div style="background: #fef2f2; border: 1px solid #fecdd3; border-radius: 10px; padding: 10px 12px; margin-top: 14px; display: flex; align-items: flex-start; gap: 8px;">
+                    <span class="dashicons dashicons-info" style="color: #991b1b; font-size: 16px; width: 16px; height: 16px; margin-top: 1px; flex-shrink: 0;"></span>
+                    <div style="font-size: 11.5px; color: #991b1b; line-height: 1.5; font-weight: 600;">
+                        لإدارة حسابك الكامل، واستعراض التحضيرات السابقة، ومتابعة التقارير، يُرجى تسجيل الدخول من جهاز الكمبيوتر أو المحمول.
+                    </div>
+                </div>
             </div>
 
             <!-- STEP 2: Identity Confirmation Card -->
@@ -7040,8 +7040,8 @@ class SM_Public {
         $emp_id   = isset($_POST['emp_id']) ? sanitize_text_field($_POST['emp_id']) : '';
         $password = isset($_POST['password']) ? $_POST['password'] : '';
 
-        if (empty($emp_id)) {
-            wp_send_json_error('يرجى إدخال الرقم الوظيفي أو رقم الجوال بشكل صحيح.');
+        if (empty($emp_id) || empty($password)) {
+            wp_send_json_error('يرجى إدخال الرقم الوظيفي/رقم الجوال وكلمة المرور بشكل صحيح.');
         }
 
         $teacher = SM_DB::get_teacher_by_employee_id_or_phone($emp_id);
@@ -7049,13 +7049,12 @@ class SM_Public {
             wp_send_json_error('لم يتم العثور على حساب مطابق للبيانات المدخلة. يرجى التأكد من الرقم الوظيفي أو رقم الهاتف.');
         }
 
-        if (!empty($password)) {
-            if (!wp_check_password($password, $teacher->user_pass, $teacher->ID)) {
-                wp_send_json_error('كلمة المرور المدخلة غير صحيحة. يرجى المحاولة مجدداً.');
-            }
-            wp_set_current_user($teacher->ID);
-            wp_set_auth_cookie($teacher->ID, true);
+        if (!wp_check_password($password, $teacher->user_pass, $teacher->ID)) {
+            wp_send_json_error('كلمة المرور المدخلة غير صحيحة. يرجى المحاولة مجدداً.');
         }
+
+        wp_set_current_user($teacher->ID);
+        wp_set_auth_cookie($teacher->ID, true);
 
         $subject = get_user_meta($teacher->ID, 'sm_specialization', true) ?: (get_user_meta($teacher->ID, 'specialization', true) ?: (get_user_meta($teacher->ID, 'subject', true) ?: 'عام'));
         $school  = get_user_meta($teacher->ID, 'eess_school_name', true) ?: (get_user_meta($teacher->ID, 'sm_school_name', true) ?: 'المدرسة الرئيسية');
