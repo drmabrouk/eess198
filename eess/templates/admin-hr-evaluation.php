@@ -315,6 +315,28 @@ $staff_users = get_users(array(
 
 <div class="sm-container" style="padding: 10px 0; font-family: 'Cairo', sans-serif !important; direction: rtl;">
 
+    <!-- Single Main Banner Header (Matching Teacher Term & Annual Plans) -->
+    <div style="background: #ffffff; padding: 20px 24px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 18px; box-shadow: 0 4px 18px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 48px; height: 48px; background: #fef2f2; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #881337; border: 1px solid #fecdd3; flex-shrink: 0;">
+                <span class="dashicons dashicons-awards" style="font-size: 24px; width: 24px; height: 24px;"></span>
+            </div>
+            <div>
+                <h2 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 800; color: #0f172a;">تقييم أداء الموظفين</h2>
+                <p style="margin: 0; font-size: 12.5px; color: #64748b; font-weight: 500;">المنظومة الاحترافية الشاملة لتقييم الأداء السنوي، الفصلي والدوري لمنتسبي الهيئة الأكاديمية والإدارية والقيادية</p>
+            </div>
+        </div>
+
+        <?php if ($can_evaluate): ?>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button type="button" onclick="jQuery('#eess-new-eval-container').slideToggle();" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <span class="dashicons dashicons-plus-alt2" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
+                <span>إجراء تقييم جديد</span>
+            </button>
+        </div>
+        <?php endif; ?>
+    </div>
+
     <?php if (!empty($success_msg)): ?>
         <div style="background: #dcfce7; color: #15803d; padding: 15px; border-radius: 8px; border: 1px solid #bbf7d0; font-weight: 700; margin-bottom: 25px; font-size: 13px;">
             <?php echo $success_msg; ?>
