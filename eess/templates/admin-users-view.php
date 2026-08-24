@@ -75,24 +75,12 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
 
 <div class="sm-content-wrapper" style="font-family: 'Cairo', sans-serif;" dir="rtl">
 
-    <!-- Single Header Card matching Reference UI -->
-    <div style="background: #ffffff; padding: 20px 24px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px; box-shadow: 0 4px 18px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-        <div style="display: flex; align-items: center; gap: 14px;">
-            <div style="width: 48px; height: 48px; background: #fef2f2; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #881337; border: 1px solid #fecdd3; flex-shrink: 0;">
-                <span class="dashicons dashicons-admin-users" style="font-size: 24px; width: 24px; height: 24px;"></span>
-            </div>
-            <div>
-                <h2 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 800; color: #0f172a;">إدارة مستخدمي النظام</h2>
-                <p style="margin: 0; font-size: 12.5px; color: #64748b; font-weight: 500;">إدارة وتعديل حسابات الكادر التعليمي والإداري، التخصصات والصلاحيات في المنصة</p>
-            </div>
-        </div>
-
-        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-            <button type="button" onclick="eessOpenUnifiedUserModal('add_user', 0)" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-                <span class="dashicons dashicons-plus-alt2" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
-                <span>إضافة مستخدم جديد</span>
-            </button>
-        </div>
+    <!-- Action Button Area -->
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+        <button type="button" onclick="eessOpenUnifiedUserModal('add_user', 0)" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+            <span class="dashicons dashicons-plus-alt2" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
+            <span>إضافة مستخدم جديد</span>
+        </button>
     </div>
 
     <!-- User Management Tabs -->
