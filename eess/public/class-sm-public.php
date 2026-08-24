@@ -430,6 +430,7 @@ class SM_Public {
                 <form id="eess_mobile_prep_form" onsubmit="eessSubmitMobileLesson(event)">
                     <input type="hidden" id="m_form_teacher_id" name="teacher_id">
                     <input type="hidden" id="m_form_emp_id" name="emp_id">
+                    <input type="hidden" name="sm_nonce" value="<?php echo esc_attr($nonce); ?>">
 
                     <!-- Basic Info Box -->
                     <div style="background: #ffffff; border-radius: 16px; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 15px;">
@@ -649,21 +650,17 @@ class SM_Public {
     }
 
     public function shortcode_lesson_prep() {
-        if ($this->eess_is_mobile_device()) {
-            return $this->eess_render_mobile_lesson_prep();
+        if (!$this->eess_is_mobile_device()) {
+            if (!is_user_logged_in()) {
+                wp_safe_redirect(home_url('/sm-login'));
+                exit;
+            } else {
+                wp_safe_redirect(home_url('/sm-admin'));
+                exit;
+            }
         }
 
-        if (!is_user_logged_in()) {
-            wp_redirect(add_query_arg('redirect_to', home_url('/lesson-prep'), home_url('/sm-login')));
-            exit;
-        }
-
-        $user = wp_get_current_user();
-        $roles = (array) $user->roles;
-        $is_admin = in_array('administrator', $roles) || current_user_can('manage_options');
-        if (!$is_admin && (!SM_Settings::is_section_visible('lesson-plans') || !SM_Settings::user_has_module_capability('lesson-plans'))) {
-            return SM_Settings::get_access_restricted_html();
-        }
+        return $this->eess_render_mobile_lesson_prep();
 
         // Runtime DB table presence check and automatic creation
         global $wpdb;
@@ -5476,7 +5473,9 @@ class SM_Public {
     }
 
     public function ajax_export_grades_csv() {
-        if (!is_user_logged_in() || (!current_user_can('manage_grades') && !current_user_can('manage_options'))) {
+        $roles = is_user_logged_in() ? (array) wp_get_current_user()->roles : array();
+        $can_grades = in_array('sm_teacher', $roles) || in_array('sm_coordinator', $roles) || in_array('sm_hod', $roles) || in_array('sm_principal', $roles) || current_user_can('manage_grades') || current_user_can('manage_options');
+        if (!is_user_logged_in() || !$can_grades) {
             wp_die('Unauthorized');
         }
 
@@ -5517,7 +5516,9 @@ class SM_Public {
     }
 
     public function ajax_import_grades_csv() {
-        if (!is_user_logged_in() || (!current_user_can('manage_grades') && !current_user_can('manage_options'))) {
+        $roles = is_user_logged_in() ? (array) wp_get_current_user()->roles : array();
+        $can_grades = in_array('sm_teacher', $roles) || in_array('sm_coordinator', $roles) || in_array('sm_hod', $roles) || in_array('sm_principal', $roles) || current_user_can('manage_grades') || current_user_can('manage_options');
+        if (!is_user_logged_in() || !$can_grades) {
             wp_send_json_error('Unauthorized');
         }
 
@@ -6866,6 +6867,10 @@ class SM_Public {
     }
 
     public function ajax_submit_mobile_lesson() {
+        if (!wp_verify_nonce($_POST['sm_nonce'] ?? '', 'sm_mobile_prep_action') && !wp_verify_nonce($_POST['sm_nonce'] ?? '', 'sm_term_plan_action')) {
+            wp_send_json_error('فشل التوثيق الأمني للجلسة.');
+        }
+
         $teacher_id = isset($_POST['teacher_id']) ? intval($_POST['teacher_id']) : 0;
         $emp_id     = isset($_POST['emp_id']) ? sanitize_text_field($_POST['emp_id']) : '';
 
@@ -6873,7 +6878,7 @@ class SM_Public {
             wp_send_json_error('تعذر التحقق من هوية المعلم.');
         }
 
-        $teacher = SM_DB::get_teacher_by_employee_id($emp_id);
+        $teacher = SM_DB::get_teacher_by_employee_id_or_phone($emp_id);
         if (!$teacher || $teacher->ID != $teacher_id) {
             wp_send_json_error('فشل التوثيق الأمني لملف المعلم.');
         }
