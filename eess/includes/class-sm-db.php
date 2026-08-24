@@ -1062,20 +1062,30 @@ class SM_DB {
     }
 
     public static function get_teacher_by_employee_id($emp_id) {
-        $emp_id = trim(sanitize_text_field($emp_id));
-        if (empty($emp_id)) {
+        return self::get_teacher_by_employee_id_or_phone($emp_id);
+    }
+
+    public static function get_teacher_by_employee_id_or_phone($identifier) {
+        $identifier = trim(sanitize_text_field($identifier));
+        if (empty($identifier)) {
             return false;
         }
 
         global $wpdb;
 
-        // 1. Check user meta for sm_employee_id or sm_employee_code or employee_id
+        // Clean phone digits for phone search
+        $clean_phone = preg_replace('/[^0-9]/', '', $identifier);
+
+        // 1. Check user meta for employee IDs or registered phone numbers
         $meta_user = $wpdb->get_row($wpdb->prepare(
             "SELECT u.* FROM {$wpdb->users} u
              INNER JOIN {$wpdb->usermeta} um ON u.ID = um.user_id
-             WHERE um.meta_key IN ('sm_employee_id', 'sm_employee_code', 'employee_id', 'job_number')
-             AND um.meta_value = %s LIMIT 1",
-            $emp_id
+             WHERE (um.meta_key IN ('sm_employee_id', 'eess_employee_number', 'sm_employee_code', 'employee_id', 'job_number') AND um.meta_value = %s)
+             OR (um.meta_key IN ('sm_phone', 'phone_number', 'mobile_number', 'guardian_phone') AND (um.meta_value = %s OR um.meta_value LIKE %s))
+             LIMIT 1",
+            $identifier,
+            $identifier,
+            '%' . $wpdb->esc_like($clean_phone) . '%'
         ));
 
         if ($meta_user) {
@@ -1083,14 +1093,14 @@ class SM_DB {
         }
 
         // 2. Fallback check user_login or ID if numeric
-        if (is_numeric($emp_id)) {
-            $user_by_id = get_userdata(intval($emp_id));
+        if (is_numeric($identifier)) {
+            $user_by_id = get_userdata(intval($identifier));
             if ($user_by_id) {
                 return $user_by_id;
             }
         }
 
-        $user_by_login = get_user_by('login', $emp_id);
+        $user_by_login = get_user_by('login', $identifier);
         if ($user_by_login) {
             return $user_by_login;
         }
