@@ -21,9 +21,16 @@
         </div>
     </div>
 
+    <?php
+    $user_roles = (array) wp_get_current_user()->roles;
+    $is_teacher_role = in_array('sm_teacher', $user_roles) && !in_array('administrator', $user_roles) && !in_array('sm_system_admin', $user_roles) && !in_array('sm_principal', $user_roles) && !in_array('sm_supervisor', $user_roles) && !in_array('sm_coordinator', $user_roles) && !in_array('sm_hod', $user_roles);
+    $can_upload_general_doc = in_array('administrator', $user_roles) || in_array('sm_system_admin', $user_roles) || in_array('sm_principal', $user_roles) || in_array('sm_supervisor', $user_roles) || in_array('sm_coordinator', $user_roles) || in_array('sm_hod', $user_roles) || current_user_can('manage_options');
+    ?>
+
     <div class="sm-tabs-wrapper" style="display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
-        <button class="sm-tab-btn sm-active" onclick="smOpenInternalTab('doc-library-tab', this)">مكتبة الوثائق والتقارير</button>
-        <?php if (current_user_can('تسجيل_مخالفة')): // Supervisors and above ?>
+        <button class="sm-tab-btn sm-active" onclick="smOpenInternalTab('doc-library-tab', this)">مكتبة الوثائق الخاصة والتقارير</button>
+        <button class="sm-tab-btn" onclick="smOpenInternalTab('general-doc-library-tab', this)">مكتبة الوثائق والتقارير العامة</button>
+        <?php if (!$is_teacher_role && current_user_can('تسجيل_مخالفة')): ?>
             <button class="sm-tab-btn" onclick="smOpenInternalTab('regulation-custom-tab', this)">تخصيص اللائحة التنظيمية</button>
         <?php endif; ?>
     </div>

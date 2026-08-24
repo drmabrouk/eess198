@@ -54,9 +54,9 @@ $dash_data = SM_DB::get_personalized_dashboard_data($user_id);
             <?php if (!empty($dash_data['current_lesson'])):
                 $les = $dash_data['current_lesson'];
             ?>
-                <div style="font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 4px;"><?php echo esc_html($les['subject']); ?></div>
-                <div style="font-size: 12px; font-weight: 700; color: #2563eb; margin-bottom: 6px;"><?php echo esc_html($les['grade'] . ' (' . $les['section'] . ')'); ?></div>
-                <div style="font-size: 11px; color: #64748b;"><?php echo esc_html($les['period']); ?></div>
+                <div style="font-size: 15px; font-weight: 800; color: #0f172a; margin-bottom: 4px; line-height: 1.4;"><?php echo esc_html($les['lesson_title'] ?? $les['subject']); ?></div>
+                <div style="font-size: 12px; font-weight: 700; color: #2563eb; margin-bottom: 6px;"><?php echo esc_html($les['subject'] . ' - ' . $les['grade'] . ' (' . $les['section'] . ')'); ?></div>
+                <div style="font-size: 11px; color: #64748b; font-weight: 600;"><?php echo esc_html($les['period']); ?></div>
             <?php else: ?>
                 <div style="padding: 15px 0; text-align: center; color: #94a3b8; font-size: 12px; font-weight: 700;">
                     لا توجد حصص مجدولة حالياً لهذا الوقت.
@@ -159,12 +159,39 @@ $dash_data = SM_DB::get_personalized_dashboard_data($user_id);
         </div>
         <div style="height: 180px;"><canvas id="violationTrendsChart"></canvas></div>
     </div>
-    <div style="background: #fff; padding: 20px; border-radius: 8px; border: 1px solid var(--sm-border-color); position: relative; max-height: 300px; overflow: hidden;">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px;">
-            <h3 style="margin:0; font-size: 1.0em;">توزيع الأنواع</h3>
-            <button onclick="smDownloadChart('violationCategoriesChart', 'توزيع_الأنواع')" class="sm-action-btn" title="تحميل كصورة" style="background:none; border:none; color:var(--sm-text-gray); cursor:pointer;"><span class="dashicons dashicons-download"></span></button>
+    <!-- Support & Updates Card replacing Category Chart with Same Dimensions -->
+    <div style="background: #fff; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; position: relative; max-height: 300px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 12px;">
+            <h3 style="margin:0; font-size: 14px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                <span class="dashicons dashicons-megaphone" style="color: #2563eb;"></span>
+                <span>الدعم والمستجدات الإدارية</span>
+            </h3>
+            <span style="font-size: 11px; color: #64748b; font-weight: 700;">أحدث 3 رسائل</span>
         </div>
-        <div style="height: 180px;"><canvas id="violationCategoriesChart"></canvas></div>
+
+        <div style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+            <?php
+            global $wpdb;
+            $latest_support = $wpdb->get_results("
+                SELECT * FROM {$wpdb->prefix}sm_system_announcements
+                WHERE status = 'active'
+                ORDER BY created_at DESC LIMIT 3
+            ");
+
+            if (empty($latest_support)): ?>
+                <div style="padding: 30px; text-align: center; color: #94a3b8; font-size: 12px; font-weight: 600;">لا توجد مستجدات أو رسائل دعم جديدة حالياً.</div>
+            <?php else: foreach ($latest_support as $sup_msg): ?>
+                <div onclick="eessOpenSupportUpdateModal('<?php echo esc_js($sup_msg->title); ?>', '<?php echo esc_js(str_replace(array("\r", "\n"), ' ', $sup_msg->details)); ?>', '<?php echo esc_js($sup_msg->created_at); ?>')" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#f1f5f9'; this.style.borderColor='#2563eb';" onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#e2e8f0';">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <span style="font-size: 12.5px; font-weight: 800; color: #0f172a;"><?php echo esc_html($sup_msg->title); ?></span>
+                        <span style="font-size: 10px; color: #64748b; font-family: monospace;"><?php echo date('m/d', strtotime($sup_msg->created_at)); ?></span>
+                    </div>
+                    <div style="font-size: 11.5px; color: #475569; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.4;">
+                        <?php echo esc_html($sup_msg->details); ?>
+                    </div>
+                </div>
+            <?php endforeach; endif; ?>
+        </div>
     </div>
 </div>
 
@@ -247,6 +274,39 @@ function smDownloadChart(chartId, fileName) {
 })();
 </script>
 </div>
+
+<!-- Support Update Detail Viewer Modal -->
+<div id="eess-support-update-modal" class="sm-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif; direction: rtl;">
+    <div style="background: #ffffff; border-radius: 20px; max-width: 520px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); overflow: hidden; display: flex; flex-direction: column;">
+        <div style="background: #0f172a; color: #ffffff; padding: 16px 22px; display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="dashicons dashicons-megaphone" style="color: #ffffff; font-size: 20px; width: 20px; height: 20px;"></span>
+                <h3 style="margin: 0; font-size: 15.5px; font-weight: 800; color: #ffffff;" id="m_sup_modal_title">تفاصيل المستجد الإداري</h3>
+            </div>
+            <button type="button" onclick="document.getElementById('eess-support-update-modal').style.display='none'" style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer; line-height: 1;">&times;</button>
+        </div>
+
+        <div style="padding: 22px;">
+            <div style="font-size: 11px; color: #64748b; font-family: monospace; margin-bottom: 10px;" id="m_sup_modal_date">---</div>
+            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 16px; font-size: 13px; color: #1e293b; line-height: 1.7; white-space: pre-line; margin-bottom: 20px;" id="m_sup_modal_details">
+                <!-- Message content -->
+            </div>
+
+            <div style="display: flex; justify-content: flex-end;">
+                <button type="button" onclick="document.getElementById('eess-support-update-modal').style.display='none'" class="sm-btn" style="height: 38px; padding: 0 24px; border-radius: 9999px !important; font-size: 12.5px; background: #000000; color: #ffffff !important; font-weight: 800; border: none; cursor: pointer;">إغلاق التنبيه</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function eessOpenSupportUpdateModal(title, details, dateStr) {
+    document.getElementById('m_sup_modal_title').innerText = title;
+    document.getElementById('m_sup_modal_details').innerText = details;
+    document.getElementById('m_sup_modal_date').innerText = 'تاريخ النشر: ' + dateStr;
+    document.getElementById('eess-support-update-modal').style.display = 'flex';
+}
+</script>
 
 <!-- Quick Parent Note Modal -->
 <div id="eess-quick-parent-note-modal" class="sm-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif; direction: rtl;">

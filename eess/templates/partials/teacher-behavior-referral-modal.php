@@ -4,16 +4,19 @@ if (!defined('ABSPATH')) exit;
  * 6-Step Multi-Step Modal Wizard for Teacher Behavioral Referrals
  */
 ?>
-<div id="eess-teacher-referral-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif; direction: rtl;">
-    <div style="background: #ffffff; border-radius: 20px; max-width: 650px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; display: flex; flex-direction: column; max-height: 90vh;">
+<div id="eess-teacher-referral-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif; direction: rtl;">
+    <div style="background: #ffffff; border-radius: 20px; max-width: 780px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); overflow: hidden; display: flex; flex-direction: column; max-height: 92vh;">
 
-        <!-- Modal Header -->
-        <div style="background: #1e293b; color: #ffffff; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span class="dashicons dashicons-id" style="color: #f87171; font-size: 22px; width: 22px; height: 22px; margin: 0;"></span>
-                <h3 style="margin: 0; font-size: 16px; font-weight: 800; font-family: 'Cairo', sans-serif;">تقديم مخالفة سلوكية لطالب (إحالة إلى مشرف السلوك)</h3>
+        <!-- Modal Header (Thinner, Dark Flush Header with White Title and White Icon) -->
+        <div style="background: #0f172a; color: #ffffff; padding: 16px 24px; border-bottom: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span class="dashicons dashicons-warning" style="color: #ffffff; font-size: 22px; width: 22px; height: 22px; margin: 0;"></span>
+                <div>
+                    <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #ffffff; font-family: 'Cairo', sans-serif;">تقديم مخالفة سلوكية لطالب – إحالة إلى مشرف السلوك</h3>
+                    <p style="margin: 3px 0 0 0; font-size: 11.5px; color: #94a3b8; font-weight: 600;">رصد وإحالة المواقف السلوكية بدقة لمتابعة مشرف الانضباط</p>
+                </div>
             </div>
-            <button type="button" onclick="eessCloseTeacherReferralModal()" style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer; line-height: 1;">&times;</button>
+            <button type="button" onclick="eessCloseTeacherReferralModal()" style="background: none; border: none; color: #ffffff; font-size: 26px; cursor: pointer; line-height: 1;">&times;</button>
         </div>
 
         <!-- Wizard Progress Bar (6 Steps) -->
@@ -147,15 +150,15 @@ function eessCloseTeacherReferralModal() {
 function eessTeacherReferralNav(dir) {
     if (dir === 1) {
         if (eessRefCurrentStep === 1 && !document.getElementById('ref_selected_student_id').value) {
-            alert('يرجى اختيار الطالب المعني أولاً');
+            if (typeof smShowNotification === 'function') smShowNotification('يرجى اختيار الطالب المعني أولاً', true);
             return;
         }
         if (eessRefCurrentStep === 2 && !document.getElementById('ref_title').value) {
-            alert('يرجى كتابة عنوان الموقف/المخالفة السلوكية');
+            if (typeof smShowNotification === 'function') smShowNotification('يرجى كتابة عنوان الموقف/المخالفة السلوكية', true);
             return;
         }
         if (eessRefCurrentStep === 3 && !document.getElementById('ref_details').value) {
-            alert('يرجى كتابة التفاصيل والوقائع المرصودة');
+            if (typeof smShowNotification === 'function') smShowNotification('يرجى كتابة التفاصيل والوقائع المرصودة', true);
             return;
         }
     }
@@ -257,11 +260,11 @@ function eessSubmitTeacherReferral(e) {
         btn.disabled = false;
         btn.innerText = 'رفع الإحالة لمشرف السلوك';
         if (res.success) {
-            alert('تم تقديم المخالفة السلوكية بنجاح وهي قيد المراجعة والاعتماد من مشرف السلوك.');
+            if (typeof smShowNotification === 'function') smShowNotification('تم تقديم المخالفة السلوكية بنجاح وهي قيد المراجعة والاعتماد من مشرف السلوك');
             eessCloseTeacherReferralModal();
             setTimeout(() => location.reload(), 500);
         } else {
-            alert('خطأ: ' + (res.data || 'تعذر حفظ البيانات'));
+            if (typeof smShowNotification === 'function') smShowNotification('خطأ: ' + (res.data || 'تعذر حفظ البيانات'), true);
         }
     });
 }

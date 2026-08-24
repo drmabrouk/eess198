@@ -1252,19 +1252,55 @@ class SM_DB {
             $specialization = get_user_meta($user_id, 'sm_specialization', true) ?: (get_user_meta($user_id, 'specialization', true) ?: 'عام');
             $assigned_sections = get_user_meta($user_id, 'sm_assigned_sections', true) ?: array();
 
-            // Next / Current Lesson calculation
+            // Next / Current Lesson calculation directly from teacher's active Term Plan
             $current_lesson = null;
-            if (!empty($assigned_sections) && is_array($assigned_sections)) {
+            $term_plan = $wpdb->get_row($wpdb->prepare(
+                "SELECT * FROM {$wpdb->prefix}sm_term_plans WHERE teacher_id = %d AND status IN ('approved', 'submitted', 'draft') ORDER BY updated_at DESC LIMIT 1",
+                $user_id
+            ));
+
+            if ($term_plan && !empty($term_plan->weeks_data)) {
+                $weeks = json_decode($term_plan->weeks_data, true);
+                if (is_array($weeks) && !empty($weeks)) {
+                    // Estimate current week or pick latest planned week
+                    $week_keys = array_keys($weeks);
+                    $target_week_key = reset($week_keys);
+
+                    if (!empty($term_plan->start_date) && strtotime($term_plan->start_date) <= time()) {
+                        $diff_days = floor((time() - strtotime($term_plan->start_date)) / (60 * 60 * 24));
+                        $calc_week = max(1, min(count($weeks), ceil($diff_days / 7)));
+                        if (isset($weeks[$calc_week])) {
+                            $target_week_key = $calc_week;
+                        }
+                    }
+
+                    $week_data = $weeks[$target_week_key] ?? reset($weeks);
+                    $lesson_title = !empty($week_data['title']) ? $week_data['title'] : 'عنوان الدرس المخطط';
+
+                    $current_lesson = array(
+                        'lesson_title' => $lesson_title,
+                        'grade'        => $term_plan->grade ?: 'الدرجات المسندة',
+                        'section'      => 'الأسبوع ' . $target_week_key,
+                        'subject'      => $term_plan->subject ?: $specialization,
+                        'period'       => 'الخطة الفصلية المعتمدة',
+                        'room'         => 'القاعة الدراسية',
+                        'status'       => 'مخططة للتدريس'
+                    );
+                }
+            }
+
+            if (!$current_lesson && !empty($assigned_sections) && is_array($assigned_sections)) {
                 $first_pair = reset($assigned_sections);
                 $pair_parts = explode('|', $first_pair);
                 $g_num = $pair_parts[0] ?? '1';
                 $sec = $pair_parts[1] ?? '1';
 
                 $current_lesson = array(
+                    'lesson_title' => $specialization,
                     'grade'   => 'الصف ' . $g_num,
                     'section' => $sec,
                     'subject' => $specialization,
-                    'period'  => 'الحصة الثالثة (10:20 - 11:05)',
+                    'period'  => 'الحصة المجدولة',
                     'room'    => 'قاعة ' . $g_num . '/' . $sec,
                     'status'  => 'نشطة الآن'
                 );

@@ -198,10 +198,46 @@ if (!is_array($timeline)) $timeline = json_decode($timeline, true) ?: array();
         </div>
     </div>
 
-    <!-- Main Workspace with Tabs in Left-Sidebar Vertical Format (RTL compliant) -->
+    <!-- Main Workspace with Navigation List on Right and Selected Tab Content on Left (RTL Compliant) -->
     <div style="background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: var(--sm-shadow); padding: 25px; min-height: 500px; display: flex; gap: 25px; direction: rtl; align-items: flex-start;">
 
-        <!-- Right side: Content Panels (flex: 1) -->
+        <!-- Right Side: Vertical Navigation Tabs List (width: 250px) -->
+        <div style="width: 250px; flex-shrink: 0; border-left: 1px solid #cbd5e0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px;">
+            <button type="button" onclick="switchEmployeeProfileTab('wp-personal', this)" class="sm-tab-btn sm-active" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: all 0.2s; background: #881337; color: white; display: flex; align-items: center; gap: 8px;">
+                <span class="dashicons dashicons-admin-users" style="font-size: 16px; width: 16px; height: 16px;"></span>
+                <span>المعلومات الشاملة</span>
+            </button>
+            <button type="button" onclick="switchEmployeeProfileTab('wp-salaries', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: all 0.2s; background: #f8fafc; color: #475569; display: flex; align-items: center; gap: 8px;">
+                <span class="dashicons dashicons-money-alt" style="font-size: 16px; width: 16px; height: 16px;"></span>
+                <span>معلومات الرواتب</span>
+            </button>
+            <button type="button" onclick="switchEmployeeProfileTab('wp-disciplinary', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: all 0.2s; background: #f8fafc; color: #475569; display: flex; align-items: center; gap: 8px;">
+                <span class="dashicons dashicons-warning" style="font-size: 16px; width: 16px; height: 16px;"></span>
+                <span>السجلات التأديبية</span>
+            </button>
+            <button type="button" onclick="switchEmployeeProfileTab('wp-evaluations', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: all 0.2s; background: #f8fafc; color: #475569; display: flex; align-items: center; gap: 8px;">
+                <span class="dashicons dashicons-chart-line" style="font-size: 16px; width: 16px; height: 16px;"></span>
+                <span>تقييم الأداء</span>
+            </button>
+            <button type="button" onclick="switchEmployeeProfileTab('wp-docs', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: all 0.2s; background: #f8fafc; color: #475569; display: flex; align-items: center; gap: 8px;">
+                <span class="dashicons dashicons-media-document" style="font-size: 16px; width: 16px; height: 16px;"></span>
+                <span>الوثائق الرسمية</span>
+            </button>
+            <button type="button" onclick="switchEmployeeProfileTab('wp-leaves', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: all 0.2s; background: #f8fafc; color: #475569; display: flex; align-items: center; gap: 8px;">
+                <span class="dashicons dashicons-calendar-alt" style="font-size: 16px; width: 16px; height: 16px;"></span>
+                <span>سجل الإجازات</span>
+            </button>
+            <button type="button" onclick="switchEmployeeProfileTab('wp-notes', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: all 0.2s; background: #f8fafc; color: #475569; display: flex; align-items: center; gap: 8px;">
+                <span class="dashicons dashicons-edit" style="font-size: 16px; width: 16px; height: 16px;"></span>
+                <span>الملاحظات الإدارية</span>
+            </button>
+            <button type="button" onclick="switchEmployeeProfileTab('wp-timeline', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: all 0.2s; background: #f8fafc; color: #475569; display: flex; align-items: center; gap: 8px;">
+                <span class="dashicons dashicons-clock" style="font-size: 16px; width: 16px; height: 16px;"></span>
+                <span>سجل الأنشطة</span>
+            </button>
+        </div>
+
+        <!-- Left Side: Content Panels for Selected Tab (flex: 1) -->
         <div style="flex: 1; min-width: 0;">
             <!-- Section 1: Personal Information -->
             <div id="wp-personal" class="wp-tab-content" style="display: block;">
@@ -600,17 +636,6 @@ if (!is_array($timeline)) $timeline = json_decode($timeline, true) ?: array();
 
         </div>
 
-        <!-- Left side: Vertical Sidebar Navigation (width: 250px) -->
-        <div style="width: 250px; flex-shrink: 0; border-right: 1px solid #cbd5e0; padding-right: 15px; display: flex; flex-direction: column; gap: 8px;">
-            <button onclick="switchEmployeeProfileTab('wp-personal', this)" class="sm-tab-btn sm-active" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: 0.2s; background: #881337; color: white;">المعلومات الشاملة</button>
-            <button onclick="switchEmployeeProfileTab('wp-salaries', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">معلومات الرواتب</button>
-            <button onclick="switchEmployeeProfileTab('wp-disciplinary', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">السجلات التأديبية</button>
-            <button onclick="switchEmployeeProfileTab('wp-evaluations', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">تقييم الأداء</button>
-            <button onclick="switchEmployeeProfileTab('wp-docs', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">الوثائق الرسمية</button>
-            <button onclick="switchEmployeeProfileTab('wp-leaves', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">سجل الإجازات</button>
-            <button onclick="switchEmployeeProfileTab('wp-notes', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">الملاحظات الإدارية</button>
-            <button onclick="switchEmployeeProfileTab('wp-timeline', this)" class="sm-tab-btn" style="text-align: right; width: 100%; border: none; font-size: 13px; font-weight: 700; padding: 10px 15px; border-radius: 9999px !important; cursor: pointer; transition: 0.2s; background: #f8fafc; color: #475569;">سجل الأنشطة</button>
-        </div>
 
     </div>
 

@@ -151,14 +151,27 @@ $arabic_term_names = array(
             </div>
         </div>
 
-    <!-- TEACHER TAB: SUBMITTED PLANS HISTORY WITH RICH MULTI-LINE CARD ROWS -->
+    <!-- TEACHER TAB: SUBMITTED PLANS HISTORY WITH RICH MULTI-LINE CARD ROWS & SEARCH FILTER -->
     <div id="panel-teacher-dashboard" class="term-plan-panel" style="display: block;">
-        <div style="background: #ffffff; padding: 24px 28px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 14px;">
+
+        <!-- Search & Filter Card Matching Lesson Prep Style -->
+        <div style="background: #ffffff; padding: 18px 22px; border-radius: 20px; border: 1px solid #cbd5e1; box-shadow: 0 4px 16px rgba(0,0,0,0.02); margin-bottom: 18px;">
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 14px; align-items: end;">
                 <div>
-                    <h3 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 800; color: #0f172a;">سجل وأرشيف الخطط الفصلية والسنوية الخاصة بي</h3>
-                    <p style="margin: 0; font-size: 12px; color: #64748b;">استعراض الخطط السابقة وإعادة تعديل المسودات أو الخطط التي حُددت للتعديل</p>
+                    <label style="font-size: 11.5px; font-weight: 700; color: #475569; margin-bottom: 4px; display: block;">البحث المباشر في أرشف الخطط</label>
+                    <input type="text" id="eess-teacher-plans-search" onkeyup="eessFilterTeacherPlansTable()" placeholder="ابحث المادة، الصف، الفصل..." style="width: 100%; height: 38px; padding: 0 14px; border: 1px solid #cbd5e1; border-radius: 9999px !important; font-size: 12.5px; outline: none; background: #f8fafc;">
                 </div>
+                <div>
+                    <label style="font-size: 11.5px; font-weight: 700; color: #475569; margin-bottom: 4px; display: block;">تصفية بحالة الاعتماد</label>
+                    <select id="eess-teacher-plans-status-filter" onchange="eessFilterTeacherPlansTable()" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 9999px !important; font-size: 12.5px; outline: none; background: #ffffff;">
+                        <option value="">جميع الحالات</option>
+                        <option value="draft">مسودة</option>
+                        <option value="submitted">مرفوعة للمراجعة</option>
+                        <option value="approved">معتمدة رسمياً</option>
+                        <option value="returned">طلب تعديل</option>
+                    </select>
+                </div>
+                <div></div>
                 <?php if ($is_teacher && !$is_reviewer): ?>
                 <button type="button" onclick="eessOpenPlanSetupWizard(1)" class="sm-btn" style="background: #881337; color: #fff; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                     <span class="dashicons dashicons-plus-alt" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
@@ -166,16 +179,25 @@ $arabic_term_names = array(
                 </button>
                 <?php endif; ?>
             </div>
+        </div>
+
+        <div style="background: #ffffff; padding: 22px 26px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 14px;">
+                <div>
+                    <h3 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 800; color: #0f172a;">سجل وأرشيف الخطط الفصلية والسنوية الخاصة بي</h3>
+                    <p style="margin: 0; font-size: 12px; color: #64748b;">استعراض الخطط السابقة وإعادة تعديل المسودات أو الخطط التي حُددت للتعديل</p>
+                </div>
+            </div>
 
             <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: separate; border-spacing: 0; text-align: right;">
+                <table id="eess-teacher-plans-table" style="width: 100%; border-collapse: separate; border-spacing: 0; text-align: right;">
                     <thead>
                         <tr style="background: #212121; color: #ffffff;">
-                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #ffffff;">المادة والمعلم والتسكين</th>
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #ffffff; border-radius: 0 10px 0 0;">المادة والمعلم والتسكين</th>
                             <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #ffffff;">الفصل الدراسي والتاريخ</th>
                             <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #ffffff; text-align: center;">نسبة الإنجاز</th>
                             <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #ffffff; text-align: center;">الحالة</th>
-                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #ffffff; text-align: center;">الإجراءات السريعة</th>
+                            <th style="padding: 12px 16px; font-size: 12.5px; font-weight: 800; color: #ffffff; text-align: center; border-radius: 10px 0 0 0;">الإجراءات السريعة</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -193,7 +215,7 @@ $arabic_term_names = array(
                                 $teacher_school_name = get_user_meta($user_id, 'eess_school_name', true) ?: 'المدرسة الرئيسية';
                                 $term_name = $arabic_term_names[intval($tp->term_number)] ?? ('الفصل ' . intval($tp->term_number));
                             ?>
-                                <tr style="border-bottom: 1px solid #f1f5f9;">
+                                <tr style="border-bottom: 1px solid #f1f5f9;" class="teacher-plan-row" data-status="<?php echo esc_attr($tp->status); ?>">
                                     <!-- Rich Multi-Line Subject & School Cell -->
                                     <td style="padding: 14px 16px;">
                                         <div style="font-weight: 800; font-size: 14px; color: #0f172a;"><?php echo esc_html($tp->subject); ?></div>
@@ -440,92 +462,95 @@ $arabic_term_names = array(
         <!-- Wizard Body Container -->
         <form id="eess-wizard-setup-form" style="padding: 24px; overflow-y: auto; flex: 1;" onsubmit="eessSaveWizardPlanSubmit(event)">
             <input type="hidden" name="plan_id" id="tp_plan_id" value="0">
-            <!-- Step 1 -->
+            <?php
+                $assigned_teacher_subject = get_user_meta($user_id, 'sm_specialization', true) ?: (get_user_meta($user_id, 'specialization', true) ?: (get_user_meta($user_id, 'subject', true) ?: 'التربية البدنية والصحية'));
+                $assigned_teacher_grade   = get_user_meta($user_id, 'sm_grade_level', true) ?: (get_user_meta($user_id, 'grade', true) ?: 'الصف العاشر');
+                $assigned_teacher_school  = get_user_meta($user_id, 'eess_school_name', true) ?: 'المدرسة الرئيسية';
+                $is_pe_subject = (mb_strpos($assigned_teacher_subject, 'بدنية') !== false || mb_strpos($assigned_teacher_subject, 'رياضة') !== false || mb_strpos($assigned_teacher_subject, 'Health') !== false || mb_strpos($assigned_teacher_subject, 'Physical') !== false);
+                $default_weekly_lessons = $is_pe_subject ? 1 : 2;
+            ?>
+            <input type="hidden" id="wiz_academic_year" value="<?php echo esc_attr($active_academic_year); ?>">
+            <input type="hidden" id="wiz_subject" value="<?php echo esc_attr($assigned_teacher_subject); ?>">
+
+            <!-- Step 1: Personalized Introductory & Instructional Stage -->
             <div id="wiz-step-1" class="wiz-step-content" style="display: block;">
-                <h4 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 800; color: #0f172a;">الخطوة 1: البيانات الأساسية والتسكين الأكاديمي</h4>
-                <p style="margin: 0 0 14px 0; font-size: 12px; color: #64748b;">راجع البيانات الأكاديمية المحددة تلقائياً لملفك قبل بدء إعداد الخطة.</p>
+                <h4 style="margin: 0 0 6px 0; font-size: 15px; font-weight: 800; color: #0f172a;">مرحباً <?php echo esc_html($user->display_name); ?> 👋 — معالج إعداد الخطة الفصلية</h4>
+                <p style="margin: 0 0 16px 0; font-size: 12.5px; color: #64748b; line-height: 1.6;">
+                    أنت على وشك البدء في إعداد الخطة التعليمية والتوزيع الأسبوعي المعتمد للمناهج الدراسية بحسابك المباشر.
+                </p>
 
-                <?php
-                    $assigned_teacher_subject = get_user_meta($user_id, 'sm_specialization', true) ?: (get_user_meta($user_id, 'specialization', true) ?: (get_user_meta($user_id, 'subject', true) ?: 'التربية البدنية والصحية'));
-                    $assigned_teacher_grade   = get_user_meta($user_id, 'sm_grade_level', true) ?: (get_user_meta($user_id, 'grade', true) ?: 'الصف العاشر');
-                ?>
-                <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; font-size: 12.5px; color: #0369a1; font-weight: 700; display: flex; align-items: center; gap: 8px;">
-                    <span class="dashicons dashicons-info" style="font-size: 18px; width: 18px; height: 18px;"></span>
-                    <span>أنت تقوم حالياً بإعداد الخطة التعليمية المعتمدة لمادة: <strong style="color: #0284c7; font-size: 13.5px;"><?php echo esc_html($assigned_teacher_subject); ?></strong></span>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                    <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">العام الأكاديمي *</label>
-                        <input type="text" id="wiz_academic_year" class="sm-input" value="<?php echo esc_attr($active_academic_year); ?>" readonly required style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 13px; text-align: right; box-sizing: border-box; background: #f8fafc; font-weight: 800;">
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 18px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
+                    <div style="font-weight: 800; font-size: 14px; color: #166534; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                        <span class="dashicons dashicons-id-alt" style="font-size: 20px; width: 20px; height: 20px;"></span>
+                        <span>السياق الأكاديمي والتسكين الحالي لمعلوماتك:</span>
                     </div>
-                    <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">المادة الدراسية المسندة (مقفلة تلقائياً) *</label>
-                        <input type="text" id="wiz_subject" class="sm-input" value="<?php echo esc_attr($assigned_teacher_subject); ?>" readonly required style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 13px; text-align: right; box-sizing: border-box; background: #f8fafc; font-weight: 800; color: #0f172a;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; color: #15803d; font-weight: 700;">
+                        <div>📚 <strong>المادة الدراسية المسندة:</strong> <span style="color: #0f172a; font-size: 13.5px;"><?php echo esc_html($assigned_teacher_subject); ?></span></div>
+                        <div>🏫 <strong>المؤسسة التعليمية:</strong> <span style="color: #0f172a;"><?php echo esc_html($assigned_teacher_school); ?></span></div>
+                        <div>📅 <strong>العام الأكاديمي العام:</strong> <span style="color: #0f172a;"><?php echo esc_html($active_academic_year); ?></span></div>
+                        <div>⏱️ <strong>الحصص الموصى بها أسبوعياً:</strong> <span style="color: #0f172a;"><?php echo $default_weekly_lessons; ?> حصص</span></div>
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                    <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">الصف الدراسي *</label>
-                        <select id="wiz_grade" class="sm-select" required style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 13px; text-align: right; direction: rtl; box-sizing: border-box;">
-                            <?php
-                            $found_assigned = false;
-                            foreach ($academic['active_grades'] as $g) {
-                                $g_lbl = "الصف $g";
-                                $sel = ($g_lbl === $assigned_teacher_grade || $g == $assigned_teacher_grade) ? 'selected' : '';
-                                if ($sel) $found_assigned = true;
-                                echo "<option value='$g_lbl' $sel>$g_lbl</option>";
-                            }
-                            if (!$found_assigned) {
-                                echo "<option value='" . esc_attr($assigned_teacher_grade) . "' selected>" . esc_html($assigned_teacher_grade) . "</option>";
-                            }
-                            ?>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">الحصص الأسبوعية *</label>
-                        <input type="number" id="wiz_weekly_lessons" min="1" max="10" value="2" required style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 20px; font-size: 13.5px; font-weight: 800; text-align: right; box-sizing: border-box;">
-                    </div>
+                <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 14px; padding: 16px; font-size: 12.5px; color: #334155; line-height: 1.7;">
+                    <strong>خطوات إعداد الخطة في المراحل القادمة:</strong>
+                    <ol style="margin: 6px 0 0 0; padding-right: 20px;">
+                        <li><strong>الخطوة 2:</strong> تحديد الصف الدراسي (الصف 1 إلى 12)، الفصل الدراسي (3 فصول) وتواريخ التقويم.</li>
+                        <li><strong>الخطوة 3:</strong> إدخال موضوعات الدروس والملخص الأسبوعي بالاستفادة من مكتبة الاقتراحات المباشرة.</li>
+                        <li><strong>الخطوة 4:</strong> مراجعة ملخص الخطة ورفعها للاعتماد الإداري من المشرف أو الموجه.</li>
+                    </ol>
                 </div>
             </div>
 
-            <!-- Step 2 -->
+            <!-- Step 2: Academic Selections & Calendar Scheduling -->
             <div id="wiz-step-2" class="wiz-step-content" style="display: none;">
-                <h4 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 800; color: #0f172a;">الخطوة 2: المواعيد والأسابيع الأكاديمية</h4>
-                <p style="margin: 0 0 14px 0; font-size: 12px; color: #64748b;">تم حساب المدة وعدد الأسابيع تلقائياً وفق التقويم الأكاديمي المعتمد للفصل المحدد.</p>
+                <h4 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 800; color: #0f172a;">الخطوة 2: البيانات الأكاديمية والمواعيد الفصليّة</h4>
+                <p style="margin: 0 0 14px 0; font-size: 12px; color: #64748b;">حدد الصف الدراسي وتواريخ بداية ونهاية الفصل الدراسي لحساب الأسابيع تلقائياً.</p>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                     <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">الفصل الدراسي المحدد (مُقفل) *</label>
-                        <select id="wiz_term_number" class="sm-select" disabled style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 13px; text-align: right; direction: rtl; box-sizing: border-box; background: #f8fafc; font-weight: 800;">
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">الصف الدراسي (الصف 1 إلى 12) *</label>
+                        <select id="wiz_grade" class="sm-select" required style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 13px; text-align: right; direction: rtl; box-sizing: border-box;">
+                            <?php for ($g_num = 1; $g_num <= 12; $g_num++):
+                                $g_lbl = "الصف $g_num";
+                                $sel = ($g_lbl === $assigned_teacher_grade || $g_num == $assigned_teacher_grade) ? 'selected' : '';
+                            ?>
+                                <option value="<?php echo esc_attr($g_lbl); ?>" <?php echo $sel; ?>><?php echo esc_html($g_lbl); ?></option>
+                            <?php endfor; ?>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">الحصص الأسبوعية المحددة *</label>
+                        <input type="number" id="wiz_weekly_lessons" min="1" max="10" value="<?php echo $default_weekly_lessons; ?>" required style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 20px; font-size: 13.5px; font-weight: 800; text-align: right; box-sizing: border-box;">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div>
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">الفصل الدراسي المحدد (التقويم المعتمد: 3 فصول) *</label>
+                        <select id="wiz_term_number" class="sm-select" disabled style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 13px; text-align: right; direction: rtl; box-sizing: border-box; background: #f8fafc; font-weight: 800; color: #0f172a;">
                             <option value="1">الفصل الدراسي الأول (Term 1)</option>
                             <option value="2">الفصل الدراسي الثاني (Term 2)</option>
                             <option value="3">الفصل الدراسي الثالث (Term 3)</option>
                         </select>
+                        <input type="hidden" id="wiz_num_terms" value="3">
                     </div>
                     <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">عدد الفصول بالعام</label>
-                        <select id="wiz_num_terms" class="sm-select" style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 13px; text-align: right; direction: rtl; box-sizing: border-box;">
-                            <option value="3">3 فصول دراسية</option>
-                            <option value="2">فصلان دراسيان</option>
-                        </select>
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">تاريخ بداية الفصل *</label>
+                        <input type="date" id="wiz_start_date" onchange="wizCalculateWeeksAuto()" class="sm-input" required style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 12.5px; text-align: right; box-sizing: border-box;">
                     </div>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                     <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">تاريخ بداية الفصل *</label>
-                        <input type="date" id="wiz_start_date" onchange="wizCalculateWeeksAuto()" class="sm-input" required style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 12.5px; text-align: right; box-sizing: border-box;">
-                    </div>
-                    <div>
                         <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">تاريخ نهاية الفصل *</label>
                         <input type="date" id="wiz_end_date" onchange="wizCalculateWeeksAuto()" class="sm-input" required style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 12.5px; text-align: right; box-sizing: border-box;">
                     </div>
-                </div>
-
-                <div style="background: #f0f9ff; border: 1px solid #bae6fd; padding: 14px 18px; border-radius: 12px; font-size: 13px; color: #0369a1; font-weight: 700;">
-                    إجمالي الأسابيع المحسوبة تلقائياً للفصل: <strong id="wiz_weeks_count_label" style="color: #2563eb; font-size: 15px;">0 أسابيع</strong>
+                    <div style="display: flex; align-items: flex-end;">
+                        <div style="width: 100%; background: #f0f9ff; border: 1px solid #bae6fd; padding: 10px 16px; border-radius: 9999px; font-size: 12.5px; color: #0369a1; font-weight: 700; text-align: center;">
+                            إجمالي الأسابيع المحسوبة: <strong id="wiz_weeks_count_label" style="color: #2563eb; font-size: 14px;">0 أسابيع</strong>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -642,6 +667,26 @@ $arabic_term_names = array(
 <script>
 let currentPlanData = null;
 let currentInspectedPlanId = 0;
+
+function eessFilterTeacherPlansTable() {
+    const q = document.getElementById('eess-teacher-plans-search') ? document.getElementById('eess-teacher-plans-search').value.trim().toLowerCase() : '';
+    const st = document.getElementById('eess-teacher-plans-status-filter') ? document.getElementById('eess-teacher-plans-status-filter').value : '';
+    const rows = document.querySelectorAll('.teacher-plan-row');
+
+    rows.forEach(r => {
+        const text = r.innerText.toLowerCase();
+        const rowSt = r.getAttribute('data-status') || '';
+
+        const matchQ = !q || text.includes(q);
+        const matchSt = !st || rowSt === st;
+
+        if (matchQ && matchSt) {
+            r.style.display = '';
+        } else {
+            r.style.display = 'none';
+        }
+    });
+}
 
 function eessFilterReviewerPlansTable() {
     const q = document.getElementById('eess-reviewer-plans-search').value.trim().toLowerCase();
@@ -1015,8 +1060,37 @@ function updateWizardUI() {
         document.getElementById('wiz-step-' + i).style.display = (i === wizCurrentStep) ? 'block' : 'none';
         const node = document.getElementById('wiz-step-node-' + i);
         if (node) {
-            if (i === wizCurrentStep) node.classList.add('ref-step-active');
-            else node.classList.remove('ref-step-active');
+            const badge = node.querySelector('span:first-child');
+            const label = node.querySelector('span:last-child');
+
+            if (i < wizCurrentStep) {
+                // Completed Step
+                node.style.color = '#16a34a';
+                node.style.fontWeight = '800';
+                if (badge) {
+                    badge.style.background = '#16a34a';
+                    badge.style.color = '#ffffff';
+                    badge.innerText = '✓';
+                }
+            } else if (i === wizCurrentStep) {
+                // Active Step
+                node.style.color = '#881337';
+                node.style.fontWeight = '800';
+                if (badge) {
+                    badge.style.background = '#881337';
+                    badge.style.color = '#ffffff';
+                    badge.innerText = i;
+                }
+            } else {
+                // Upcoming Step
+                node.style.color = '#94a3b8';
+                node.style.fontWeight = '700';
+                if (badge) {
+                    badge.style.background = '#e2e8f0';
+                    badge.style.color = '#475569';
+                    badge.innerText = i;
+                }
+            }
         }
     }
 
