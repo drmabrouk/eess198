@@ -51,6 +51,7 @@ $role_map = array(
     'sm_system_admin' => 'مدير النظام التقني',
     'sm_principal' => 'مدير المدرسة',
     'sm_supervisor' => 'مشرف تربوي',
+    'sm_hod' => 'رئيس قسم',
     'sm_coordinator' => 'منسق مادة',
     'sm_teacher' => 'معلم',
     'sm_discipline_supervisor' => 'مشرف سلوك / انضباط',
