@@ -455,14 +455,25 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
             </div>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 15px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
             <?php if ($active_tab !== 'attendance'): ?>
                 <?php if ($is_teacher): ?>
-                    <button onclick="eessOpenTeacherReferralModal()" class="sm-btn" style="background: var(--sm-primary-color); height: 32px; padding: 0 12px; font-size: 11px; color: white !important;">+ تقديم مخالفة سلوكية لطالب</button>
+                    <button type="button" onclick="eessOpenTeacherReferralModal()" class="sm-btn" style="background: var(--sm-primary-color); height: 32px; padding: 0 14px; font-size: 11.5px; font-weight: 700; color: white !important; border-radius: 9999px !important; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                        <span class="dashicons dashicons-warning" style="font-size: 14px; width: 14px; height: 14px; color: white;"></span>
+                        <span>تقديم حالة سلوكية</span>
+                    </button>
                 <?php elseif ($is_admin || current_user_can('تسجيل_مخالفة')): ?>
-                    <button onclick="smOpenViolationModal()" class="sm-btn" style="background: var(--sm-primary-color); height: 32px; padding: 0 12px; font-size: 11px; color: white !important;">+ تسجيل مخالفة</button>
+                    <button type="button" onclick="smOpenViolationModal()" class="sm-btn" style="background: var(--sm-primary-color); height: 32px; padding: 0 14px; font-size: 11.5px; font-weight: 700; color: white !important; border-radius: 9999px !important; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                        <span class="dashicons dashicons-plus-alt" style="font-size: 14px; width: 14px; height: 14px; color: white;"></span>
+                        <span>تسجيل مخالفة</span>
+                    </button>
                 <?php endif; ?>
             <?php endif; ?>
+
+            <button type="button" onclick="eessOpenSupportHelpCapsule()" class="sm-btn" style="background: #f8fafc; height: 32px; padding: 0 14px; font-size: 11.5px; font-weight: 700; color: #475569 !important; border-radius: 9999px !important; border: 1px solid #cbd5e1; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+                <span class="dashicons dashicons-sos" style="font-size: 14px; width: 14px; height: 14px; color: #dc2626;"></span>
+                <span>الدعم والمساعدة</span>
+            </button>
 
             <div class="sm-user-dropdown" style="position: relative;">
                 <div class="sm-user-profile-nav" onclick="smToggleUserDropdown()" style="display: flex; align-items: center; gap: 8px; background: white; padding: 4px 10px; border-radius: 50px; border: 1px solid var(--sm-border-color); cursor: pointer;">
@@ -556,13 +567,6 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                 <?php endforeach; ?>
             </ul>
 
-            <!-- Absolute Bottom Sidebar Technical Support Capsule (Lightweight, No top border line) -->
-            <div style="padding: 10px 15px; margin-top: auto;">
-                <button type="button" onclick="eessOpenSupportHelpCapsule()" style="width: 100%; height: 32px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 9999px !important; color: #475569; font-weight: 700; font-size: 11.5px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: all 0.2s ease;">
-                    <span class="dashicons dashicons-sos" style="font-size: 14px; width: 14px; height: 14px; color: #dc2626; margin: 0;"></span>
-                    <span>الدعم والمساعدة</span>
-                </button>
-            </div>
         </div>
 
         <!-- CONTENT AREA -->
