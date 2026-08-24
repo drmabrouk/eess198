@@ -6371,6 +6371,8 @@ class SM_Public {
         $employee_id = trim(preg_replace('/^(EMP|EMP-|_)+/i', '', $employee_id));
         $user_status  = get_user_meta($user_id, 'sm_user_status', true) ?: 'active';
         $civil_id     = get_user_meta($user_id, 'eess_civil_id', true);
+        $dob          = get_user_meta($user_id, 'dob', true) ?: get_user_meta($user_id, 'sm_dob', true);
+        $nationality  = get_user_meta($user_id, 'nationality', true) ?: get_user_meta($user_id, 'sm_nationality', true);
         $access_scope = get_user_meta($user_id, 'eess_access_scope', true) ?: 'school';
 
         $institution_id = get_user_meta($user_id, 'eess_institution_id', true);
@@ -6395,6 +6397,8 @@ class SM_Public {
             'employee_id'    => $employee_id,
             'user_status'    => $user_status,
             'civil_id'       => $civil_id,
+            'dob'            => $dob,
+            'nationality'    => $nationality,
             'role'           => $role,
             'access_scope'   => $access_scope,
             'institution_id' => $institution_id,
@@ -6529,6 +6533,14 @@ class SM_Public {
         update_user_meta($user_id, 'eess_employee_number', $clean_emp_id);
         update_user_meta($user_id, 'sm_user_status', $user_status);
         update_user_meta($user_id, 'eess_civil_id', $civil_id);
+        if (!empty($dob)) {
+            update_user_meta($user_id, 'dob', $dob);
+            update_user_meta($user_id, 'sm_dob', $dob);
+        }
+        if (!empty($nationality)) {
+            update_user_meta($user_id, 'nationality', $nationality);
+            update_user_meta($user_id, 'sm_nationality', $nationality);
+        }
         update_user_meta($user_id, 'eess_access_scope', $access_scope);
         update_user_meta($user_id, 'eess_institution_id', $institution_id);
         update_user_meta($user_id, 'eess_school_id', $school_id);

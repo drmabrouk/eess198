@@ -29,33 +29,25 @@ window.eessOpenUnifiedUserModal = function(mode, userId) {
     // Set title according to mode
     var titleEl = document.getElementById('u_modal_title');
     if (titleEl) {
-        if (mode === 'add_user') titleEl.innerText = '➕ إضافة مستخدم جديد في النظام';
-        else if (mode === 'add_employee') titleEl.innerText = '➕ إضافة موظف جديد بملف الموارد البشرية';
-        else if (mode === 'edit_employee_profile') titleEl.innerText = '⚙️ تعديل وتزامن معلومات الموظف والحساب';
-        else titleEl.innerText = '✏️ تعديل بيانات حساب وتعيينات الموظف';
+        if (mode === 'add_user' || mode === 'add_employee') titleEl.innerText = 'إضافة مستخدم جديد في المنصة';
+        else titleEl.innerText = 'تعديل بيانات الحساب وتعيينات الموظف';
     }
 
     // Passwords & Change Password Toggle
     var passRow = document.getElementById('u_password_row');
     var passToggleBtn = document.getElementById('u_change_pass_toggle_container');
-    var passReq = document.getElementById('u_pass_req');
-    var passConfReq = document.getElementById('u_pass_confirm_req');
     var passInput = document.getElementById('u_user_pass');
     var passConfInput = document.getElementById('u_user_pass_confirm');
 
     if (eessIsEditMode) {
         if (passRow) passRow.style.display = 'none';
         if (passToggleBtn) passToggleBtn.style.display = 'block';
-        if (passReq) passReq.style.display = 'none';
-        if (passConfReq) passConfReq.style.display = 'none';
         if (passInput) passInput.required = false;
         if (passConfInput) passConfInput.required = false;
         document.getElementById('u_username').readOnly = true;
     } else {
         if (passRow) passRow.style.display = 'grid';
         if (passToggleBtn) passToggleBtn.style.display = 'none';
-        if (passReq) passReq.style.display = 'inline';
-        if (passConfReq) passConfReq.style.display = 'inline';
         if (passInput) passInput.required = true;
         if (passConfInput) passConfInput.required = true;
         document.getElementById('u_username').readOnly = false;
@@ -84,57 +76,82 @@ window.eessCloseUnifiedUserModal = function() {
 };
 
 window.eessGoToStep = function(step) {
-    if (step === 2) {
-        if (!eessValidateStep1()) return;
+    if (step > eessCurrentStep) {
+        if (eessCurrentStep === 1 && !eessValidateStep1()) return;
+        if (eessCurrentStep === 2 && !eessValidateStep2()) return;
     }
 
     eessCurrentStep = step;
+    if (eessCurrentStep < 1) eessCurrentStep = 1;
+    if (eessCurrentStep > 4) eessCurrentStep = 4;
 
-    var step1Container = document.getElementById('u_step_1_container');
-    var step2Container = document.getElementById('u_step_2_container');
-    var ind1 = document.getElementById('u_indicator_step1');
-    var ind2 = document.getElementById('u_indicator_step2');
+    for (var i = 1; i <= 4; i++) {
+        var container = document.getElementById('u_step_' + i + '_container');
+        var indicator = document.getElementById('u_indicator_step' + i);
+
+        if (container) container.style.display = (i === eessCurrentStep) ? 'block' : 'none';
+        if (indicator) {
+            if (i === eessCurrentStep) {
+                indicator.style.background = '#881337';
+                indicator.style.color = 'white';
+            } else if (i < eessCurrentStep) {
+                indicator.style.background = '#16a34a';
+                indicator.style.color = 'white';
+            } else {
+                indicator.style.background = '#f1f5f9';
+                indicator.style.color = '#64748b';
+            }
+        }
+    }
+
     var btnPrev = document.getElementById('u_btn_prev');
     var btnNext = document.getElementById('u_btn_next');
     var btnSave = document.getElementById('u_btn_save');
 
-    if (step === 1) {
-        step1Container.style.display = 'block';
-        step2Container.style.display = 'none';
+    if (btnPrev) btnPrev.style.display = (eessCurrentStep > 1) ? 'inline-block' : 'none';
+    if (btnNext) btnNext.style.display = (eessCurrentStep < 4) ? 'inline-block' : 'none';
+    if (btnSave) btnSave.style.display = (eessCurrentStep === 4) ? 'inline-block' : 'none';
 
-        ind1.style.background = 'var(--sm-primary-color, #1e293b)';
-        ind1.style.color = 'white';
-        ind2.style.background = '#f1f5f9';
-        ind2.style.color = '#64748b';
-
-        btnPrev.style.display = 'none';
-        btnNext.style.display = 'inline-block';
-        btnSave.style.display = 'none';
-    } else {
-        step1Container.style.display = 'none';
-        step2Container.style.display = 'block';
-
-        ind1.style.background = '#16a34a';
-        ind1.style.color = 'white';
-        ind2.style.background = 'var(--sm-primary-color, #1e293b)';
-        ind2.style.color = 'white';
-
-        btnPrev.style.display = 'inline-block';
-        btnNext.style.display = 'none';
-        btnSave.style.display = 'inline-block';
-
-        eessOnRoleChanged();
+    if (eessCurrentStep === 4) {
+        eessRenderStepSummary();
     }
+};
+
+window.eessRenderStepSummary = function() {
+    var fn = document.getElementById('u_first_name').value;
+    var ln = document.getElementById('u_last_name').value;
+    var empId = document.getElementById('u_employee_id').value;
+    var email = document.getElementById('u_user_email').value;
+    var phone = document.getElementById('u_country_code').value + ' ' + document.getElementById('u_phone_number').value;
+    var dob = document.getElementById('u_dob').value || 'غير محدد';
+    var nat = document.getElementById('u_nationality').value || 'غير محدد';
+
+    var instSel = document.getElementById('u_institution_id');
+    var instTxt = instSel.options[instSel.selectedIndex] ? instSel.options[instSel.selectedIndex].text : '-';
+
+    var schSel = document.getElementById('u_school_id');
+    var schTxt = schSel.options[schSel.selectedIndex] ? schSel.options[schSel.selectedIndex].text : '-';
+
+    var roleSel = document.getElementById('u_user_role');
+    var roleTxt = roleSel.options[roleSel.selectedIndex] ? roleSel.options[roleSel.selectedIndex].text : '-';
+
+    var specSel = document.getElementById('u_specialization');
+    var specTxt = specSel.options[specSel.selectedIndex] ? specSel.options[specSel.selectedIndex].text : '-';
+
+    if (document.getElementById('rev_u_fullname')) document.getElementById('rev_u_fullname').innerText = fn + ' ' + ln;
+    if (document.getElementById('rev_u_empid')) document.getElementById('rev_u_empid').innerText = empId;
+    if (document.getElementById('rev_u_email')) document.getElementById('rev_u_email').innerText = email;
+    if (document.getElementById('rev_u_phone')) document.getElementById('rev_u_phone').innerText = phone;
+    if (document.getElementById('rev_u_dob')) document.getElementById('rev_u_dob').innerText = dob;
+    if (document.getElementById('rev_u_nationality')) document.getElementById('rev_u_nationality').innerText = nat;
+    if (document.getElementById('rev_u_school')) document.getElementById('rev_u_school').innerText = instTxt + ' / ' + schTxt;
+    if (document.getElementById('rev_u_role_subj')) document.getElementById('rev_u_role_subj').innerText = roleTxt + ' (' + specTxt + ')';
 };
 
 window.eessToggleChangePassword = function() {
     var passRow = document.getElementById('u_password_row');
     if (passRow) {
-        if (passRow.style.display === 'none' || passRow.style.display === '') {
-            passRow.style.display = 'grid';
-        } else {
-            passRow.style.display = 'none';
-        }
+        passRow.style.display = (passRow.style.display === 'none' || passRow.style.display === '') ? 'grid' : 'none';
     }
 };
 
@@ -209,7 +226,6 @@ window.eessValidateStep1 = function() {
         valid = false;
     } else { document.getElementById('err_u_employee_id').style.display = 'none'; }
 
-    // Validate password if visible
     if (passRow && passRow.style.display !== 'none') {
         if (!eessIsEditMode && pass.value.length < 6) {
             document.getElementById('err_u_user_pass').style.display = 'block';
@@ -222,6 +238,18 @@ window.eessValidateStep1 = function() {
         } else { document.getElementById('err_u_user_pass_confirm').style.display = 'none'; }
     }
 
+    return valid;
+};
+
+window.eessValidateStep2 = function() {
+    var valid = true;
+    var inst = document.getElementById('u_institution_id');
+    if (!inst.value) {
+        document.getElementById('err_u_institution_id').style.display = 'block';
+        valid = false;
+    } else {
+        document.getElementById('err_u_institution_id').style.display = 'none';
+    }
     return valid;
 };
 
@@ -278,7 +306,6 @@ window.eessOnRoleChanged = function() {
 
 window.eessOnScopeChanged = function() {
     var scope = document.getElementById('u_access_scope').value;
-    var schoolWrapper = document.getElementById('u_school_wrapper');
     var schoolSelect = document.getElementById('u_school_id');
 
     if (scope === 'institution') {
@@ -308,7 +335,7 @@ window.eessOnInstitutionChanged = function() {
 };
 
 window.eessOnSchoolChanged = function() {
-    // Dynamic school updates if required
+    // Dynamic school updates
 };
 
 window.eessLoadUserData = function(userId) {
@@ -338,6 +365,9 @@ window.eessLoadUserData = function(userId) {
             document.getElementById('u_phone_number').value = u.phone_number || '';
             document.getElementById('u_user_status').value = u.user_status || 'active';
             document.getElementById('u_civil_id').value = u.civil_id || '';
+            if (document.getElementById('u_dob')) document.getElementById('u_dob').value = u.dob || '';
+            if (document.getElementById('u_nationality')) document.getElementById('u_nationality').value = u.nationality || '';
+
             var normalizedRole = u.role || 'sm_teacher';
             if (normalizedRole === 'teachers') normalizedRole = 'sm_teacher';
             if (normalizedRole === 'school_manager') normalizedRole = 'sm_principal';
@@ -379,7 +409,7 @@ window.eessSubmitUnifiedUserForm = function() {
     } else { document.getElementById('err_u_institution_id').style.display = 'none'; }
 
     var saveBtn = document.getElementById('u_btn_save');
-    saveBtn.innerText = '⏳ جاري الحفظ والتزامن...';
+    saveBtn.innerText = 'جاري الحفظ والتزامن...';
     saveBtn.disabled = true;
 
     var form = document.getElementById('eess-unified-user-form');
@@ -390,18 +420,22 @@ window.eessSubmitUnifiedUserForm = function() {
     .then(function(r) { return r.json(); })
     .then(function(res) {
         if (res.success) {
-            alert('✅ ' + (res.data.message || 'تم حفظ وتزامن بيانات الموظف بنجاح في المنصة الرقمية.'));
+            if (typeof smShowNotification === 'function') {
+                smShowNotification('تم حفظ وتزامن بيانات الموظف بنجاح');
+            } else {
+                alert('تم حفظ وتزامن بيانات الموظف بنجاح');
+            }
             eessCloseUnifiedUserModal();
-            location.reload();
+            setTimeout(function() { location.reload(); }, 600);
         } else {
-            alert('❌ خطأ: ' + (res.data || 'حدث خطأ أثناء حفظ البيانات.'));
-            saveBtn.innerText = '💾 حفظ وتزامن البيانات';
+            alert('خطأ: ' + (res.data || 'حدث خطأ أثناء حفظ البيانات.'));
+            saveBtn.innerText = 'حفظ وتزامن البيانات';
             saveBtn.disabled = false;
         }
     })
     .catch(function(err) {
-        alert('❌ حدث خطأ غير متوقع في الاتصال بالسيرفر.');
-        saveBtn.innerText = '💾 حفظ وتزامن البيانات';
+        alert('حدث خطأ غير متوقع في الاتصال بالسيرفر.');
+        saveBtn.innerText = 'حفظ وتزامن البيانات';
         saveBtn.disabled = false;
     });
 };
