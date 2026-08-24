@@ -357,6 +357,27 @@ class SM_Public {
         $nonce = wp_create_nonce('sm_mobile_prep_nonce');
         $ajax_url = admin_url('admin-ajax.php');
 
+        $user = wp_get_current_user();
+        $user_roles = (array) $user->roles;
+        $is_supervisor = is_user_logged_in() && (
+            in_array('administrator', $user_roles) ||
+            in_array('sm_system_admin', $user_roles) ||
+            in_array('sm_principal', $user_roles) ||
+            in_array('sm_supervisor', $user_roles) ||
+            in_array('sm_coordinator', $user_roles) ||
+            in_array('sm_hod', $user_roles) ||
+            in_array('sm_activities_supervisor', $user_roles) ||
+            current_user_can('manage_options')
+        );
+
+        global $wpdb;
+        $mobile_submissions = array();
+        $mobile_term_plans   = array();
+        if ($is_supervisor) {
+            $mobile_submissions = $wpdb->get_results("SELECT p.*, u.display_name as teacher_name FROM {$wpdb->prefix}sm_lesson_preps p LEFT JOIN {$wpdb->users} u ON p.teacher_id = u.ID ORDER BY p.created_at DESC LIMIT 50");
+            $mobile_term_plans   = $wpdb->get_results("SELECT tp.*, u.display_name as teacher_name FROM {$wpdb->prefix}sm_term_plans tp LEFT JOIN {$wpdb->users} u ON tp.teacher_id = u.ID ORDER BY tp.updated_at DESC LIMIT 50");
+        }
+
         ob_start();
         ?>
         <div class="eess-mobile-prep-app" style="max-width: 500px; margin: 0 auto; background: #f8fafc; min-height: 100vh; font-family: 'Cairo', sans-serif; direction: rtl; padding: 15px; box-sizing: border-box; color: #1e293b;">
@@ -382,23 +403,180 @@ class SM_Public {
                 </div>
             </div>
 
-            <!-- STEP 1: Employee ID / Registered Phone Verification -->
+            <?php if ($is_supervisor): ?>
+            <!-- MOBILE SUPERVISOR MONITORING & REVIEW DASHBOARD -->
+            <div id="m-supervisor-app" style="display: block;">
+                <!-- Header Card -->
+                <div style="background: #0f172a; color: white; border-radius: 16px; padding: 18px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #ffffff;">لوحة مراجعة ومتابعة المشرف</h3>
+                            <p style="margin: 3px 0 0 0; font-size: 11.5px; color: #94a3b8;">متابعة خطة وتحضيرات المدرسين المسندين</p>
+                        </div>
+                        <span class="dashicons dashicons-shield" style="font-size: 24px; color: #38bdf8;"></span>
+                    </div>
+                </div>
+
+                <!-- Sub-Tabs: Plans vs. Lesson Preps -->
+                <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                    <button type="button" onclick="eessSwitchMobileSupTab('preps', this)" class="m-sup-tab-btn active" style="flex: 1; height: 38px; border-radius: 9999px; border: none; background: #881337; color: white; font-weight: 800; font-size: 12px; cursor: pointer;">
+                        تحضير الدروس (<?php echo count($mobile_submissions); ?>)
+                    </button>
+                    <button type="button" onclick="eessSwitchMobileSupTab('plans', this)" class="m-sup-tab-btn" style="flex: 1; height: 38px; border-radius: 9999px; border: 1px solid #cbd5e1; background: white; color: #475569; font-weight: 800; font-size: 12px; cursor: pointer;">
+                        الخطط الفصلية (<?php echo count($mobile_term_plans); ?>)
+                    </button>
+                </div>
+
+                <!-- Search Input Bar -->
+                <div style="margin-bottom: 16px;">
+                    <input type="text" id="m_sup_search_input" onkeyup="eessFilterMobileSupCards()" placeholder="ابحث باسم المعلم، المادة، أو عنوان الدرس..." style="width: 100%; height: 40px; border-radius: 9999px; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 12.5px; box-sizing: border-box; background: #ffffff;">
+                </div>
+
+                <!-- Lesson Preps Container -->
+                <div id="m-sup-panel-preps" style="display: block;">
+                    <?php if (empty($mobile_submissions)): ?>
+                        <div style="background: white; border-radius: 12px; padding: 30px; text-align: center; color: #94a3b8; font-weight: 700; font-size: 13px;">لا توجد تحضيرات دروس مرفوعة للمراجعة حالياً.</div>
+                    <?php else: ?>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <?php foreach ($mobile_submissions as $ms):
+                                $s_bg = '#f1f5f9'; $s_col = '#64748b'; $s_lbl = 'مسودة';
+                                if ($ms->status === 'submitted') { $s_bg = '#e0f2fe'; $s_col = '#0369a1'; $s_lbl = 'مرفوعة للمراجعة'; }
+                                elseif ($ms->status === 'approved') { $s_bg = '#dcfce7'; $s_col = '#15803d'; $s_lbl = 'معتمدة رسمياً'; }
+                                elseif ($ms->status === 'revision_required' || $ms->status === 'returned') { $s_bg = '#fee2e2'; $s_col = '#b91c1c'; $s_lbl = 'طلب تعديل'; }
+                            ?>
+                            <div class="m-sup-card" data-search="<?php echo esc_attr(strtolower(($ms->teacher_name ?? '') . ' ' . $ms->subject . ' ' . $ms->title)); ?>" style="background: white; border-radius: 14px; border: 1px solid #e2e8f0; padding: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                    <div>
+                                        <div style="font-weight: 800; font-size: 14px; color: #0f172a;"><?php echo esc_html($ms->teacher_name ?: 'معلم غير محدد'); ?></div>
+                                        <div style="font-size: 11px; color: #64748b; margin-top: 2px;">📚 <?php echo esc_html($ms->subject); ?> | الصف: <?php echo esc_html($ms->grade_level); ?></div>
+                                    </div>
+                                    <span style="font-size: 10.5px; padding: 3px 10px; border-radius: 9999px; background: <?php echo $s_bg; ?>; color: <?php echo $s_col; ?>; font-weight: 800;"><?php echo $s_lbl; ?></span>
+                                </div>
+                                <div style="font-weight: 800; font-size: 13px; color: #1e293b; margin-bottom: 10px; background: #f8fafc; padding: 8px 12px; border-radius: 8px; border: 1px solid #f1f5f9;">
+                                    📌 <?php echo esc_html($ms->title); ?>
+                                </div>
+                                <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                    <button type="button" onclick="eessMobileApprovePrep(<?php echo $ms->id; ?>)" style="height: 32px; padding: 0 14px; border-radius: 9999px; background: #16a34a; color: white; border: none; font-weight: 800; font-size: 11.5px; cursor: pointer;">اعتماد</button>
+                                    <button type="button" onclick="eessMobileReturnPrep(<?php echo $ms->id; ?>)" style="height: 32px; padding: 0 14px; border-radius: 9999px; background: #dc2626; color: white; border: none; font-weight: 800; font-size: 11.5px; cursor: pointer;">إعادة للتعديل</button>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Term Plans Container -->
+                <div id="m-sup-panel-plans" style="display: none;">
+                    <?php if (empty($mobile_term_plans)): ?>
+                        <div style="background: white; border-radius: 12px; padding: 30px; text-align: center; color: #94a3b8; font-weight: 700; font-size: 13px;">لا توجد خطط فصلية مرفوعة للمراجعة حالياً.</div>
+                    <?php else: ?>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <?php foreach ($mobile_term_plans as $mtp):
+                                $s_bg = '#f1f5f9'; $s_col = '#64748b'; $s_lbl = 'مسودة';
+                                if ($mtp->status === 'submitted') { $s_bg = '#e0f2fe'; $s_col = '#0369a1'; $s_lbl = 'مرفوعة للمراجعة'; }
+                                elseif ($mtp->status === 'approved') { $s_bg = '#dcfce7'; $s_col = '#15803d'; $s_lbl = 'معتمدة رسمياً'; }
+                                elseif ($mtp->status === 'returned' || $mtp->status === 'rejected') { $s_bg = '#fee2e2'; $s_col = '#b91c1c'; $s_lbl = 'طلب تعديل'; }
+                            ?>
+                            <div class="m-sup-card" data-search="<?php echo esc_attr(strtolower(($mtp->teacher_name ?? '') . ' ' . $mtp->subject . ' ' . $mtp->grade)); ?>" style="background: white; border-radius: 14px; border: 1px solid #e2e8f0; padding: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                    <div>
+                                        <div style="font-weight: 800; font-size: 14px; color: #0f172a;"><?php echo esc_html($mtp->teacher_name ?: 'معلم غير محدد'); ?></div>
+                                        <div style="font-size: 11px; color: #64748b; margin-top: 2px;">📚 <?php echo esc_html($mtp->subject); ?> | الصف: <?php echo esc_html($mtp->grade); ?></div>
+                                    </div>
+                                    <span style="font-size: 10.5px; padding: 3px 10px; border-radius: 9999px; background: <?php echo $s_bg; ?>; color: <?php echo $s_col; ?>; font-weight: 800;"><?php echo $s_lbl; ?></span>
+                                </div>
+                                <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px;">
+                                    <button type="button" onclick="eessDirectReviewPlan(<?php echo $mtp->id; ?>, 'approved')" style="height: 32px; padding: 0 14px; border-radius: 9999px; background: #16a34a; color: white; border: none; font-weight: 800; font-size: 11.5px; cursor: pointer;">اعتماد الخطة</button>
+                                    <button type="button" onclick="eessDirectReviewPlan(<?php echo $mtp->id; ?>, 'returned')" style="height: 32px; padding: 0 14px; border-radius: 9999px; background: #dc2626; color: white; border: none; font-weight: 800; font-size: 11.5px; cursor: pointer;">إعادة للتعديل</button>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <script>
+            function eessSwitchMobileSupTab(type, btn) {
+                document.querySelectorAll('.m-sup-tab-btn').forEach(b => {
+                    b.style.background = 'white';
+                    b.style.color = '#475569';
+                    b.style.border = '1px solid #cbd5e1';
+                });
+                btn.style.background = '#881337';
+                btn.style.color = 'white';
+                btn.style.border = 'none';
+
+                document.getElementById('m-sup-panel-preps').style.display = (type === 'preps') ? 'block' : 'none';
+                document.getElementById('m-sup-panel-plans').style.display = (type === 'plans') ? 'block' : 'none';
+            }
+
+            function eessFilterMobileSupCards() {
+                const q = document.getElementById('m_sup_search_input').value.toLowerCase().trim();
+                document.querySelectorAll('.m-sup-card').forEach(c => {
+                    const text = c.getAttribute('data-search') || '';
+                    if (!q || text.includes(q)) c.style.display = 'block';
+                    else c.style.display = 'none';
+                });
+            }
+
+            function eessMobileApprovePrep(id) {
+                jQuery.post('<?php echo $ajax_url; ?>', {
+                    action: 'sm_review_term_plan',
+                    plan_id: id,
+                    review_status: 'approved',
+                    sm_nonce: '<?php echo wp_create_nonce("sm_term_plan_action"); ?>'
+                }, function(res) {
+                    if (typeof smShowNotification === 'function') smShowNotification('تم اعتماد التحضير بنجاح');
+                    setTimeout(() => location.reload(), 600);
+                });
+            }
+
+            function eessMobileReturnPrep(id) {
+                jQuery.post('<?php echo $ajax_url; ?>', {
+                    action: 'sm_review_term_plan',
+                    plan_id: id,
+                    review_status: 'returned',
+                    sm_nonce: '<?php echo wp_create_nonce("sm_term_plan_action"); ?>'
+                }, function(res) {
+                    if (typeof smShowNotification === 'function') smShowNotification('تمت إعادة التحضير للمعلم للتعديل');
+                    setTimeout(() => location.reload(), 600);
+                });
+            }
+            </script>
+            <?php else: ?>
+            <?php endif; ?>
             <div id="m-step-verify" style="background: #ffffff; border-radius: 16px; padding: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
                 <h3 style="margin: 0 0 15px 0; font-size: 15px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
                     <span style="background: #2563eb; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px;">1</span>
-                    التحقق من هوية المعلم
+                    تسجيل الدخول الآمن للموبايل
                 </h3>
-                <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">أدخل الرقم الوظيفي أو رقم الهاتف المحمول المسجل باسمك للتحقق واسترجاع حسابك تلقائياً:</p>
+                <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">أدخل الرقم الوظيفي / رقم الجوال وكلمة المرور للوصول الآمن لحسابك المعلم أو المشرف:</p>
 
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px;">الرقم الوظيفي أو رقم الهاتف المحمول المسجل <span style="color: #ef4444;">*</span></label>
-                    <input type="text" id="m_emp_id_input" placeholder="أدخل رقم الموظف (مثال: 10245) أو رقم الجوال (مثال: 0501234567)" style="width: 100%; height: 44px; border: 1px solid #cbd5e1; border-radius: 10px; padding: 0 12px; font-size: 13.5px; font-weight: 700; box-sizing: border-box; outline: none;">
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px;">اسم المستخدم / الرقم الوظيفي / رقم الجوال <span style="color: #ef4444;">*</span></label>
+                    <input type="text" id="m_emp_id_input" placeholder="مثال: 10245 أو 0501234567" style="width: 100%; height: 44px; border: 1px solid #cbd5e1; border-radius: 10px; padding: 0 12px; font-size: 13.5px; font-weight: 700; box-sizing: border-box; outline: none;">
+                </div>
+
+                <div style="margin-bottom: 15px; position: relative;">
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px;">كلمة المرور <span style="color: #ef4444;">*</span></label>
+                    <div style="position: relative;">
+                        <input type="password" id="m_password_input" placeholder="••••••••" style="width: 100%; height: 44px; border: 1px solid #cbd5e1; border-radius: 10px; padding: 0 40px 0 12px; font-size: 14px; box-sizing: border-box; outline: none;">
+                        <button type="button" onclick="const p = document.getElementById('m_password_input'); p.type = p.type === 'password' ? 'text' : 'password';" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #64748b; cursor: pointer;">👁️</button>
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; font-size: 12px; color: #475569;">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                        <input type="checkbox" id="m_remember_me" checked style="width: 16px; height: 16px; border-radius: 4px;">
+                        <span>تذكرني وإبقاء الجلسة نشطة</span>
+                    </label>
                 </div>
 
                 <div id="m_verify_msg" style="display: none; margin-bottom: 15px; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 700;"></div>
 
                 <button type="button" onclick="eessVerifyMobileEmp()" id="m_btn_verify" style="width: 100%; height: 44px; background: #2563eb; color: white; border: none; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <span>التحقق والبحث عن الحساب</span>
+                    <span>تسجيل الدخول والتحقق</span>
                 </button>
             </div>
 
@@ -506,6 +684,7 @@ class SM_Public {
 
             function eessVerifyMobileEmp() {
                 const empId = document.getElementById('m_emp_id_input').value.trim();
+                const passVal = document.getElementById('m_password_input') ? document.getElementById('m_password_input').value : '';
                 const msgBox = document.getElementById('m_verify_msg');
                 const btn = document.getElementById('m_btn_verify');
 
@@ -518,15 +697,16 @@ class SM_Public {
                 }
 
                 btn.disabled = true;
-                btn.innerText = 'جاري التحقق...';
+                btn.innerText = 'جاري التحقق والتأكد...';
                 msgBox.style.display = 'none';
 
                 jQuery.post('<?php echo $ajax_url; ?>', {
                     action: 'sm_verify_employee_id',
-                    emp_id: empId
+                    emp_id: empId,
+                    password: passVal
                 }, function(res) {
                     btn.disabled = false;
-                    btn.innerText = 'التحقق والبحث عن الحساب';
+                    btn.innerText = 'تسجيل الدخول والتحقق';
 
                     if (res.success) {
                         currentTeacherData = res.data;
@@ -542,7 +722,7 @@ class SM_Public {
                         msgBox.style.display = 'block';
                         msgBox.style.background = '#fef2f2';
                         msgBox.style.color = '#991b1b';
-                        msgBox.innerText = res.data || 'بيانات الاستدلال المدخلة غير مسجلة بالنظام.';
+                        msgBox.innerText = res.data || 'لم يتم العثور على حساب مطابق للبيانات المدخلة. يرجى التأكد من الرقم الوظيفي أو رقم الهاتف.';
                     }
                 });
             }
@@ -652,12 +832,13 @@ class SM_Public {
     public function shortcode_lesson_prep() {
         if (!$this->eess_is_mobile_device()) {
             if (!is_user_logged_in()) {
-                wp_safe_redirect(home_url('/sm-login'));
-                exit;
-            } else {
-                wp_safe_redirect(home_url('/sm-admin'));
+                wp_safe_redirect(add_query_arg('redirect_to', urlencode(home_url('/lesson-prep')), home_url('/sm-login')));
                 exit;
             }
+        // Logged in on Desktop: Render normal desktop lesson prep view
+        ob_start();
+        include SM_PLUGIN_DIR . 'templates/admin-lesson-prep.php';
+        return ob_get_clean();
         }
 
         return $this->eess_render_mobile_lesson_prep();
@@ -6835,14 +7016,24 @@ class SM_Public {
     }
 
     public function ajax_verify_employee_id() {
-        $emp_id = isset($_POST['emp_id']) ? sanitize_text_field($_POST['emp_id']) : '';
+        $emp_id   = isset($_POST['emp_id']) ? sanitize_text_field($_POST['emp_id']) : '';
+        $password = isset($_POST['password']) ? $_POST['password'] : '';
+
         if (empty($emp_id)) {
             wp_send_json_error('يرجى إدخال الرقم الوظيفي أو رقم الجوال بشكل صحيح.');
         }
 
         $teacher = SM_DB::get_teacher_by_employee_id_or_phone($emp_id);
         if (!$teacher) {
-            wp_send_json_error('بيانات الاستدلال المدخلة (الرقم الوظيفي / رقم الجوال) غير مسجلة في ملفات المعلمين بالنظام.');
+            wp_send_json_error('لم يتم العثور على حساب مطابق للبيانات المدخلة. يرجى التأكد من الرقم الوظيفي أو رقم الهاتف.');
+        }
+
+        if (!empty($password)) {
+            if (!wp_check_password($password, $teacher->user_pass, $teacher->ID)) {
+                wp_send_json_error('كلمة المرور المدخلة غير صحيحة. يرجى المحاولة مجدداً.');
+            }
+            wp_set_current_user($teacher->ID);
+            wp_set_auth_cookie($teacher->ID, true);
         }
 
         $subject = get_user_meta($teacher->ID, 'sm_specialization', true) ?: (get_user_meta($teacher->ID, 'specialization', true) ?: (get_user_meta($teacher->ID, 'subject', true) ?: 'عام'));
