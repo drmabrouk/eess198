@@ -6099,6 +6099,7 @@ class SM_Public {
         }
 
         update_user_meta($target_user_id, 'eess_approval_status', 'approved');
+        update_user_meta($target_user_id, 'sm_account_status', 'active');
 
         $user = get_user_by('id', $target_user_id);
         $title = 'اعتماد وتفعيل حسابك الإلكتروني - EESS Account Activation';
@@ -6691,7 +6692,7 @@ class SM_Public {
         if (!wp_verify_nonce($_POST['sm_nonce'] ?? '', 'sm_term_plan_action')) wp_send_json_error('Security check failed');
 
         $roles = (array) wp_get_current_user()->roles;
-        $can_review = in_array('administrator', $roles) || in_array('sm_system_admin', $roles) || in_array('sm_principal', $roles) || in_array('sm_supervisor', $roles) || in_array('sm_coordinator', $roles) || current_user_can('manage_options');
+        $can_review = in_array('administrator', $roles) || in_array('sm_system_admin', $roles) || in_array('sm_principal', $roles) || in_array('sm_supervisor', $roles) || in_array('sm_coordinator', $roles) || in_array('sm_hod', $roles) || in_array('sm_activities_supervisor', $roles) || current_user_can('manage_options');
 
         if (!$can_review) {
             wp_send_json_error('عذراً، لا تمتلك صلاحية مراجعة الخطة.');
@@ -6701,7 +6702,7 @@ class SM_Public {
         $review_status = sanitize_text_field($_POST['review_status'] ?? '');
         $review_notes = sanitize_textarea_field($_POST['review_notes'] ?? '');
 
-        if (!in_array($review_status, array('approved', 'returned'))) {
+        if (!in_array($review_status, array('approved', 'returned', 'rejected'))) {
             wp_send_json_error('حالة المراجعة غير صحيحة.');
         }
 
@@ -6722,6 +6723,49 @@ class SM_Public {
             wp_send_json_success(array('plan_id' => $plan_id, 'status' => $review_status));
         } else {
             wp_send_json_error('فشل تحديث حالة الخطة.');
+        }
+    }
+
+    public function ajax_delete_term_plan() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        if (!wp_verify_nonce($_POST['sm_nonce'] ?? '', 'sm_term_plan_action')) wp_send_json_error('Security check failed');
+
+        $plan_id = intval($_POST['plan_id'] ?? 0);
+        if (!$plan_id) {
+            wp_send_json_error('معرف الخطة غير صحيح.');
+        }
+
+        global $wpdb;
+        $plan = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}sm_term_plans WHERE id = %d", $plan_id));
+        if (!$plan) {
+            wp_send_json_error('الخطة غير موجودة أو تم حذفها سابقاً.');
+        }
+
+        $current_user = wp_get_current_user();
+        $user_id = $current_user->ID;
+        $roles = (array) $current_user->roles;
+
+        $can_delete = in_array('administrator', $roles) ||
+                      in_array('sm_system_admin', $roles) ||
+                      in_array('sm_principal', $roles) ||
+                      in_array('sm_supervisor', $roles) ||
+                      in_array('sm_coordinator', $roles) ||
+                      in_array('sm_hod', $roles) ||
+                      in_array('sm_activities_supervisor', $roles) ||
+                      current_user_can('manage_options') ||
+                      (intval($plan->teacher_id) === $user_id);
+
+        if (!$can_delete) {
+            wp_send_json_error('عذراً، لا تمتلك الصلاحية الكافية لحذف هذه الخطة.');
+        }
+
+        $deleted = $wpdb->delete("{$wpdb->prefix}sm_term_plans", array('id' => $plan_id));
+
+        if ($deleted) {
+            SM_Logger::log('حذف خطة فصلية', "تم حذف الخطة (ID: $plan_id) بواسطة المستخدم {$current_user->display_name}");
+            wp_send_json_success(array('plan_id' => $plan_id, 'message' => 'تم حذف الخطة بنجاح.'));
+        } else {
+            wp_send_json_error('تعذر حذف الخطة من قاعدة البيانات.');
         }
     }
 
