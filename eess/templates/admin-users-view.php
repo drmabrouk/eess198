@@ -75,12 +75,39 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
 
 <div class="sm-content-wrapper" style="font-family: 'Cairo', sans-serif;" dir="rtl">
 
-    <!-- Action Button Area -->
-    <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
-        <button type="button" onclick="eessOpenUnifiedUserModal('add_user', 0)" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-            <span class="dashicons dashicons-plus-alt2" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
-            <span>إضافة مستخدم جديد</span>
-        </button>
+    <!-- Single Main Banner Header (Matching Teacher Term & Annual Plans) -->
+    <div style="background: #ffffff; padding: 20px 24px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 18px; box-shadow: 0 4px 18px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 48px; height: 48px; background: #fef2f2; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #881337; border: 1px solid #fecdd3; flex-shrink: 0;">
+                <span class="dashicons dashicons-admin-users" style="font-size: 24px; width: 24px; height: 24px;"></span>
+            </div>
+            <div>
+                <h2 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 800; color: #0f172a;">إدارة مستخدمي النظام</h2>
+                <p style="margin: 0; font-size: 12.5px; color: #64748b; font-weight: 500;">إدارة وتعديل حسابات الكادر التعليمي والإداري، التخصصات والصلاحيات في المنصة</p>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <!-- User Options Dropdown -->
+            <div style="position: relative; display: inline-block;">
+                <button type="button" onclick="eessToggleUserOptionsDropdown(event)" class="sm-btn sm-btn-outline" style="height: 38px; display: inline-flex; align-items: center; gap: 6px; border-radius: 9999px !important; cursor: pointer; background: #ffffff; color: #334155; border: 1px solid #cbd5e1; font-weight: 800; font-size: 12.5px; padding: 0 16px;">
+                    <span class="dashicons dashicons-admin-generic" style="font-size: 16px; width: 16px; height: 16px; margin: 0; color: #475569;"></span>
+                    <span>خيارات المستخدمين</span>
+                    <span class="dashicons dashicons-arrow-down-alt2" style="font-size: 10px; width: 10px; height: 10px; margin: 0;"></span>
+                </button>
+                <div id="eess-user-options-dropdown" style="display: none; position: absolute; left: 0; top: 115%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px; width: 220px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 99999; padding: 6px 0; text-align: right;">
+                    <a href="javascript:void(0)" onclick="document.getElementById('user-csv-import-box').style.display = document.getElementById('user-csv-import-box').style.display === 'none' ? 'block' : 'none'; document.getElementById('eess-user-options-dropdown').style.display='none';" style="display: block; padding: 10px 16px; color: #334155; font-size: 12px; text-decoration: none; border-bottom: 1px solid #f1f5f9; font-weight: 700;">📥 استيراد مستخدمين (CSV)</a>
+                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_export_users_csv&nonce=' . wp_create_nonce('eess_admin_action')); ?>" onclick="document.getElementById('eess-user-options-dropdown').style.display='none';" style="display: block; padding: 10px 16px; color: #334155; font-size: 12px; text-decoration: none; font-weight: 700;">📤 تصدير مستخدمين (CSV)</a>
+                </div>
+            </div>
+
+            <?php if (current_user_can('manage_options') || current_user_can('إدارة_المستخدمين')): ?>
+            <button type="button" onclick="eessOpenUnifiedUserModal('add_user', 0)" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <span class="dashicons dashicons-plus-alt2" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
+                <span>إضافة مستخدم جديد</span>
+            </button>
+            <?php endif; ?>
+        </div>
     </div>
 
     <!-- User Management Tabs -->

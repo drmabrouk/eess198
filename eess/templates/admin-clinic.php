@@ -30,7 +30,46 @@ $history = $wpdb->get_results("
 ");
 ?>
 
-<div class="sm-clinic-module" dir="rtl">
+<div class="sm-clinic-module" dir="rtl" style="font-family: 'Cairo', sans-serif !important;">
+
+    <!-- Single Main Banner Header (Matching Teacher Term & Annual Plans) -->
+    <div style="background: #ffffff; padding: 20px 24px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 18px; box-shadow: 0 4px 18px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 48px; height: 48px; background: #fef2f2; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #881337; border: 1px solid #fecdd3; flex-shrink: 0;">
+                <span class="dashicons dashicons-heart" style="font-size: 24px; width: 24px; height: 24px;"></span>
+            </div>
+            <div>
+                <h2 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 800; color: #0f172a;">العيادة المدرسية</h2>
+                <p style="margin: 0; font-size: 12.5px; color: #64748b; font-weight: 500;">سجل الحالات والزيارات اليومية للعيادة المدرسية والتقارير الصحية والمراجعات الطبية للطلاب</p>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <?php if ($is_staff_who_can_send): ?>
+            <button type="button" onclick="document.getElementById('referral-modal').style.display='flex'" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <span class="dashicons dashicons-plus-alt2" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
+                <span>تحويل جديد للعيادة</span>
+            </button>
+            <?php endif; ?>
+
+            <?php if ($is_clinic_staff): $c_nonce = wp_create_nonce('sm_clinic_action'); ?>
+            <div style="position: relative; display: inline-block;">
+                <button type="button" onclick="jQuery('#eess-clinic-reports-dropdown').toggle(); event.stopPropagation();" class="sm-btn sm-btn-outline" style="height: 38px; display: inline-flex; align-items: center; gap: 6px; border-radius: 9999px !important; cursor: pointer; background: #ffffff; color: #334155; border: 1px solid #cbd5e1; font-weight: 800; font-size: 12.5px; padding: 0 16px;">
+                    <span class="dashicons dashicons-download" style="font-size: 16px; width: 16px; height: 16px; margin: 0; color: #475569;"></span>
+                    <span>تحميل التقارير</span>
+                    <span class="dashicons dashicons-arrow-down-alt2" style="font-size: 10px; width: 10px; height: 10px; margin: 0;"></span>
+                </button>
+                <div id="eess-clinic-reports-dropdown" style="display: none; position: absolute; left: 0; top: 115%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px; width: 180px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 99999; padding: 6px 0; text-align: right;">
+                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_get_clinic_reports&report_type=day&nonce='.$c_nonce); ?>" style="display: block; padding: 10px 16px; color: #334155; font-size: 12px; text-decoration: none; border-bottom: 1px solid #f1f5f9; font-weight: 700;">تقرير اليوم</a>
+                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_get_clinic_reports&report_type=week&nonce='.$c_nonce); ?>" style="display: block; padding: 10px 16px; color: #334155; font-size: 12px; text-decoration: none; border-bottom: 1px solid #f1f5f9; font-weight: 700;">تقرير الأسبوع</a>
+                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_get_clinic_reports&report_type=month&nonce='.$c_nonce); ?>" style="display: block; padding: 10px 16px; color: #334155; font-size: 12px; text-decoration: none; border-bottom: 1px solid #f1f5f9; font-weight: 700;">تقرير الشهر</a>
+                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_get_clinic_reports&report_type=term&nonce='.$c_nonce); ?>" style="display: block; padding: 10px 16px; color: #334155; font-size: 12px; text-decoration: none; border-bottom: 1px solid #f1f5f9; font-weight: 700;">تقرير الفصل</a>
+                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_get_clinic_reports&report_type=year&nonce='.$c_nonce); ?>" style="display: block; padding: 10px 16px; color: #334155; font-size: 12px; text-decoration: none; font-weight: 700;">تقرير السنة</a>
+                </div>
+            </div>
+            <?php endif; ?>
+        </div>
+    </div>
 
     <!-- Clinic Search Engine -->
     <div style="margin-bottom: 25px;">

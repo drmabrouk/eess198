@@ -815,7 +815,8 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
             }
 
             $cur_header = $header_map[$active_tab] ?? null;
-            if ($cur_header && $active_tab !== 'term-plans' && $active_tab !== 'students' && !isset($_GET['manage_employee_id']) && !isset($_GET['eess_print_eval']) && !isset($_GET['eess_print_report'])):
+            $excluded_banner_tabs = array('term-plans', 'students', 'teachers', 'parents', 'hr-evaluation', 'hr-management', 'documents', 'clinic', 'lesson-plans', 'assignments', 'attendance');
+            if ($cur_header && !in_array($active_tab, $excluded_banner_tabs) && !isset($_GET['manage_employee_id']) && !isset($_GET['eess_print_eval']) && !isset($_GET['eess_print_report'])):
             ?>
                 <!-- Standardized Enterprise Page Header -->
                 <div style="background: #fff; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; font-family: 'Cairo', sans-serif !important;">
