@@ -23,15 +23,15 @@ if (!isset($attendance_summary)) {
             </div>
         </div>
 
-        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-            <a href="<?php echo home_url('/attendance/'); ?>" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: nowrap;">
+            <a href="<?php echo home_url('/attendance/'); ?>" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;">
                 <span class="dashicons dashicons-edit" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
                 <span>تسجيل الحضور</span>
             </a>
 
             <!-- Absence Reports Dropdown -->
             <div style="position: relative; display: inline-block;">
-                <button type="button" onclick="eessToggleAbsenceDropdown(event)" class="sm-btn sm-btn-outline" style="height: 38px; display: inline-flex; align-items: center; gap: 6px; border-radius: 9999px !important; cursor: pointer; background: #ffffff; color: #334155; border: 1px solid #cbd5e1; font-weight: 800; font-size: 12.5px; padding: 0 16px;">
+                <button type="button" onclick="eessToggleAbsenceDropdown(event)" class="sm-btn sm-btn-outline" style="height: 38px; display: inline-flex; align-items: center; gap: 6px; border-radius: 9999px !important; cursor: pointer; background: #ffffff; color: #334155; border: 1px solid #cbd5e1; font-weight: 800; font-size: 12.5px; padding: 0 16px; white-space: nowrap;">
                     <span class="dashicons dashicons-analytics" style="font-size: 16px; width: 16px; height: 16px; margin: 0; color: #475569;"></span>
                     <span>سجل الغيابات</span>
                     <span class="dashicons dashicons-arrow-down-alt2" style="font-size: 10px; width: 10px; height: 10px; margin: 0;"></span>
@@ -42,8 +42,10 @@ if (!isset($attendance_summary)) {
                 </div>
             </div>
 
-            <input type="date" id="attendance-filter-date" class="sm-input" value="<?php echo esc_attr($attendance_date); ?>" onchange="window.location.href='<?php echo add_query_arg('attendance_date', '', $_SERVER['REQUEST_URI']); ?>' + this.value" style="height: 38px; border-radius: 9999px !important; padding: 0 14px; font-size: 12px; font-family: 'Cairo'; border: 1px solid #cbd5e1;">
-            <button onclick="location.reload()" class="sm-btn sm-btn-outline" title="تحديث" style="height: 38px; border-radius: 50% !important; display: inline-flex; align-items: center; justify-content: center; width: 38px; min-width: 38px; padding: 0; cursor: pointer; border: 1px solid #cbd5e1;"><span class="dashicons dashicons-update" style="margin:0; font-size: 16px;"></span></button>
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <label for="attendance-filter-date" style="font-size: 12px; font-weight: 700; color: #475569; white-space: nowrap;">التاريخ:</label>
+                <input type="date" id="attendance-filter-date" class="sm-input" value="<?php echo esc_attr($attendance_date); ?>" onchange="window.location.href='<?php echo add_query_arg('attendance_date', '', $_SERVER['REQUEST_URI']); ?>' + this.value" style="height: 38px; border-radius: 9999px !important; padding: 0 14px; font-size: 12px; font-family: 'Cairo'; border: 1px solid #cbd5e1; outline: none;">
+            </div>
         </div>
     </div>
 
