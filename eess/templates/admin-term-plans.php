@@ -439,20 +439,24 @@ $arabic_term_names = array(
             <input type="hidden" name="plan_id" id="tp_plan_id" value="0">
             <!-- Step 1 -->
             <div id="wiz-step-1" class="wiz-step-content" style="display: block;">
-                <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 800; color: #0f172a;">الخطوة 1: تحديد المادة والصف ونظام الفصول</h4>
+                <h4 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 800; color: #0f172a;">الخطوة 1: تحديد المادة والصف ونظام الفصول</h4>
+
+                <?php
+                    $assigned_teacher_subject = get_user_meta($user_id, 'sm_specialization', true) ?: (get_user_meta($user_id, 'specialization', true) ?: (get_user_meta($user_id, 'subject', true) ?: 'التربية البدنية والصحية'));
+                ?>
+                <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; font-size: 12.5px; color: #0369a1; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                    <span class="dashicons dashicons-info" style="font-size: 18px; width: 18px; height: 18px;"></span>
+                    <span>أنت تقوم حالياً بإعداد الخطة التعليمية المعتمدة لمادة: <strong style="color: #0284c7; font-size: 13.5px;"><?php echo esc_html($assigned_teacher_subject); ?></strong></span>
+                </div>
+
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                     <div>
                         <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">العام الأكاديمي *</label>
                         <input type="text" id="wiz_academic_year" class="sm-input" value="<?php echo esc_attr($active_academic_year); ?>" required style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 13px; text-align: right; box-sizing: border-box;">
                     </div>
                     <div>
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">المادة الدراسية *</label>
-                        <select id="wiz_subject" class="sm-select" required style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 13px; text-align: right; direction: rtl; box-sizing: border-box;">
-                            <option value="">-- اختر المادة --</option>
-                            <?php foreach ($unique_subjects as $subj): ?>
-                                <option value="<?php echo esc_attr($subj); ?>"><?php echo esc_html($subj); ?></option>
-                            <?php endforeach; ?>
-                        </select>
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">المادة الدراسية المسندة (مقفلة تلقائياً) *</label>
+                        <input type="text" id="wiz_subject" class="sm-input" value="<?php echo esc_attr($assigned_teacher_subject); ?>" readonly required style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 13px; text-align: right; box-sizing: border-box; background: #f8fafc; font-weight: 800; color: #0f172a;">
                     </div>
                 </div>
 
@@ -972,20 +976,69 @@ function generateWizWeeklyFields() {
 
     for (let i = 1; i <= weeks; i++) {
         const card = document.createElement('div');
-        card.style.cssText = 'background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px;';
+        card.style.cssText = 'background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px; position: relative;';
         card.innerHTML = `
-            <div style="font-size: 13px; font-weight: 800; color: #2563eb;">الأسبوع ${i}</div>
-            <div>
-                <label style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px;">عنوان الدرس والموضوع الرئيسية:</label>
-                <input type="text" name="wiz_weeks[${i}][title]" class="sm-input wiz-week-input" placeholder="عنوان الدرس..." style="height: 38px; border-radius: 8px; padding: 0 10px; font-size: 12.5px; width: 100%;">
+            <div style="font-size: 13px; font-weight: 800; color: #881337;">الأسبوع ${i}</div>
+            <div style="position: relative;">
+                <label style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px;">عنوان الدرس والموضوع الرئيسية (ابدأ الكتابة لاقتراحات مادة ${document.getElementById('wiz_subject').value}):</label>
+                <input type="text" id="wiz_title_${i}" name="wiz_weeks[${i}][title]" onkeyup="eessShowEducationalSuggestions(this, '${document.getElementById('wiz_subject').value}', 'title')" class="sm-input wiz-week-input" placeholder="مثال: الإرسال من أعلى في الكرة الطائرة..." style="height: 38px; border-radius: 8px; padding: 0 10px; font-size: 12.5px; width: 100%;">
+                <div id="wiz_title_${i}_sug" class="eess-sug-box" style="display:none; position:absolute; top:100%; right:0; left:0; background:white; border:1px solid #cbd5e1; border-radius:8px; box-shadow:0 10px 15px rgba(0,0,0,0.1); z-index:999; max-height:160px; overflow-y:auto;"></div>
             </div>
-            <div>
-                <label style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px;">ملخص المحتوى والأنشطة:</label>
-                <textarea name="wiz_weeks[${i}][summary]" class="sm-textarea wiz-week-input" rows="2" placeholder="ملخص المحتوى الأسبوعي..." style="border-radius: 8px; padding: 8px; font-size: 12.5px; width: 100%;"></textarea>
+            <div style="position: relative;">
+                <label style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px;">ملخص المحتوى والأنشطة المقترحة:</label>
+                <textarea id="wiz_summary_${i}" name="wiz_weeks[${i}][summary]" onkeyup="eessShowEducationalSuggestions(this, '${document.getElementById('wiz_subject').value}', 'activity')" class="sm-textarea wiz-week-input" rows="2" placeholder="ملخص المحتوى الأسبوعي والمهارات..." style="border-radius: 8px; padding: 8px; font-size: 12.5px; width: 100%;"></textarea>
+                <div id="wiz_summary_${i}_sug" class="eess-sug-box" style="display:none; position:absolute; top:100%; right:0; left:0; background:white; border:1px solid #cbd5e1; border-radius:8px; box-shadow:0 10px 15px rgba(0,0,0,0.1); z-index:999; max-height:160px; overflow-y:auto;"></div>
             </div>
         `;
         grid.appendChild(card);
     }
+}
+
+function eessShowEducationalSuggestions(inputEl, subj, inputType) {
+    const query = inputEl.value.trim();
+    const sugBox = document.getElementById(inputEl.id + '_sug');
+    if (!sugBox) return;
+
+    if (query.length < 2) {
+        sugBox.style.display = 'none';
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('action', 'sm_get_educational_suggestions');
+    formData.append('query', query);
+    formData.append('subject', subj);
+    formData.append('input_type', inputType);
+
+    fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success && res.data.length > 0) {
+            let html = '';
+            res.data.forEach(item => {
+                html += `<div onclick="eessSelectEducationalSuggestion('${inputEl.id}', '${item.content.replace(/'/g, "\\'")}', '${subj}', '${inputType}')" style="padding:8px 12px; font-size:12px; color:#1e293b; border-bottom:1px solid #f1f5f9; cursor:pointer; font-weight:600;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">💡 ${item.content}</div>`;
+            });
+            sugBox.innerHTML = html;
+            sugBox.style.display = 'block';
+        } else {
+            sugBox.style.display = 'none';
+        }
+    });
+}
+
+function eessSelectEducationalSuggestion(inputId, val, subj, inputType) {
+    const el = document.getElementById(inputId);
+    if (el) el.value = val;
+    const sugBox = document.getElementById(inputId + '_sug');
+    if (sugBox) sugBox.style.display = 'none';
+
+    // Auto record usage count
+    const formData = new FormData();
+    formData.append('action', 'sm_save_educational_input');
+    formData.append('subject', subj);
+    formData.append('input_type', inputType);
+    formData.append('content', val);
+    fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData });
 }
 
 function eessSaveWizardPlanSubmit(e) {

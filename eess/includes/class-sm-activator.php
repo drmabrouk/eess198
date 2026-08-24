@@ -281,6 +281,22 @@ class SM_Activator {
             PRIMARY KEY  (id),
             KEY teacher_id (teacher_id),
             KEY status (status)
+        ) $charset_collate;
+
+        CREATE TABLE {$wpdb->prefix}sm_educational_inputs (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            subject varchar(100) NOT NULL,
+            input_type varchar(50) DEFAULT 'title' NOT NULL,
+            content text NOT NULL,
+            usage_count int(11) DEFAULT 1 NOT NULL,
+            is_approved tinyint(1) DEFAULT 1 NOT NULL,
+            created_by bigint(20) DEFAULT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+            PRIMARY KEY  (id),
+            KEY subject (subject),
+            KEY input_type (input_type),
+            KEY is_approved (is_approved)
         ) $charset_collate;";
 
         // System Announcements Table

@@ -7386,4 +7386,73 @@ class SM_Public {
 
         wp_send_json_success(array('message' => 'تم إرسال الملاحظة بنجاح إلى ولي أمر الطالب ' . $student->name));
     }
+
+    public function ajax_get_educational_suggestions() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+
+        $query      = sanitize_text_field($_POST['query'] ?? '');
+        $subject    = sanitize_text_field($_POST['subject'] ?? '');
+        $input_type = sanitize_text_field($_POST['input_type'] ?? 'title');
+
+        if (empty($query) || mb_strlen($query) < 2) {
+            wp_send_json_success(array());
+        }
+
+        global $wpdb;
+        $sql = "SELECT id, subject, input_type, content, usage_count FROM {$wpdb->prefix}sm_educational_inputs WHERE is_approved = 1 AND input_type = %s";
+        $params = array($input_type);
+
+        if (!empty($subject)) {
+            $sql .= " AND (subject = %s OR subject = 'عام')";
+            $params[] = $subject;
+        }
+
+        $sql .= " AND content LIKE %s ORDER BY usage_count DESC, id DESC LIMIT 10";
+        $params[] = '%' . $wpdb->esc_like($query) . '%';
+
+        $results = $wpdb->get_results($wpdb->prepare($sql, $params));
+        wp_send_json_success($results ?: array());
+    }
+
+    public function ajax_save_educational_input() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+
+        $subject    = sanitize_text_field($_POST['subject'] ?? '');
+        $input_type = sanitize_text_field($_POST['input_type'] ?? 'title');
+        $content    = sanitize_textarea_field($_POST['content'] ?? '');
+
+        if (empty($subject) || empty($content) || mb_strlen($content) < 3) {
+            wp_send_json_error('يرجى اختيار المادة وإدخال محتوى صحيح.');
+        }
+
+        global $wpdb;
+        $existing = $wpdb->get_row($wpdb->prepare(
+            "SELECT id, usage_count FROM {$wpdb->prefix}sm_educational_inputs WHERE subject = %s AND input_type = %s AND content = %s LIMIT 1",
+            $subject, $input_type, $content
+        ));
+
+        if ($existing) {
+            $wpdb->update(
+                "{$wpdb->prefix}sm_educational_inputs",
+                array('usage_count' => $existing->usage_count + 1),
+                array('id' => $existing->id)
+            );
+            wp_send_json_success(array('id' => $existing->id, 'usage_count' => $existing->usage_count + 1));
+        } else {
+            $wpdb->insert(
+                "{$wpdb->prefix}sm_educational_inputs",
+                array(
+                    'subject'     => $subject,
+                    'input_type'  => $input_type,
+                    'content'     => $content,
+                    'usage_count' => 1,
+                    'is_approved' => 1,
+                    'created_by'  => get_current_user_id(),
+                    'created_at'  => current_time('mysql'),
+                    'updated_at'  => current_time('mysql')
+                )
+            );
+            wp_send_json_success(array('id' => $wpdb->insert_id, 'usage_count' => 1));
+        }
+    }
 }
