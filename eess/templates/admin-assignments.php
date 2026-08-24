@@ -64,7 +64,7 @@
 
     <!-- TAB 1: RECEIVED ASSIGNMENTS -->
     <div id="received-assignments" class="sm-internal-tab">
-        <div class="sm-table-container">
+        <div class="sm-table-container" style="box-shadow: none !important; border-radius: 0 !important; border: none !important; background: transparent !important;">
             <table class="sm-table">
                 <thead>
                     <tr>
@@ -104,7 +104,7 @@
 
     <!-- TAB 2: SENT ASSIGNMENTS -->
     <div id="sent-assignments" class="sm-internal-tab" style="display: none;">
-        <div class="sm-table-container">
+        <div class="sm-table-container" style="box-shadow: none !important; border-radius: 0 !important; border: none !important; background: transparent !important;">
             <table class="sm-table">
                 <thead>
                     <tr>

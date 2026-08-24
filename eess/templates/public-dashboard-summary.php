@@ -18,6 +18,29 @@ $is_parent = in_array('sm_parent', $roles) || in_array('sm_student', $roles);
 $dash_data = SM_DB::get_personalized_dashboard_data($user_id);
 ?>
 
+<div class="sm-content-wrapper" dir="rtl" style="font-family: 'Cairo', sans-serif !important;">
+
+    <!-- Single Main Banner Header (Dashboard) -->
+    <div style="background: #ffffff; padding: 20px 24px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 18px; box-shadow: 0 4px 18px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 48px; height: 48px; background: #fef2f2; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #881337; border: 1px solid #fecdd3; flex-shrink: 0;">
+                <span class="dashicons dashicons-dashboard" style="font-size: 24px; width: 24px; height: 24px;"></span>
+            </div>
+            <div>
+                <h2 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 800; color: #0f172a;">لوحة التحكم الرئيسية والعمليات اليومية</h2>
+                <p style="margin: 0; font-size: 12.5px; color: #64748b; font-weight: 500;">متابعة الحصص الحالية، نسبة الحضور والغياب، التنبيهات السلوكية والعمليات التعليمية المباشرة</p>
+            </div>
+        </div>
+
+        <!-- Primary Header Actions -->
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <a href="<?php echo home_url('/attendance/'); ?>" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+                <span class="dashicons dashicons-calendar-alt" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
+                <span>تسجيل الحضور اليومي</span>
+            </a>
+        </div>
+    </div>
+
 <?php if ($is_teacher || $is_coordinator || $is_activities_sup): ?>
     <!-- TEACHER & COORDINATOR PERSONALIZED OPERATIONAL DASHBOARD -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 25px;">
@@ -223,6 +246,7 @@ function smDownloadChart(chartId, fileName) {
     else window.addEventListener('load', initSummaryCharts);
 })();
 </script>
+</div>
 
 <!-- Quick Parent Note Modal -->
 <div id="eess-quick-parent-note-modal" class="sm-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif; direction: rtl;">

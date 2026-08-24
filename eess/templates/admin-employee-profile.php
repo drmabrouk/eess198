@@ -175,6 +175,29 @@ if (!is_array($timeline)) $timeline = json_decode($timeline, true) ?: array();
 
 <div class="sm-container" style="padding: 10px 0; font-family: 'Cairo', sans-serif !important; direction: rtl;">
 
+    <!-- Single Main Banner Header (Work Profile) -->
+    <div style="background: #ffffff; padding: 20px 24px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 18px; box-shadow: 0 4px 18px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 48px; height: 48px; background: #fef2f2; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #881337; border: 1px solid #fecdd3; flex-shrink: 0;">
+                <span class="dashicons dashicons-id-alt" style="font-size: 24px; width: 24px; height: 24px;"></span>
+            </div>
+            <div>
+                <h2 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 800; color: #0f172a;">الملف التعريفي والمهني للموظف</h2>
+                <p style="margin: 0; font-size: 12.5px; color: #64748b; font-weight: 500;">استعراض البيانات الشخصية، السجلات الوظيفية، التقييمات والوثائق الرسمية</p>
+            </div>
+        </div>
+
+        <!-- Primary Header Actions -->
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <?php if ($target_user_id === $current_user->ID || $is_admin || $is_sys_admin || $is_hr): ?>
+            <button type="button" onclick="eessOpenProfileEditModal()" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <span class="dashicons dashicons-edit" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
+                <span>تعديل الملف المهني</span>
+            </button>
+            <?php endif; ?>
+        </div>
+    </div>
+
     <!-- Main Workspace with Tabs in Left-Sidebar Vertical Format (RTL compliant) -->
     <div style="background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: var(--sm-shadow); padding: 25px; min-height: 500px; display: flex; gap: 25px; direction: rtl; align-items: flex-start;">
 
