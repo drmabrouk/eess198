@@ -497,6 +497,8 @@ function eessDeleteSupportRecord(id) {
         }
     });
 }
+</script>
+
     <!-- Shared Educational Input Library Card for System Admins -->
     <div style="background: #ffffff; border-radius: 16px; padding: 25px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-top: 30px;">
         <h3 style="margin: 0 0 15px 0; font-size: 16px; font-weight: 800; color: #0f172a; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">

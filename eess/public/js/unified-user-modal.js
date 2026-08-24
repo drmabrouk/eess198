@@ -19,6 +19,17 @@ window.eessOpenUnifiedUserModal = function(mode, userId) {
     var form = document.getElementById('eess-unified-user-form');
     if (form) form.reset();
 
+    // Reset all input values explicitly to prevent cross-user state bleed
+    ['u_first_name', 'u_last_name', 'u_employee_id', 'u_username', 'u_user_email', 'u_phone_number', 'u_civil_id', 'u_dob', 'u_nationality', 'u_official_title'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+
+    ['u_user_role', 'u_institution_id', 'u_school_id', 'u_department', 'u_specialization'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.selectedIndex = 0;
+    });
+
     document.getElementById('u_user_id').value = userId;
     document.getElementById('u_form_mode').value = mode;
 
