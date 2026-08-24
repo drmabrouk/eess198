@@ -240,6 +240,11 @@ $arabic_term_names = array(
                                                 <span class="dashicons dashicons-edit" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
                                             </button>
 
+                                            <!-- Delete Button -->
+                                            <button type="button" onclick="eessPromptDeletePlanModal(<?php echo $tp->id; ?>, '<?php echo esc_js($tp->subject . ' - ' . $arabic_term_names[intval($tp->term_number)]); ?>')" title="حذف الخطة" style="width: 36px; height: 36px; border-radius: 50% !important; background: #fee2e2; color: #dc2626; border: 1px solid #fecdd3; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                                <span class="dashicons dashicons-trash" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
+                                            </button>
+
                                             <!-- View Content Button -->
                                             <button type="button" onclick="inspectSubmittedPlan(<?php echo htmlspecialchars(json_encode($tp)); ?>)" title="معاينة" style="width: 36px; height: 36px; border-radius: 50% !important; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
                                                 <span class="dashicons dashicons-visibility" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
@@ -369,6 +374,11 @@ $arabic_term_names = array(
                                             <!-- Reject Button (Danger Red) -->
                                             <button type="button" onclick="eessDirectReviewPlan(<?php echo $sp->id; ?>, 'rejected')" title="رفض الخطة" style="width: 32px; height: 32px; border-radius: 50% !important; background: #fee2e2; color: #dc2626; border: 1px solid #fecdd3; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
                                                 <span class="dashicons dashicons-no-alt" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
+                                            </button>
+
+                                            <!-- Delete Button (In-System Modal Confirmation) -->
+                                            <button type="button" onclick="eessPromptDeletePlanModal(<?php echo $sp->id; ?>, '<?php echo esc_js($sp->teacher_name . ' - ' . $sp->subject); ?>')" title="حذف الخطة نهائياً" style="width: 32px; height: 32px; border-radius: 50% !important; background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                                <span class="dashicons dashicons-trash" style="font-size: 15px; width: 15px; height: 15px; margin: 0;"></span>
                                             </button>
 
                                             <!-- Preview Plan Details Button -->
@@ -532,6 +542,36 @@ $arabic_term_names = array(
     </div>
 </div>
 
+<!-- In-System Plan Deletion Confirmation Modal -->
+<div id="eess-delete-plan-modal" class="sm-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif; direction: rtl;">
+    <div style="background: #ffffff; border-radius: 20px; max-width: 480px; width: 100%; border: 1px solid #fecdd3; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); overflow: hidden; display: flex; flex-direction: column;">
+        <div style="background: #881337; color: #ffffff; padding: 16px 22px; display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="dashicons dashicons-warning" style="color: #ffffff; font-size: 20px; width: 20px; height: 20px; margin: 0;"></span>
+                <h3 style="margin: 0; font-size: 15.5px; font-weight: 800; color: #ffffff;">تأكيد حذف الخطة التعليمية</h3>
+            </div>
+            <button type="button" onclick="document.getElementById('eess-delete-plan-modal').style.display='none'" style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer; line-height: 1;">&times;</button>
+        </div>
+
+        <div style="padding: 22px; text-align: right;">
+            <p style="margin: 0 0 12px 0; font-size: 13.5px; color: #1e293b; font-weight: 700; line-height: 1.6;">
+                هل أنت متأكد من رغبتك في حذف هذه الخطة نهائياً؟
+            </p>
+            <div id="eess-delete-plan-details" style="background: #fef2f2; border: 1px solid #fecdd3; padding: 12px; border-radius: 10px; color: #991b1b; font-size: 12.5px; font-weight: 800; margin-bottom: 20px;">
+                <!-- Filled via JS -->
+            </div>
+            <p style="margin: 0 0 20px 0; font-size: 11.5px; color: #64748b;">
+                ⚠️ تحذير: سيتم إزالة السجل بالكامل وفقاً للصلاحيات التنظيمية للـ EESS ولا يمكن التراجع عن هذا الإجراء بعد التأكيد.
+            </p>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" onclick="document.getElementById('eess-delete-plan-modal').style.display='none'" class="sm-btn sm-btn-outline" style="height: 38px; padding: 0 18px; border-radius: 9999px !important; font-size: 12.5px; color: #475569; font-weight: 700;">إلغاء</button>
+                <button type="button" id="eess-confirm-delete-plan-btn" onclick="eessExecutePlanDeletion()" class="sm-btn" style="height: 38px; padding: 0 22px; border-radius: 9999px !important; font-size: 12.5px; background: #dc2626; color: #ffffff !important; font-weight: 800; border: none; cursor: pointer;">نعم، تأكيد الحذف</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Inspection & Approval Modal -->
 <div id="tp_inspect_modal" class="sm-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif; direction: rtl;">
     <div style="background: #ffffff; border-radius: 20px; max-width: 720px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); overflow: hidden; display: flex; flex-direction: column;">
@@ -580,6 +620,54 @@ function eessFilterReviewerPlansTable() {
             r.style.display = '';
         } else {
             r.style.display = 'none';
+        }
+    });
+}
+
+let eessPlanToDeleteId = 0;
+
+function eessPromptDeletePlanModal(planId, planLabel) {
+    eessPlanToDeleteId = planId;
+    document.getElementById('eess-delete-plan-details').innerText = 'الخطة المستهدفة: ' + planLabel;
+    document.getElementById('eess-delete-plan-modal').style.display = 'flex';
+}
+
+function eessExecutePlanDeletion() {
+    if (!eessPlanToDeleteId) return;
+
+    const btn = document.getElementById('eess-confirm-delete-plan-btn');
+    btn.disabled = true;
+    btn.innerText = 'جاري الحذف...';
+
+    const formData = new FormData();
+    formData.append('action', 'sm_delete_term_plan');
+    formData.append('plan_id', eessPlanToDeleteId);
+    formData.append('sm_nonce', '<?php echo wp_create_nonce("sm_term_plan_action"); ?>');
+
+    fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(res => {
+        btn.disabled = false;
+        btn.innerText = 'نعم، تأكيد الحذف';
+        document.getElementById('eess-delete-plan-modal').style.display = 'none';
+
+        if (res.success) {
+            if (typeof smShowNotification === 'function') {
+                smShowNotification('تم حذف الخطة بنجاح');
+            }
+            setTimeout(() => location.reload(), 600);
+        } else {
+            if (typeof smShowNotification === 'function') {
+                smShowNotification('خطأ: ' + (res.data || 'تعذر حذف الخطة'), true);
+            }
+        }
+    })
+    .catch(err => {
+        btn.disabled = false;
+        btn.innerText = 'نعم، تأكيد الحذف';
+        document.getElementById('eess-delete-plan-modal').style.display = 'none';
+        if (typeof smShowNotification === 'function') {
+            smShowNotification('حدث خطأ في الاتصال بالخادم', true);
         }
     });
 }
