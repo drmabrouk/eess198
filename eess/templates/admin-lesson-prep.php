@@ -313,8 +313,9 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
 
     <!-- Administrative Statistics Dashboard (Compact layout) -->
     <?php if ($can_review):
+        $today_date = current_time('Y-m-d');
         $stats_total_required = count(get_users(array('role' => 'sm_teacher')));
-        $stats_submitted      = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sm_lesson_preps WHERE status IN ('submitted', 'approved', 'revision_required', 'rejected', 'late')");
+        $stats_submitted      = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}sm_lesson_preps WHERE (lesson_date = %s OR DATE(created_at) = %s) AND status IN ('submitted', 'approved', 'revision_required', 'rejected', 'late')", $today_date, $today_date));
         $stats_pending        = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sm_lesson_preps WHERE status = 'submitted'");
         $stats_approved       = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sm_lesson_preps WHERE status = 'approved'");
         $stats_rejected       = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sm_lesson_preps WHERE status = 'rejected'");
@@ -590,11 +591,8 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
         </script>
         <?php endif; ?>
 
-        <!-- List Panel (Compacted) -->
+        <!-- List Panel (Compacted & Cleaned Up) -->
         <div style="background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
-            <h3 style="margin: 0 0 15px 0; font-weight: 800; color: #1e293b; border-bottom: 2px solid #f1f5f9; padding-bottom: 6px; font-size: 14px;">
-                <?php echo $can_review ? 'استعراض واعتماد خطط تحضير المعلمين' : 'أرشيف وسجل تحضير الدروس الخاص بي'; ?>
-            </h3>
 
             <!-- Search and Filter bar (Unified Wine-Red & Neutral Design System) -->
             <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; background: #ffffff; padding: 18px; border-radius: 16px; border: 1px solid #cbd5e1; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
@@ -628,19 +626,6 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                     <a href="<?php echo home_url('/lesson-prep'); ?>" class="sm-btn sm-btn-outline" style="height: 38px; font-size:12px; padding:0 16px; border-radius: 9999px !important; border: 1px solid #cbd5e1; color: #475569; display:flex; align-items:center; justify-content:center; text-decoration:none; font-weight:700; white-space: nowrap !important;">إعادة ضبط</a>
                 </div>
             </form>
-
-            <!-- Bulk Action Controls Bar -->
-            <?php if ($can_review): ?>
-            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 12px; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
-                <label style="font-size: 11px; font-weight: bold; color: #475569;">إجراءات جماعية:</label>
-                <select id="eess-prep-bulk-action" class="sm-input" style="height: 30px; font-size: 11px; padding: 0 8px; width: 150px;">
-                    <option value="">-- اختر إحراء --</option>
-                    <option value="approve">✓ اعتماد جماعي</option>
-                    <option value="delete">🗑️ حذف جماعي</option>
-                </select>
-                <button type="button" onclick="eessExecutePrepBulkAction()" class="sm-btn" style="height: 30px; font-size: 11px; padding: 0 14px; background: #000; color: white !important;">تطبيق</button>
-            </div>
-            <?php endif; ?>
 
             <!-- Table of Submissions -->
             <div class="sm-table-container" style="overflow-x: auto;">

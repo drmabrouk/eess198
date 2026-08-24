@@ -2035,16 +2035,16 @@ class SM_Public {
 
         <!-- Registration Wizard Modal (Without OTP) -->
         ' . (function() {
-            $schools_list = SM_DB::get_schools() ?: array();
+            $insts_list = class_exists('EESS_Org_Helper') ? EESS_Org_Helper::get_institutions() : array();
             $subjects_list = SM_DB::get_subjects() ?: array();
             $unique_subjects = array_unique(array_filter(array_map(function($s){ return is_object($s) ? $s->name : (is_array($s) ? ($s['name'] ?? '') : (string)$s); }, (array)$subjects_list)));
             $nationalities = array('إماراتي', 'سعودي', 'مصري', 'أردني', 'سوري', 'عماني', 'كويتي', 'بحريني', 'قطري', 'عراقي', 'يمني', 'سوداني', 'مغربي', 'جزائري', 'تونسية', 'لبناني', 'فلسطيني', 'جنسية أخرى');
 
             $schools_opts = '';
-            foreach ((array)$schools_list as $sch) {
-                $sch_name = is_object($sch) ? $sch->name : (is_array($sch) ? ($sch['name'] ?? '') : (string)$sch);
-                if ($sch_name) {
-                    $schools_opts .= '<option value="' . esc_attr($sch_name) . '">' . esc_html($sch_name) . '</option>';
+            foreach ((array)$insts_list as $inst_item) {
+                $inst_name = is_object($inst_item) ? $inst_item->name : (is_array($inst_item) ? ($inst_item['name'] ?? '') : (string)$inst_item);
+                if ($inst_name) {
+                    $schools_opts .= '<option value="' . esc_attr($inst_name) . '">' . esc_html($inst_name) . '</option>';
                 }
             }
 
@@ -2168,7 +2168,12 @@ class SM_Public {
                                 <option value="sm_hod">رئيس قسم (Department Head)</option>
                                 <option value="sm_supervisor">مشرف تربوي (Educational Supervisor)</option>
                                 <option value="sm_principal">مدير المدرسة (School Manager)</option>
-                                <option value="sm_clinic">ممرض عيادة</option>
+                                <option value="sm_discipline_supervisor">مشرف سلوك / انضباط</option>
+                                <option value="sm_activities_supervisor">مشرف أنشطة</option>
+                                <option value="sm_transportation_supervisor">مشرف نقل ومواصلات</option>
+                                <option value="sm_bus_supervisor">مشرف حافلة</option>
+                                <option value="sm_clinic">العيادة المدرسية</option>
+                                <option value="sm_parent">ولي أمر (Parent)</option>
                             </select>
                         </div>
                         <div class="eess-form-group" id="eess-reg-subject-box" style="margin-bottom: 14px;">

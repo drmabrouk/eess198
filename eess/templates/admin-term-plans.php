@@ -102,7 +102,8 @@ $arabic_term_names = array(
         </div>
     </div>
 
-        <!-- 3 Independent Annual Progress Cards Grid -->
+        <?php if ($is_teacher): ?>
+        <!-- 3 Independent Annual Progress Cards Grid (Teachers Only) -->
         <div style="background: #ffffff; padding: 20px 24px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.02); margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
                 <div>
@@ -150,8 +151,10 @@ $arabic_term_names = array(
                 <?php endfor; ?>
             </div>
         </div>
+        <?php endif; ?>
 
-    <!-- TEACHER TAB: SUBMITTED PLANS HISTORY WITH RICH MULTI-LINE CARD ROWS & SEARCH FILTER -->
+    <!-- TEACHER TAB: SUBMITTED PLANS HISTORY WITH RICH MULTI-LINE CARD ROWS & SEARCH FILTER (Teachers Only) -->
+    <?php if ($is_teacher): ?>
     <div id="panel-teacher-dashboard" class="term-plan-panel" style="display: block;">
 
         <!-- Search & Filter Card Matching Lesson Prep Style -->
@@ -281,6 +284,7 @@ $arabic_term_names = array(
             </div>
         </div>
     </div>
+    <?php endif; ?>
 
     <!-- REVIEWER TAB: SUBMITTED PLANS INSPECTION (Auto-Rendered with Tight Gap) -->
     <?php if ($is_reviewer): ?>
