@@ -3644,21 +3644,66 @@ class SM_Public {
     }
 
     public function ajax_add_document() {
-        if (!current_user_can('إدارة_النظام')) wp_send_json_error('Unauthorized');
-        if (!wp_verify_nonce($_POST['sm_nonce'], 'sm_admin_action')) wp_send_json_error('Security');
+        if (!is_user_logged_in()) wp_send_json_error('عفواً، يجب تسجيل الدخول.');
+        if (!wp_verify_nonce($_POST['sm_nonce'] ?? '', 'sm_admin_action')) wp_send_json_error('فشل التوثيق الأمني بالجلسة.');
+
+        $title    = sanitize_text_field($_POST['title'] ?? '');
+        $category = sanitize_text_field($_POST['category'] ?? '');
+        $file_url = esc_url_raw($_POST['file_url'] ?? '');
+        $is_general = !empty($_POST['is_general']);
+
+        if (empty($title) || empty($category)) {
+            wp_send_json_error('اسم الوثيقة والتصنيف حقول إلزامية.');
+        }
+
+        $user = wp_get_current_user();
+        $roles = (array) $user->roles;
+        $can_upload_general = in_array('administrator', $roles) || in_array('sm_system_admin', $roles) || in_array('sm_principal', $roles) || in_array('sm_supervisor', $roles) || in_array('sm_coordinator', $roles) || in_array('sm_hod', $roles) || current_user_can('manage_options');
+
+        if ($is_general && !$can_upload_general) {
+            wp_send_json_error('عفواً، يتطلب نشر الوثائق العامة صلاحية مدير المدرسة أو المشرفين أو رئيس القسم.');
+        }
+
+        // Validate File Size (max 5MB) and Allowed Extensions (PDF, DOC/DOCX, XLS/XLSX)
+        if (!empty($_FILES['doc_file']['name'])) {
+            $file = $_FILES['doc_file'];
+            if ($file['size'] > 5 * 1024 * 1024) {
+                wp_send_json_error('حجم الملف يتجاوز الحد الأقصى المسموح به (5 ميجابايت).');
+            }
+
+            $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            $allowed_exts = array('pdf', 'doc', 'docx', 'xls', 'xlsx');
+            if (!in_array($ext, $allowed_exts)) {
+                wp_send_json_error('نوع الملف غير مسموح به. يُسمح فقط بملفات PDF, DOC, DOCX, XLS, XLSX.');
+            }
+
+            require_once(ABSPATH . 'wp-admin/includes/image.php');
+            require_once(ABSPATH . 'wp-admin/includes/file.php');
+            require_once(ABSPATH . 'wp-admin/includes/media.php');
+
+            $attachment_id = media_handle_upload('doc_file', 0);
+            if (is_wp_error($attachment_id)) {
+                wp_send_json_error('فشل رفع الملف: ' . $attachment_id->get_error_message());
+            }
+            $file_url = wp_get_attachment_url($attachment_id);
+        }
+
+        if (empty($file_url)) {
+            wp_send_json_error('يرجى اختيار مرفق أو إدخال رابط الملف.');
+        }
 
         global $wpdb;
         $result = $wpdb->insert("{$wpdb->prefix}sm_documents", array(
-            'title' => sanitize_text_field($_POST['title']),
-            'description' => sanitize_textarea_field($_POST['description']),
-            'file_url' => esc_url_raw($_POST['file_url']),
-            'status' => sanitize_text_field($_POST['status']),
-            'category' => sanitize_text_field($_POST['category'] ?? 'الوثائق الإدارية'),
-            'created_by' => get_current_user_id()
+            'title'       => $title,
+            'description' => sanitize_textarea_field($_POST['description'] ?? ''),
+            'file_url'    => $file_url,
+            'status'      => sanitize_text_field($_POST['status'] ?? 'published'),
+            'category'    => $category,
+            'created_by'  => get_current_user_id()
         ));
 
         if ($result) wp_send_json_success();
-        else wp_send_json_error('Failed to save');
+        else wp_send_json_error('فشل حفظ الوثيقة بقاعدة البيانات.');
     }
 
     public function ajax_update_document() {
@@ -7631,7 +7676,7 @@ class SM_Public {
         $params = array($input_type);
 
         if (!empty($subject)) {
-            $sql .= " AND (subject = %s OR subject = 'عام')";
+            $sql .= " AND subject = %s";
             $params[] = $subject;
         }
 
