@@ -433,12 +433,14 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                 $teacher_grade  = get_user_meta($user_id, 'sm_grade_level', true) ?: (get_user_meta($user_id, 'grade', true) ?: 'الصف العاشر');
                                 $teacher_section= get_user_meta($user_id, 'sm_class_section', true) ?: (get_user_meta($user_id, 'section', true) ?: 'أ');
                             ?>
+                            <!-- Personalized Step 1 Educational Instructional Note -->
                             <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 14px 18px; margin-bottom: 20px;">
                                 <div style="font-weight: 800; font-size: 13.5px; color: #166534; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-                                    <span class="dashicons dashicons-id-alt"></span>
-                                    <span>البيانات الأكاديمية المسترجعة تلقائياً لحسابك:</span>
+                                    <span class="dashicons dashicons-info" style="font-size: 16px; width: 16px; height: 16px;"></span>
+                                    <span>أهلاً بك أ. <?php echo esc_html($user->display_name); ?> - الإرشادات الأكاديمية للخطوة الأولى:</span>
                                 </div>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; font-size: 12px; color: #15803d; font-weight: 700;">
+                                <p style="margin: 0 0 10px 0; font-size: 12px; color: #15803d; line-height: 1.5;">تتيح لك هذه الخطوة إدخال عنوان الدرس الرئيسي وتحديد تاريخ إعطائه. تم استرجاع مادتك وتسكينك الأكاديمي تلقائياً لتسريع وتسهيل إدخال البيانات.</p>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; font-size: 12px; color: #15803d; font-weight: 700; background: rgba(255,255,255,0.6); padding: 8px 12px; border-radius: 8px; border: 1px solid #bbf7d0;">
                                     <div>📚 <strong>المادة:</strong> <?php echo esc_html($current_subject); ?></div>
                                     <div>🏫 <strong>المدرسة:</strong> <?php echo esc_html($teacher_school); ?></div>
                                     <div>🎓 <strong>التسكين:</strong> <?php echo esc_html($teacher_grade . ' (' . $teacher_section . ')'); ?></div>
@@ -462,24 +464,26 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                             </div>
                         </div>
 
-                        <!-- Stage 2: Objectives & Warm-up (Modern Floating-Label Design) -->
+                        <!-- Stage 2: Specialized PE & Subject-Aware Objectives & Planning (Logical 9-Field Structure) -->
                         <div class="eess-prep-wizard-stage" id="eess-prep-stage-2" style="display: none;">
-                            <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 800; color: #0f172a;">الخطوة الثانية: أهداف وتمهيد درس (<?php echo esc_html($current_subject); ?>)</h4>
+                            <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 800; color: #0f172a;">الخطوة الثانية: الربط والتفكير والإعداد البدني لدرس (<?php echo esc_html($current_subject); ?>)</h4>
 
-                            <!-- Floating Label 1: Objectives -->
-                            <div style="position: relative; margin-bottom: 22px;">
-                                <textarea id="eess_objectives" name="objectives" class="sm-input eess-floating-textarea" style="height: 100px; font-size: 12.5px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 18px 16px 10px 16px; width: 100%; box-sizing: border-box;" placeholder=" " required><?php echo esc_textarea($data['objectives'] ?? ''); ?></textarea>
-                                <label for="eess_objectives" style="position: absolute; right: 14px; top: -10px; background: #ffffff; padding: 0 6px; font-size: 11.5px; font-weight: 800; color: #881337; border-radius: 4px; pointer-events: none; transition: all 0.2s;">
-                                    1. <?php echo esc_html($subj_fields['label1']); ?> <span style="color:#ef4444;">*</span>
-                                </label>
+                            <!-- Connection to Other Subjects -->
+                            <div class="eess-float-group" style="margin-bottom: 22px;">
+                                <textarea id="eess_cross_subject" name="cross_subject" class="sm-input eess-float-input" style="height: 80px; font-size: 12.5px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 18px 16px 10px 16px;" placeholder=" "><?php echo esc_textarea($data['cross_subject'] ?? ''); ?></textarea>
+                                <label for="eess_cross_subject" class="eess-float-label">2. التكامل والربط المواد الأخرى (مثل: العلوم، الصحة، الرياضيات)</label>
                             </div>
 
-                            <!-- Floating Label 2: Warmup -->
-                            <div style="position: relative; margin-bottom: 15px;">
-                                <textarea id="eess_warmup" name="warmup" class="sm-input eess-floating-textarea" style="height: 90px; font-size: 12.5px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 18px 16px 10px 16px; width: 100%; box-sizing: border-box;" placeholder=" " required><?php echo esc_textarea($data['warmup'] ?? ''); ?></textarea>
-                                <label for="eess_warmup" style="position: absolute; right: 14px; top: -10px; background: #ffffff; padding: 0 6px; font-size: 11.5px; font-weight: 800; color: #881337; border-radius: 4px; pointer-events: none; transition: all 0.2s;">
-                                    2. <?php echo esc_html($subj_fields['label2']); ?> <span style="color:#ef4444;">*</span>
-                                </label>
+                            <!-- Critical Thinking Questions -->
+                            <div class="eess-float-group" style="margin-bottom: 22px;">
+                                <textarea id="eess_critical_thinking" name="critical_thinking" class="sm-input eess-float-input" style="height: 80px; font-size: 12.5px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 18px 16px 10px 16px;" placeholder=" "><?php echo esc_textarea($data['critical_thinking'] ?? ''); ?></textarea>
+                                <label for="eess_critical_thinking" class="eess-float-label">3. أسئلة التفكير الناقد والتحدي الأكاديمي/الحركي</label>
+                            </div>
+
+                            <!-- Warm-Up (5 min) -->
+                            <div class="eess-float-group" style="margin-bottom: 15px;">
+                                <textarea id="eess_warmup" name="warmup" class="sm-input eess-float-input" style="height: 85px; font-size: 12.5px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 18px 16px 10px 16px;" placeholder=" " required><?php echo esc_textarea($data['warmup'] ?? ''); ?></textarea>
+                                <label for="eess_warmup" class="eess-float-label">4. الإحماء والتهيئة البدنية (Warm-Up - 5 دقائق) <span style="color:#ef4444;">*</span></label>
                             </div>
                         </div>
 
