@@ -9,7 +9,7 @@ $departments  = class_exists('SM_Settings') ? SM_Settings::get_departments() : a
 
 <!-- UNIFIED USER & EMPLOYEE MANAGEMENT MODAL -->
 <div id="unified-user-modal" class="sm-modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 999999; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); position: fixed; inset: 0; padding: 20px; box-sizing: border-box;">
-    <div class="sm-modal-content" style="background: #ffffff; border-radius: 20px; width: 100%; max-width: 900px; max-height: 92vh; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); border: 1px solid #cbd5e1; font-family: 'Cairo', sans-serif; box-sizing: border-box; display: flex; flex-direction: column;" dir="rtl">
+    <div class="sm-modal-content" style="background: #ffffff; border-radius: 20px; width: 100%; max-width: 980px; max-height: 94vh; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); border: 1px solid #cbd5e1; font-family: 'Cairo', sans-serif; box-sizing: border-box; display: flex; flex-direction: column;" dir="rtl">
 
         <!-- Modal Header (Flush Full Width Edge-to-Edge with Zero Outer Gaps) -->
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; background: #0f172a; color: #ffffff; border-bottom: 1px solid #1e293b; box-sizing: border-box; width: 100%; margin: 0;">
