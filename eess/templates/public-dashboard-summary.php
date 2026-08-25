@@ -180,11 +180,21 @@ $dash_data = SM_DB::get_personalized_dashboard_data($user_id);
 
             if (empty($latest_support)): ?>
                 <div style="padding: 30px; text-align: center; color: #94a3b8; font-size: 12px; font-weight: 600;">لا توجد مستجدات أو رسائل دعم جديدة حالياً.</div>
-            <?php else: foreach ($latest_support as $sup_msg): ?>
-                <div onclick="eessOpenSupportUpdateModal('<?php echo esc_js($sup_msg->title); ?>', '<?php echo esc_js(str_replace(array("\r", "\n"), ' ', $sup_msg->details)); ?>', '<?php echo esc_js($sup_msg->created_at); ?>')" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#f1f5f9'; this.style.borderColor='#2563eb';" onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#e2e8f0';">
+            <?php else:
+                $pastel_colors = array(
+                    array('bg' => '#f0f9ff', 'border' => '#bae6fd', 'text' => '#0369a1', 'tag' => 'تحديث إداري'),
+                    array('bg' => '#f0fdf4', 'border' => '#bbf7d0', 'text' => '#15803d', 'tag' => 'إشعار هام'),
+                    array('bg' => '#fffbeb', 'border' => '#fef3c7', 'text' => '#b45309', 'tag' => 'تنبيه النظام')
+                );
+                $idx = 0;
+                foreach ($latest_support as $sup_msg):
+                    $p_theme = $pastel_colors[$idx % count($pastel_colors)];
+                    $idx++;
+            ?>
+                <div onclick="eessOpenSupportUpdateModal('<?php echo esc_js($sup_msg->title); ?>', '<?php echo esc_js(str_replace(array("\r", "\n"), ' ', $sup_msg->details)); ?>', '<?php echo esc_js($sup_msg->created_at); ?>')" style="background: <?php echo $p_theme['bg']; ?>; border: 1px solid <?php echo $p_theme['border']; ?>; border-radius: 12px; padding: 10px 14px; cursor: pointer; transition: all 0.2s ease;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                         <span style="font-size: 12.5px; font-weight: 800; color: #0f172a;"><?php echo esc_html($sup_msg->title); ?></span>
-                        <span style="font-size: 10px; color: #64748b; font-family: monospace;"><?php echo date('m/d', strtotime($sup_msg->created_at)); ?></span>
+                        <span style="font-size: 10px; font-weight: 700; color: <?php echo $p_theme['text']; ?>; background: rgba(255,255,255,0.7); padding: 1px 8px; border-radius: 50px; border: 1px solid <?php echo $p_theme['border']; ?>;"><?php echo $p_theme['tag']; ?></span>
                     </div>
                     <div style="font-size: 11.5px; color: #475569; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.4;">
                         <?php echo esc_html($sup_msg->details); ?>

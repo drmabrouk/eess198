@@ -470,9 +470,9 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                 <?php endif; ?>
             <?php endif; ?>
 
-            <button type="button" onclick="eessOpenSupportHelpCapsule()" class="sm-btn" style="background: #ffffff; height: 32px; padding: 0 14px; font-size: 11.5px; font-weight: 800; color: #dc2626 !important; border-radius: 9999px !important; border: 1px solid #fca5a5; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
-                <span class="dashicons dashicons-sos" style="font-size: 15px; width: 15px; height: 15px; color: #dc2626;"></span>
-                <span>الدعم والمساعدة</span>
+            <button type="button" onclick="eessOpenSupportModal()" class="sm-btn" style="background: #fef2f2; color: #dc2626 !important; border: 1.5px solid #dc2626; height: 38px; border-radius: 9999px !important; padding: 0 18px; font-weight: 800; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(220,38,38,0.08);">
+                <span class="dashicons dashicons-sos" style="font-size: 17px; width: 17px; height: 17px; color: #dc2626;"></span>
+                <span style="color: #dc2626;">الدعم والمساعدة</span>
             </button>
 
             <div class="sm-user-dropdown" style="position: relative;">

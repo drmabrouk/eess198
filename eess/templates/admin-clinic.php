@@ -80,7 +80,14 @@ $history = $wpdb->get_results("
     <div style="margin-bottom: 40px;">
         <h4 style="padding-bottom: 5px; margin-bottom: 15px; font-weight: 800; color: #1e293b;">الطلاب المحولون (بانتظار الوصول)</h4>
         <?php if (empty($pending_referrals)): ?>
-            <div style="padding: 40px; text-align: center; background: #f8fafc; border-radius: 12px; color: var(--sm-text-gray);">لا يوجد طلاب محولون حالياً.</div>
+            <!-- Professional Centered Empty-State Card with Soft Pastel Medical Icon -->
+            <div style="background: #ffffff; border: 1px solid #fecdd3; border-radius: 16px; padding: 35px 24px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
+                <div style="width: 64px; height: 64px; background: #fef2f2; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #881337; margin-bottom: 12px; border: 1px solid #fecdd3;">
+                    <span class="dashicons dashicons-heart" style="font-size: 32px; width: 32px; height: 32px;"></span>
+                </div>
+                <h3 style="margin: 0 0 6px 0; font-size: 16px; font-weight: 800; color: #0f172a;">لا توجد حالات صحية أو تحويلات قائمة</h3>
+                <p style="margin: 0 auto; max-width: 460px; font-size: 12.5px; color: #64748b; line-height: 1.6;">تم تصميم قسم العيادة المدرسية لمتابعة حالات الطلاب الصحية والتحويلات الميدانية. لا توجد أي تحويلات معلقة أو حالات طارئة قائمة حالياً.</p>
+            </div>
         <?php else: ?>
             <div class="sm-table-container">
                 <table class="sm-table">
@@ -120,7 +127,10 @@ $history = $wpdb->get_results("
     <div>
         <h4 style="padding-bottom: 5px; margin-bottom: 15px; font-weight: 800; color: #1e293b;">سجل الزيارات اليومية</h4>
         <?php if (empty($history)): ?>
-            <div style="padding: 40px; text-align: center; background: #f8fafc; border-radius: 12px; color: var(--sm-text-gray);">لا يوجد سجلات سابقة.</div>
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 30px; text-align: center;">
+                <span class="dashicons dashicons-calendar-alt" style="font-size: 28px; width: 28px; height: 28px; color: #94a3b8; margin-bottom: 8px;"></span>
+                <div style="font-size: 14px; font-weight: 800; color: #475569;">سجل الزيارات اليومية خالي حالياً</div>
+            </div>
         <?php else: ?>
             <div class="sm-table-container">
                 <table class="sm-table">
