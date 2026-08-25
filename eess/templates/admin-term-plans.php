@@ -274,10 +274,16 @@ $arabic_term_names = array(
                                     <!-- Standardized 36px Circular Action Buttons -->
                                     <td style="padding: 14px 16px; text-align: center;">
                                         <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
-                                            <!-- Print Button -->
-                                            <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=term_plan&plan_id=' . $tp->id); ?>" target="_blank" title="طباعة الخطة" style="width: 36px; height: 36px; border-radius: 50% !important; background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
-                                                <span class="dashicons dashicons-printer" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
-                                            </a>
+                                            <!-- Print / View File Button -->
+                                            <?php if (!empty($tp->plan_file_url)): ?>
+                                                <a href="<?php echo esc_url($tp->plan_file_url); ?>" target="_blank" title="معاينة وطباعة ملف الخطة المرفوعة" style="width: 36px; height: 36px; border-radius: 50% !important; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                                    <span class="dashicons dashicons-media-document" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
+                                                </a>
+                                            <?php else: ?>
+                                                <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=term_plan&plan_id=' . $tp->id); ?>" target="_blank" title="طباعة وثيقة الخطة PDF" style="width: 36px; height: 36px; border-radius: 50% !important; background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                                    <span class="dashicons dashicons-printer" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
+                                                </a>
+                                            <?php endif; ?>
 
                                             <!-- Edit Button -->
                                             <button type="button" onclick="eessOpenPlanSetupWizard(<?php echo intval($tp->term_number); ?>)" title="تعديل الخطة" style="width: 36px; height: 36px; border-radius: 50% !important; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
@@ -570,19 +576,29 @@ $arabic_term_names = array(
                 var cardUpload = document.getElementById('eess-method-card-upload');
                 var cardCreate = document.getElementById('eess-method-card-create');
                 var uploadBlock = document.getElementById('eess-upload-method-block');
+                var stepperTrack = document.getElementById('eess-wizard-stepper-track');
 
                 if (method === 'upload') {
-                    cardUpload.style.background = '#f0f9ff';
-                    cardUpload.style.borderColor = '#0284c7';
-                    cardCreate.style.background = '#ffffff';
-                    cardCreate.style.borderColor = '#cbd5e1';
+                    if (cardUpload) { cardUpload.style.background = '#f0f9ff'; cardUpload.style.borderColor = '#0284c7'; }
+                    if (cardCreate) { cardCreate.style.background = '#ffffff'; cardCreate.style.borderColor = '#cbd5e1'; }
                     if (uploadBlock) uploadBlock.style.display = 'block';
+                    if (stepperTrack) stepperTrack.style.display = 'none';
+
+                    // Directly enable submit button on Step 1 for upload method
+                    var submitBtn = document.getElementById('wiz-submit-btn');
+                    var nextBtn = document.getElementById('wiz-next-btn');
+                    if (submitBtn) submitBtn.style.display = 'inline-flex';
+                    if (nextBtn) nextBtn.style.display = 'none';
                 } else {
-                    cardCreate.style.background = '#fef2f2';
-                    cardCreate.style.borderColor = '#881337';
-                    cardUpload.style.background = '#ffffff';
-                    cardUpload.style.borderColor = '#cbd5e1';
+                    if (cardCreate) { cardCreate.style.background = '#fef2f2'; cardCreate.style.borderColor = '#881337'; }
+                    if (cardUpload) { cardUpload.style.background = '#ffffff'; cardUpload.style.borderColor = '#cbd5e1'; }
                     if (uploadBlock) uploadBlock.style.display = 'none';
+                    if (stepperTrack) stepperTrack.style.display = 'block';
+
+                    var submitBtn = document.getElementById('wiz-submit-btn');
+                    var nextBtn = document.getElementById('wiz-next-btn');
+                    if (submitBtn) submitBtn.style.display = 'none';
+                    if (nextBtn) nextBtn.style.display = 'inline-flex';
                 }
             }
 
