@@ -7054,15 +7054,32 @@ class SM_Public {
 
         $user_id = get_current_user_id();
         $plan_id = intval($_POST['plan_id'] ?? 0);
+        $planning_method = sanitize_text_field($_POST['planning_method'] ?? 'create');
         $academic_year = sanitize_text_field($_POST['academic_year'] ?? '');
         $subject = sanitize_text_field($_POST['subject'] ?? '');
-        $grade = sanitize_text_field($_POST['grade'] ?? '');
+
+        $plan_grades = isset($_POST['assigned_plan_grades']) ? array_map('sanitize_text_field', (array)$_POST['assigned_plan_grades']) : array();
+        $grade = !empty($plan_grades) ? implode('، ', $plan_grades) : sanitize_text_field($_POST['grade'] ?? '');
+
         $weekly_lessons = max(1, intval($_POST['weekly_lessons'] ?? 1));
         $num_terms = max(2, min(3, intval($_POST['num_terms'] ?? 3)));
         $term_number = max(1, min(3, intval($_POST['term_number'] ?? 1)));
         $start_date = sanitize_text_field($_POST['start_date'] ?? '');
         $end_date = sanitize_text_field($_POST['end_date'] ?? '');
         $status = sanitize_text_field($_POST['status'] ?? 'draft');
+
+        // Handle uploaded document file if present
+        $uploaded_file_url = '';
+        if (!empty($_FILES['plan_document_file']['name'])) {
+            require_once(ABSPATH . 'wp-admin/includes/file.php');
+            require_once(ABSPATH . 'wp-admin/includes/image.php');
+            require_once(ABSPATH . 'wp-admin/includes/media.php');
+
+            $attachment_id = media_handle_upload('plan_document_file', 0);
+            if (!is_wp_error($attachment_id)) {
+                $uploaded_file_url = wp_get_attachment_url($attachment_id);
+            }
+        }
 
         if (!in_array($status, array('draft', 'submitted', 'approved', 'returned'))) {
             $status = 'draft';
@@ -7110,6 +7127,11 @@ class SM_Public {
         }
 
         global $wpdb;
+
+        // Ensure columns exist on database table dynamically
+        $wpdb->query("ALTER TABLE {$wpdb->prefix}sm_term_plans ADD COLUMN IF NOT EXISTS plan_file_url text DEFAULT NULL");
+        $wpdb->query("ALTER TABLE {$wpdb->prefix}sm_term_plans ADD COLUMN IF NOT EXISTS planning_method varchar(50) DEFAULT 'create' NOT NULL");
+
         $data_fields = array(
             'teacher_id' => $user_id,
             'academic_year' => $academic_year,
@@ -7122,9 +7144,14 @@ class SM_Public {
             'end_date' => $end_date,
             'total_weeks' => $total_weeks,
             'weeks_data' => wp_json_encode($weeks_data),
+            'planning_method' => $planning_method,
             'completion_pct' => $completion_pct,
             'status' => $status
         );
+
+        if (!empty($uploaded_file_url)) {
+            $data_fields['plan_file_url'] = $uploaded_file_url;
+        }
 
         if ($plan_id > 0) {
             // Ensure owner or admin
@@ -7281,17 +7308,9 @@ class SM_Public {
         }
 
         $current_user_id = get_current_user_id();
-        $teacher_id = isset($_POST['teacher_id']) ? intval($_POST['teacher_id']) : 0;
-        $emp_id     = isset($_POST['emp_id']) ? sanitize_text_field($_POST['emp_id']) : '';
 
         if (!$current_user_id) {
-            if ($teacher_id > 0) {
-                wp_set_current_user($teacher_id);
-                wp_set_auth_cookie($teacher_id, true);
-                $current_user_id = $teacher_id;
-            } else {
-                wp_send_json_error('عفواً، انتهت صلاحية الجلسة. يرجى تسجيل الدخول مجدداً.');
-            }
+            wp_send_json_error('عفواً، انتهت صلاحية الجلسة. يرجى تسجيل الدخول مجدداً عبر النظام.');
         }
 
         $teacher = get_userdata($current_user_id);

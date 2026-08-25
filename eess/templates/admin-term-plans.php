@@ -96,7 +96,7 @@ $arabic_term_names = array(
             <?php if ($is_teacher && !$is_reviewer): ?>
             <button type="button" onclick="eessOpenPlanSetupWizard(1)" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                 <span class="dashicons dashicons-plus-alt2" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
-                <span>إعداد الدرس</span>
+                <span>إعداد الخطة</span>
             </button>
             <?php endif; ?>
         </div>
@@ -225,7 +225,7 @@ $arabic_term_names = array(
                     <tbody>
                         <?php if (empty($teacher_plans)): ?>
                             <tr>
-                                <td colspan="5" style="padding: 40px; text-align: center; color: #94a3b8; font-weight: 700;">لا توجد خطط فصلية أو سنوية مسجلة لك حالياً. اضغط "إعداد الدرس" للبدء.</td>
+                                <td colspan="5" style="padding: 40px; text-align: center; color: #94a3b8; font-weight: 700;">لا توجد خطط فصلية أو سنوية مسجلة لك حالياً. اضغط "إعداد الخطة" للبدء.</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($teacher_plans as $tp):
@@ -452,7 +452,7 @@ $arabic_term_names = array(
             <div style="display: flex; align-items: center; gap: 12px;">
                 <span class="dashicons dashicons-calendar-alt" style="color: #ffffff; font-size: 22px; width: 22px; height: 22px; margin: 0;"></span>
                 <div>
-                    <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #ffffff; font-family: 'Cairo', sans-serif;">معالج إعداد وخطة المدرس</h3>
+                    <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #ffffff; font-family: 'Cairo', sans-serif;">إعداد خطة الفصل الدراسي</h3>
                     <p style="margin: 3px 0 0 0; font-size: 11.5px; color: #94a3b8; font-weight: 600;">إنشاء وإعداد الخطة الدراسية خطوة بخطوة وفق بياناتك الأكاديمية المعتمدة.</p>
                 </div>
             </div>
@@ -495,35 +495,111 @@ $arabic_term_names = array(
             <input type="hidden" id="wiz_academic_year" value="<?php echo esc_attr($active_academic_year); ?>">
             <input type="hidden" id="wiz_subject" value="<?php echo esc_attr($assigned_teacher_subject); ?>">
 
-            <!-- Step 1: Personalized Introductory & Instructional Stage -->
+            <!-- Step 1: Planning Method Selection & Personalized Guidance -->
             <div id="wiz-step-1" class="wiz-step-content" style="display: block;">
-                <h4 style="margin: 0 0 6px 0; font-size: 15px; font-weight: 800; color: #0f172a;">مرحباً <?php echo esc_html($user->display_name); ?> 👋 — معالج إعداد الخطة الفصلية</h4>
-                <p style="margin: 0 0 16px 0; font-size: 12.5px; color: #64748b; line-height: 1.6;">
-                    أنت على وشك البدء في إعداد الخطة التعليمية والتوزيع الأسبوعي المعتمد للمناهج الدراسية بحسابك المباشر.
-                </p>
+                <h4 style="margin: 0 0 6px 0; font-size: 15px; font-weight: 800; color: #0f172a;">مرحباً أ. <?php echo esc_html($user->display_name); ?> 👋 — إعداد خطة الفصل الدراسي</h4>
+                <p style="margin: 0 0 18px 0; font-size: 12.5px; color: #64748b; line-height: 1.6;">يرجى اختيار طريقة إعداد الخطة المناسبة لك قبل البدء في تخصيص المحتوى والأسابيع الدراسية:</p>
 
-                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 18px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
-                    <div style="font-weight: 800; font-size: 14px; color: #166534; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <span class="dashicons dashicons-id-alt" style="font-size: 20px; width: 20px; height: 20px;"></span>
-                        <span>السياق الأكاديمي والتسكين الحالي لمعلوماتك:</span>
+                <!-- Method Selection Cards (Side-by-Side) -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 22px;">
+                    <!-- Option 1: Upload Completed Plan -->
+                    <div id="eess-method-card-upload" onclick="eessSelectPlanningMethod('upload')" style="background: #ffffff; border: 2px solid #cbd5e1; border-radius: 16px; padding: 18px; cursor: pointer; transition: all 0.2s ease; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                        <div style="width: 48px; height: 48px; background: #e0f2fe; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; color: #0284c7; margin-bottom: 10px;">
+                            <span class="dashicons dashicons-upload" style="font-size: 24px; width: 24px; height: 24px;"></span>
+                        </div>
+                        <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 800; color: #0f172a;">رفع خطة جاهزة (PDF / Word)</h4>
+                        <p style="margin: 0; font-size: 11.5px; color: #64748b; line-height: 1.5;">رفع وثيقة خطة مجهزة ومكتملة سابقاً كملف للمراجعة المباشرة.</p>
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; color: #15803d; font-weight: 700;">
-                        <div>📚 <strong>المادة الدراسية المسندة:</strong> <span style="color: #0f172a; font-size: 13.5px;"><?php echo esc_html($assigned_teacher_subject); ?></span></div>
-                        <div>🏫 <strong>المؤسسة التعليمية:</strong> <span style="color: #0f172a;"><?php echo esc_html($assigned_teacher_school); ?></span></div>
-                        <div>📅 <strong>العام الأكاديمي العام:</strong> <span style="color: #0f172a;"><?php echo esc_html($active_academic_year); ?></span></div>
-                        <div>⏱️ <strong>الحصص الموصى بها أسبوعياً:</strong> <span style="color: #0f172a;"><?php echo $default_weekly_lessons; ?> حصص</span></div>
+
+                    <!-- Option 2: Create Plan in System -->
+                    <div id="eess-method-card-create" onclick="eessSelectPlanningMethod('create')" style="background: #fef2f2; border: 2px solid #881337; border-radius: 16px; padding: 18px; cursor: pointer; transition: all 0.2s ease; text-align: center; box-shadow: 0 2px 8px rgba(136,19,55,0.06);">
+                        <div style="width: 48px; height: 48px; background: #881337; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; color: #ffffff; margin-bottom: 10px;">
+                            <span class="dashicons dashicons-calendar-alt" style="font-size: 24px; width: 24px; height: 24px;"></span>
+                        </div>
+                        <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 800; color: #881337;">إعداد خطة الفصل بالنظام</h4>
+                        <p style="margin: 0; font-size: 11.5px; color: #64748b; line-height: 1.5;">توزيع الدروس والوحدات خطوة بخطوة لكل أسبوع تفصيلياً.</p>
                     </div>
                 </div>
 
-                <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 14px; padding: 16px; font-size: 12.5px; color: #334155; line-height: 1.7;">
-                    <strong>خطوات إعداد الخطة في المراحل القادمة:</strong>
-                    <ol style="margin: 6px 0 0 0; padding-right: 20px;">
-                        <li><strong>الخطوة 2:</strong> تحديد الصف الدراسي (الصف 1 إلى 12)، الفصل الدراسي (3 فصول) وتواريخ التقويم.</li>
-                        <li><strong>الخطوة 3:</strong> إدخال موضوعات الدروس والملخص الأسبوعي بالاستفادة من مكتبة الاقتراحات المباشرة.</li>
-                        <li><strong>الخطوة 4:</strong> مراجعة ملخص الخطة ورفعها للاعتماد الإداري من المشرف أو الموجه.</li>
-                    </ol>
+                <input type="hidden" name="planning_method" id="wiz_planning_method" value="create">
+
+                <!-- Upload Plan Document Block (Shown when Upload method is selected) -->
+                <div id="eess-upload-method-block" style="display: none; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 14px; padding: 18px; margin-bottom: 22px;">
+                    <label style="display: block; font-weight: 800; font-size: 12.5px; color: #0369a1; margin-bottom: 6px;">اختر ملف الخطة الدراسية المكتملة (PDF, DOC, DOCX) <span style="color:#ef4444;">*</span></label>
+                    <input type="file" name="plan_document_file" id="wiz_plan_document_file" accept=".pdf,.doc,.docx" class="sm-input" style="height: 42px; border-radius: 10px; border: 1px solid #cbd5e1; background: #ffffff; font-size: 12px; padding: 6px 12px; width: 100%; box-sizing: border-box;">
+                </div>
+
+                <!-- Academic Info Summary Badge -->
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 14px 18px; margin-bottom: 20px;">
+                    <div style="font-weight: 800; font-size: 13px; color: #166534; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                        <span class="dashicons dashicons-id-alt" style="font-size: 16px; width: 16px; height: 16px;"></span>
+                        <span>البيانات المسترجعة تلقائياً من حسابك الأكاديمي:</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; font-size: 12px; color: #15803d; font-weight: 700;">
+                        <div>📚 <strong>المادة الدراسية:</strong> <?php echo esc_html($assigned_teacher_subject); ?></div>
+                        <div>🏫 <strong>المدرسة:</strong> <?php echo esc_html($assigned_teacher_school); ?></div>
+                        <div>📅 <strong>العام الأكاديمي:</strong> <?php echo esc_html($active_academic_year); ?></div>
+                    </div>
+                </div>
+
+                <!-- Multi-Grade Capsule Selection (KG to Grade 12) -->
+                <div style="margin-bottom: 16px;">
+                    <label class="sm-label" style="font-weight: 800; font-size: 12.5px; color: #334155; margin-bottom: 8px; display: block;">الصفوف الدراسية المشمولة بالخطة (اختر المناهج/الصفوف المستهدفة) <span style="color:#ef4444;">*</span></label>
+
+                    <?php
+                    $all_grade_options = array(
+                        'مرحلة الروضة', 'الصف الأول', 'الصف الثاني', 'الصف الثالث',
+                        'الصف الرابع', 'الصف الخامس', 'الصف السادس', 'الصف السابع',
+                        'الصف الثامن', 'الصف التاسع', 'الصف العاشر', 'الصف الحادي عشر', 'الصف الثاني عشر'
+                    );
+                    ?>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px; background: #ffffff; padding: 12px; border-radius: 12px; border: 1px solid #cbd5e1; max-height: 130px; overflow-y: auto;">
+                        <?php foreach ($all_grade_options as $g_opt): ?>
+                            <label class="eess-grade-capsule-label" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 9999px; background: #f1f5f9; border: 1px solid #cbd5e1; font-size: 11.5px; font-weight: 700; color: #334155; cursor: pointer; user-select: none;">
+                                <input type="checkbox" name="assigned_plan_grades[]" value="<?php echo esc_attr($g_opt); ?>" onchange="eessTogglePlanGradeCapsule(this)" style="display: none;">
+                                <span><?php echo esc_html($g_opt); ?></span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
             </div>
+
+            <script>
+            function eessSelectPlanningMethod(method) {
+                document.getElementById('wiz_planning_method').value = method;
+                var cardUpload = document.getElementById('eess-method-card-upload');
+                var cardCreate = document.getElementById('eess-method-card-create');
+                var uploadBlock = document.getElementById('eess-upload-method-block');
+
+                if (method === 'upload') {
+                    cardUpload.style.background = '#f0f9ff';
+                    cardUpload.style.borderColor = '#0284c7';
+                    cardCreate.style.background = '#ffffff';
+                    cardCreate.style.borderColor = '#cbd5e1';
+                    if (uploadBlock) uploadBlock.style.display = 'block';
+                } else {
+                    cardCreate.style.background = '#fef2f2';
+                    cardCreate.style.borderColor = '#881337';
+                    cardUpload.style.background = '#ffffff';
+                    cardUpload.style.borderColor = '#cbd5e1';
+                    if (uploadBlock) uploadBlock.style.display = 'none';
+                }
+            }
+
+            function eessTogglePlanGradeCapsule(cb) {
+                var parentLabel = cb.closest('.eess-grade-capsule-label');
+                if (!parentLabel) return;
+                if (cb.checked) {
+                    parentLabel.style.background = '#881337';
+                    parentLabel.style.borderColor = '#881337';
+                    parentLabel.style.color = '#ffffff';
+                } else {
+                    parentLabel.style.background = '#f1f5f9';
+                    parentLabel.style.borderColor = '#cbd5e1';
+                    parentLabel.style.color = '#334155';
+                }
+            }
+            </script>
 
             <!-- Step 2: Academic Selections & Calendar Scheduling -->
             <div id="wiz-step-2" class="wiz-step-content" style="display: none;">
@@ -613,9 +689,9 @@ $arabic_term_names = array(
                     <span>المتابعة للخطوة التالية</span>
                     <span class="dashicons dashicons-arrow-left-alt2" style="font-size: 15px; width: 15px; height: 15px;"></span>
                 </button>
-                <button type="submit" id="wiz-submit-btn" class="sm-btn" style="background: #000000; color: #ffffff !important; border: none; border-radius: 9999px !important; padding: 10px 28px; font-weight: 800; font-size: 13.5px; cursor: pointer; display: none; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                <button type="submit" id="wiz-submit-btn" class="sm-btn" style="background: #dc2626; color: #ffffff !important; border: none; border-radius: 9999px !important; padding: 10px 28px; font-weight: 800; font-size: 13.5px; cursor: pointer; display: none; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(220,38,38,0.2);">
                     <span class="dashicons dashicons-upload" style="font-size: 16px; width: 16px; height: 16px;"></span>
-                    <span>رفع الخطة المكتملة للاعتماد</span>
+                    <span>إرسال الخطة للمراجعة</span>
                 </button>
             </div>
         </form>
@@ -973,8 +1049,24 @@ function eessOpenPlanSetupWizard(termNum = 1) {
     const existing = eessActiveWizardPlans.find(p => parseInt(p.term_number) === parseInt(termNum));
     if (existing) {
         document.getElementById('tp_plan_id').value = existing.id || 0;
+        if (existing.planning_method && typeof eessSelectPlanningMethod === 'function') {
+            eessSelectPlanningMethod(existing.planning_method);
+        } else if (typeof eessSelectPlanningMethod === 'function') {
+            eessSelectPlanningMethod('create');
+        }
+
         if (document.getElementById('wiz_academic_year')) document.getElementById('wiz_academic_year').value = existing.academic_year || '2025/2026';
         if (document.getElementById('wiz_grade') && existing.grade) document.getElementById('wiz_grade').value = existing.grade;
+
+        // Restore multi-grade capsule selections
+        if (existing.grade) {
+            const gradesArr = existing.grade.split('،').map(g => g.trim());
+            document.querySelectorAll('input[name="assigned_plan_grades[]"]').forEach(cb => {
+                cb.checked = gradesArr.includes(cb.value);
+                if (typeof eessTogglePlanGradeCapsule === 'function') eessTogglePlanGradeCapsule(cb);
+            });
+        }
+
         if (document.getElementById('wiz_weekly_lessons')) document.getElementById('wiz_weekly_lessons').value = existing.weekly_lessons || 2;
         if (document.getElementById('wiz_num_terms')) document.getElementById('wiz_num_terms').value = existing.num_terms || 3;
         if (document.getElementById('wiz_start_date')) document.getElementById('wiz_start_date').value = existing.start_date || defaultStart;
@@ -996,6 +1088,11 @@ function eessOpenPlanSetupWizard(termNum = 1) {
         }
     } else {
         document.getElementById('tp_plan_id').value = 0;
+        if (typeof eessSelectPlanningMethod === 'function') eessSelectPlanningMethod('create');
+        document.querySelectorAll('input[name="assigned_plan_grades[]"]').forEach(cb => {
+            cb.checked = false;
+            if (typeof eessTogglePlanGradeCapsule === 'function') eessTogglePlanGradeCapsule(cb);
+        });
         if (document.getElementById('wiz_start_date')) document.getElementById('wiz_start_date').value = defaultStart;
         if (document.getElementById('wiz_end_date')) document.getElementById('wiz_end_date').value = defaultEnd;
         generateWizWeeklyFields();
@@ -1204,6 +1301,7 @@ function eessSaveWizardPlanSubmit(e) {
     formData.append('action', 'sm_save_term_plan');
     formData.append('sm_nonce', '<?php echo wp_create_nonce("sm_term_plan_action"); ?>');
     formData.append('plan_id', document.getElementById('tp_plan_id').value || 0);
+    formData.append('planning_method', document.getElementById('wiz_planning_method').value || 'create');
     formData.append('academic_year', document.getElementById('wiz_academic_year').value);
     formData.append('subject', document.getElementById('wiz_subject').value);
     formData.append('grade', document.getElementById('wiz_grade').value);
@@ -1214,6 +1312,17 @@ function eessSaveWizardPlanSubmit(e) {
     formData.append('end_date', document.getElementById('wiz_end_date').value);
     formData.append('status', 'submitted');
 
+    // Attach selected multi-grade capsules if present
+    document.querySelectorAll('input[name="assigned_plan_grades[]"]:checked').forEach(cb => {
+        formData.append('assigned_plan_grades[]', cb.value);
+    });
+
+    // Attach uploaded plan document if method is 'upload'
+    const docFile = document.getElementById('wiz_plan_document_file');
+    if (docFile && docFile.files && docFile.files[0]) {
+        formData.append('plan_document_file', docFile.files[0]);
+    }
+
     document.querySelectorAll('.wiz-week-input').forEach(input => {
         formData.append(input.name.replace('wiz_weeks', 'weeks'), input.value);
     });
@@ -1222,7 +1331,7 @@ function eessSaveWizardPlanSubmit(e) {
     .then(r => r.json())
     .then(res => {
         btn.disabled = false;
-        btn.innerText = 'رفع الخطة المكتملة للاعتماد';
+        btn.innerText = 'إرسال الخطة للمراجعة';
         if (res.success) {
             alert('تم إعداد ورفع الخطة الفصلية/السنوية بنجاح وبانتظار اعتماد المشرف.');
             eessClosePlanSetupWizard();
