@@ -154,25 +154,27 @@ $fields = SM_Settings::get_subject_lesson_fields($prep->subject);
     <table class="meta-table">
         <tr>
             <th>اسم المعلم المعدّ:</th>
-            <td><?php echo esc_html($teacher_name); ?></td>
+            <td><strong><?php echo esc_html($teacher_name); ?></strong></td>
             <th>الرقم الوظيفي (ID):</th>
             <td><?php echo esc_html($emp_id); ?></td>
         </tr>
         <tr>
-            <th>عنوان الدرس الرئيسي:</th>
-            <td><strong><?php echo esc_html($prep->title); ?></strong></td>
-            <th>المادة الدراسية:</th>
+            <th>المؤسسة / المدرسة:</th>
+            <td><?php echo esc_html($assigned_school); ?></td>
+            <th>التخصص والمادة:</th>
             <td><?php echo esc_html($prep->subject); ?></td>
+        </tr>
+        <tr>
+            <th>عنوان الدرس الرئيسي:</th>
+            <td><strong style="color: #0f172a; font-size: 13.5px;"><?php echo esc_html($prep->title); ?></strong></td>
+            <th>تاريخ الدرس:</th>
+            <td><?php echo esc_html($prep->lesson_date); ?></td>
         </tr>
         <tr>
             <th>الصف والشعبة:</th>
             <td><?php echo esc_html($prep->grade_level . ' / ' . $prep->class_section); ?></td>
-            <th>تاريخ إعطاء الدرس:</th>
-            <td><?php echo esc_html($prep->lesson_date); ?></td>
-        </tr>
-        <tr>
-            <th>حالة التوثيق والاعتماد:</th>
-            <td colspan="3">
+            <th>حالة التوثيق:</th>
+            <td>
                 <?php
                 if ($prep->status === 'approved') {
                     echo '<span class="status-badge status-approved">✓ معتمد رسمياً من المشرف</span>';
@@ -201,6 +203,44 @@ $fields = SM_Settings::get_subject_lesson_fields($prep->subject);
         <h3 class="section-card-title">3. <?php echo esc_html($fields['label3']); ?></h3>
         <div class="section-card-body"><?php echo esc_html(!empty($data['activities']) ? $data['activities'] : 'غير مسجل'); ?></div>
     </div>
+
+    <?php if (!empty($data['resources']) && is_array($data['resources'])): ?>
+    <div class="section-card">
+        <h3 class="section-card-title">📚 مصادر ووسائل التعلم المعتمدة للدرس</h3>
+        <div class="section-card-body" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px;">
+            <?php foreach ($data['resources'] as $res_item): ?>
+                <span style="background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; padding: 4px 12px; border-radius: 50px; font-weight: 700; font-size: 11.5px;">
+                    <?php echo esc_html($res_item); ?>
+                </span>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <?php
+    $sub_name = strtolower($prep->subject);
+    $is_pe_doc = (strpos($sub_name, 'رياضية') !== false || strpos($sub_name, 'بدنية') !== false || strpos($sub_name, 'pe') !== false || strpos($sub_name, 'physical') !== false);
+    if ($is_pe_doc):
+    ?>
+    <!-- PE 45-Minute Lesson Allocation Breakdown -->
+    <div class="section-card" style="border-color: #bbf7d0; background: #f0fdf4;">
+        <h3 class="section-card-title" style="color: #166534;">⏱️ التوزيع الزمني المعياري لحصة التربية البدنية والصحية (45 دقيقة)</h3>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center; margin-top: 8px; font-size: 12px;">
+            <div style="background: #ffffff; padding: 8px; border-radius: 8px; border: 1px solid #bbf7d0;">
+                <div style="font-weight: 800; color: #15803d;">الإعداد البدني والإنماء (10 د)</div>
+                <div style="font-size: 11px; color: #475569;">الإحماء والتهيئة الحركية</div>
+            </div>
+            <div style="background: #ffffff; padding: 8px; border-radius: 8px; border: 1px solid #bbf7d0;">
+                <div style="font-weight: 800; color: #15803d;">النشاط المهري الرئيسي (25 د)</div>
+                <div style="font-size: 11px; color: #475569;">التطبيق والتمرين العملي</div>
+            </div>
+            <div style="background: #ffffff; padding: 8px; border-radius: 8px; border: 1px solid #bbf7d0;">
+                <div style="font-weight: 800; color: #15803d;">الخاتمة والتهدئة (10 د)</div>
+                <div style="font-size: 11px; color: #475569;">الانصراف وتقييم الأداء</div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <div class="section-card">
         <h3 class="section-card-title">4. <?php echo esc_html($fields['label4']); ?></h3>
