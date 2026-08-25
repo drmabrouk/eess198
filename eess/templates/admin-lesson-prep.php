@@ -341,7 +341,7 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
             </div>
             <div onclick="eessShowComplianceStatDetails('pending')" class="sm-stat-card" style="border-top: 3px solid #eab308; text-align: center; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                 <div style="font-size: 11px; color: #64748b; font-weight: 700; margin-bottom: 3px;">قيد المراجعة</div>
-                <div style="font-size: 18px; font-weight: 800; color: #eab308;"><?php echo $stats_pending; ?></div>
+                <div id="eess-pending-review-stat-counter" style="font-size: 18px; font-weight: 800; color: #eab308;"><?php echo $stats_pending; ?></div>
             </div>
             <div onclick="eessShowComplianceStatDetails('approved')" class="sm-stat-card" style="border-top: 3px solid #16a34a; text-align: center; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                 <div style="font-size: 11px; color: #64748b; font-weight: 700; margin-bottom: 3px;">التحضيرات المعتمدة</div>
@@ -1455,7 +1455,11 @@ window.smQuickApprovePrep = function(prepId) {
     .then(r => r.json())
     .then(res => {
         if (res.success) {
-            alert('✅ ' + (res.data.message || 'تم اعتماد التحضير بنجاح.'));
+            if (typeof smShowNotification === 'function') {
+                smShowNotification('تم اعتماد خطة الدرس بنجاح');
+            } else {
+                alert('تم اعتماد خطة الدرس بنجاح');
+            }
             var row = document.getElementById('prep-row-' + prepId);
             if (row) {
                 var badgeCell = row.cells[7];
@@ -1464,13 +1468,20 @@ window.smQuickApprovePrep = function(prepId) {
                 }
             }
             if (btn) btn.style.display = 'none';
+
+            // Decrement Pending Review counter in real time
+            var statCounter = document.getElementById('eess-pending-review-stat-counter');
+            if (statCounter) {
+                var cur = parseInt(statCounter.innerText) || 0;
+                statCounter.innerText = Math.max(0, cur - 1);
+            }
         } else {
-            alert('❌ خطأ: ' + (res.data || 'فشل اعتماد التحضير.'));
+            alert('خطأ: ' + (res.data || 'فشل اعتماد التحضير.'));
             if (btn) btn.disabled = false;
         }
     })
     .catch(err => {
-        alert('❌ حدث خطأ في الاتصال بالخادم.');
+        alert('حدث خطأ في الاتصال بالخادم.');
         if (btn) btn.disabled = false;
     });
 };

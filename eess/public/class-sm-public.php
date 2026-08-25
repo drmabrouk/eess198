@@ -391,15 +391,29 @@ class SM_Public {
         ?>
         <div class="eess-mobile-prep-app" style="max-width: 500px; margin: 0 auto; background: #f8fafc; min-height: 100vh; font-family: 'Cairo', sans-serif; direction: rtl; padding: 15px; box-sizing: border-box; color: #1e293b;">
 
-            <!-- Header Card -->
-            <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.3);">
+            <?php if (is_user_logged_in()): ?>
+            <!-- Fixed Sticky Mobile Navigation Bar with Logout Option -->
+            <div style="position: sticky; top: 10px; z-index: 9999; background: #0f172a; color: #ffffff; padding: 10px 16px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="dashicons dashicons-admin-users" style="color: #38bdf8; font-size: 18px; width: 18px; height: 18px;"></span>
+                    <span style="font-size: 12px; font-weight: 800; color: #ffffff;"><?php echo esc_html($user->display_name); ?></span>
+                </div>
+                <a href="<?php echo wp_logout_url(home_url('/sm-login')); ?>" class="sm-btn" style="height: 28px; padding: 0 12px; font-size: 11px; background: #dc2626; color: #ffffff !important; border-radius: 9999px !important; text-decoration: none; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;">
+                    <span class="dashicons dashicons-logout" style="font-size: 13px; width: 13px; height: 13px;"></span>
+                    <span>تسجيل الخروج</span>
+                </a>
+            </div>
+            <?php endif; ?>
+
+            <!-- Streamlined RTL Mobile Header Card -->
+            <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.3);">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <div>
-                        <h2 style="margin: 0; font-size: 18px; font-weight: 800; color: #ffffff;">منظومة تحضير الدروس للموبايل</h2>
-                        <p style="margin: 4px 0 0 0; font-size: 12px; color: #94a3b8;">إعداد وإرسال التحضيرات الأكاديمية السريعة</p>
+                        <h2 style="margin: 0; font-size: 16px; font-weight: 800; color: #ffffff; font-family: 'Cairo', sans-serif;">منظومة تحضير الدروس الرقمية للموبايل</h2>
+                        <p style="margin: 3px 0 0 0; font-size: 11.5px; color: #94a3b8;">إعداد وإرسال ومتابعة خطط الدروس والتقارير الأكاديمية</p>
                     </div>
-                    <div style="background: rgba(255,255,255,0.1); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                        <span class="dashicons dashicons-welcome-write-blog" style="font-size: 24px; color: #38bdf8;"></span>
+                    <div style="background: rgba(255,255,255,0.1); width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <span class="dashicons dashicons-welcome-write-blog" style="font-size: 20px; width: 20px; height: 20px; color: #38bdf8;"></span>
                     </div>
                 </div>
             </div>
@@ -611,6 +625,58 @@ class SM_Public {
                     تأكيد الهوية والمتابعة للتحضير
                 </button>
             </div>
+
+            <!-- TEACHER MOBILE DASHBOARD: TWO PRIMARY ACTION CARDS & 2 RECENT SUBMISSIONS -->
+            <?php if (is_user_logged_in() && !empty($teacher_own_preps)): ?>
+            <div id="m-teacher-dashboard-overview" style="margin-bottom: 16px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+                    <!-- Action Card 1: Prepare Lesson -->
+                    <div onclick="document.getElementById('m-step-form-card').scrollIntoView({behavior: 'smooth'});" style="background: #ffffff; border: 1.5px solid #881337; border-radius: 14px; padding: 14px; text-align: center; cursor: pointer; box-shadow: 0 2px 8px rgba(136,19,55,0.06);">
+                        <div style="width: 40px; height: 40px; background: #fef2f2; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; color: #881337; margin-bottom: 6px;">
+                            <span class="dashicons dashicons-edit" style="font-size: 20px; width: 20px; height: 20px;"></span>
+                        </div>
+                        <div style="font-weight: 800; font-size: 13px; color: #881337;">تحضير درس جديد</div>
+                        <div style="font-size: 10.5px; color: #64748b; margin-top: 2px;">إدخال وتوثيق خطة الدرس</div>
+                    </div>
+
+                    <!-- Action Card 2: Submitted Lessons -->
+                    <div onclick="document.getElementById('m-teacher-history-card').scrollIntoView({behavior: 'smooth'});" style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 14px; text-align: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                        <div style="width: 40px; height: 40px; background: #f1f5f9; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; color: #334155; margin-bottom: 6px;">
+                            <span class="dashicons dashicons-portfolio" style="font-size: 20px; width: 20px; height: 20px;"></span>
+                        </div>
+                        <div style="font-weight: 800; font-size: 13px; color: #0f172a;">التحضيرات المقدمة</div>
+                        <div style="font-size: 10.5px; color: #64748b; margin-top: 2px;"><?php echo count($teacher_own_preps); ?> تحضيرات سابقة</div>
+                    </div>
+                </div>
+
+                <!-- 2 Most Recent Submissions Preview -->
+                <div style="background: #ffffff; border-radius: 14px; border: 1px solid #cbd5e1; padding: 14px; margin-bottom: 16px;">
+                    <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                        <span>📋 أحدث تحضيرين تم تقديمهما:</span>
+                        <span style="font-size: 10.5px; color: #64748b; font-weight: normal;">آخر تحديث آلي</span>
+                    </div>
+                    <?php
+                    $recent_two = array_slice($teacher_own_preps, 0, 2);
+                    foreach ($recent_two as $r_prep):
+                        $s_bg = '#f1f5f9'; $s_col = '#64748b'; $s_lbl = 'مسودة';
+                        if ($r_prep->status === 'submitted') { $s_bg = '#e0f2fe'; $s_col = '#0369a1'; $s_lbl = 'مقدم'; }
+                        elseif ($r_prep->status === 'approved') { $s_bg = '#dcfce7'; $s_col = '#15803d'; $s_lbl = 'معتمد'; }
+                        elseif ($r_prep->status === 'revision_required' || $r_prep->status === 'returned') { $s_bg = '#fee2e2'; $s_col = '#b91c1c'; $s_lbl = 'مطلوب تعديل'; }
+                    ?>
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 800; font-size: 12.5px; color: #0f172a;"><?php echo esc_html($r_prep->title); ?></div>
+                            <div style="font-size: 10.5px; color: #64748b; margin-top: 2px;"><?php echo esc_html($r_prep->subject . ' - ' . $r_prep->lesson_date); ?></div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 10px; padding: 2px 8px; border-radius: 50px; background: <?php echo $s_bg; ?>; color: <?php echo $s_col; ?>; font-weight: 800;"><?php echo $s_lbl; ?></span>
+                            <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=lesson_prep&prep_id=' . $r_prep->id); ?>" target="_blank" style="text-decoration: none; color: #0284c7; font-size: 12px;" title="مشاركة / فتح">📄</a>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
 
             <!-- TEACHER PAST PREPARATIONS ARCHIVE CARD -->
             <div id="m-teacher-history-card" style="display: <?php echo (!empty($teacher_own_preps)) ? 'block' : 'none'; ?>; background: #ffffff; border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; margin-top: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);">

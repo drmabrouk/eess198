@@ -362,52 +362,59 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                     <p style="margin: 5px 0 0 0; font-size: 12px;">تم الانتهاء من مراجعة كافة الطلبات بنجاح.</p>
                 </div>
             <?php else: ?>
-                <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+                <!-- Professional 2-Column Responsive Card Grid on Desktop -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px;">
                     <?php foreach ($pending_users as $pu):
                         $emp_num = get_user_meta($pu->ID, 'eess_employee_number', true) ?: 'غير محدد';
                         $school_name = get_user_meta($pu->ID, 'eess_school_name', true) ?: 'غير محدد';
                         $admin_notes = get_user_meta($pu->ID, 'eess_admin_notes', true) ?: '';
 
                         $role_label = 'مستخدم';
-                        if (in_array('sm_teacher', (array)$pu->roles)) $role_label = 'معلم';
+                        if (in_array('sm_teacher', (array)$pu->roles)) $role_label = 'معلم / هيئة تدريس';
                         elseif (in_array('sm_coordinator', (array)$pu->roles)) $role_label = 'منسق مادة';
                         elseif (in_array('sm_supervisor', (array)$pu->roles)) $role_label = 'مشرف تربوي';
-                        elseif (in_array('sm_clinic', (array)$pu->roles)) $role_label = 'ممرض عيادة';
+                        elseif (in_array('sm_principal', (array)$pu->roles)) $role_label = 'مدير مدرسة';
+                        elseif (in_array('sm_clinic', (array)$pu->roles)) $role_label = 'زائر صحي';
                     ?>
-                    <div id="pending-card-<?php echo $pu->ID; ?>" style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 15px;">
+                    <div id="pending-card-<?php echo $pu->ID; ?>" style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); display: flex; flex-direction: column; justify-content: space-between; gap: 14px;">
 
-                        <!-- Header of Applicant Card -->
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
-                            <div>
-                                <h5 style="margin: 0; font-weight: 800; font-size: 14px; color: #1e293b;"><?php echo esc_html($pu->display_name ?: $pu->user_login); ?></h5>
-                                <div style="font-size: 11px; color: #64748b; font-family: monospace; margin-top: 3px;"><?php echo esc_html($pu->user_email); ?></div>
+                        <div>
+                            <!-- Header of Applicant Card -->
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 12px;">
+                                <div>
+                                    <h5 style="margin: 0; font-weight: 800; font-size: 15px; color: #0f172a;"><?php echo esc_html($pu->display_name ?: $pu->user_login); ?></h5>
+                                    <div style="font-size: 11px; color: #64748b; font-family: monospace; margin-top: 3px;"><?php echo esc_html($pu->user_email); ?></div>
+                                </div>
+                                <span style="font-size: 11px; color: #881337; background: #fef2f2; border: 1px solid #fecdd3; padding: 3px 12px; border-radius: 50px; font-weight: 800;">
+                                    <?php echo $role_label; ?>
+                                </span>
                             </div>
-                            <span style="font-size: 11px; color: #475569; background: #e2e8f0; padding: 3px 10px; border-radius: 50px; font-weight: 700;">
-                                المسمى المطلوب: <?php echo $role_label; ?>
-                            </span>
-                        </div>
 
-                        <!-- Applicant Details Grid -->
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; font-size: 12px; color: #334155;">
-                            <div><strong>رقم الموظف:</strong> <span style="font-family: monospace; font-weight: bold; color: #8b1e1e;"><?php echo esc_html($emp_num); ?></span></div>
-                            <div><strong>المؤسسة / المدرسة:</strong> <span style="font-weight: bold;"><?php echo esc_html($school_name); ?></span></div>
-                            <div><strong>تاريخ تقديم الطلب:</strong> <span style="color: #64748b;"><?php echo date_i18n('Y-m-d H:i', strtotime($pu->user_registered)); ?></span></div>
-                        </div>
+                            <!-- Applicant Details Grid -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px; color: #334155; margin-bottom: 14px;">
+                                <div><strong>الرقم الوظيفي:</strong> <span style="font-family: monospace; font-weight: bold; color: #8b1e1e;"><?php echo esc_html($emp_num); ?></span></div>
+                                <div><strong>المؤسسة:</strong> <span style="font-weight: bold; color: #0284c7;"><?php echo esc_html($school_name); ?></span></div>
+                                <div style="grid-column: span 2;"><strong>تاريخ تقديم الطلب:</strong> <span style="color: #64748b; font-family: monospace;"><?php echo date_i18n('Y-m-d H:i', strtotime($pu->user_registered)); ?></span></div>
+                            </div>
 
-                        <!-- Internal Admin Notes Field -->
-                        <div style="background: #fff; border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px;">
-                            <label class="sm-label" style="font-size: 11px; font-weight: 700; margin-bottom: 5px;">✍️ ملاحظات إدارية داخلية (Internal Notes):</label>
-                            <div style="display: flex; gap: 10px;">
-                                <textarea id="notes-input-<?php echo $pu->ID; ?>" class="sm-input" style="height: 38px; padding: 6px; font-size: 11px;" placeholder="اكتب أي ملاحظات داخلية حول أهلية الموظف أو المستندات هنا..."><?php echo esc_textarea($admin_notes); ?></textarea>
-                                <button onclick="saveRegistrationNotes(<?php echo $pu->ID; ?>)" class="sm-btn" style="height: 38px; width: auto; font-size: 11px; background: #475569; padding: 0 15px;">حفظ الملاحظة</button>
+                            <!-- Internal Admin Notes Field -->
+                            <div style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 10px 12px; border-radius: 10px; margin-bottom: 10px;">
+                                <label class="sm-label" style="font-size: 11px; font-weight: 700; margin-bottom: 4px; display: block; color: #475569;">ملاحظات المراجعة الداخلية:</label>
+                                <div style="display: flex; gap: 8px;">
+                                    <textarea id="notes-input-<?php echo $pu->ID; ?>" class="sm-input" style="height: 36px; padding: 6px; font-size: 11.5px; border-radius: 8px; flex: 1;" placeholder="اكتب ملاحظات الحساب..."><?php echo esc_textarea($admin_notes); ?></textarea>
+                                    <button onclick="saveRegistrationNotes(<?php echo $pu->ID; ?>)" class="sm-btn" style="height: 36px; width: auto; font-size: 11px; background: #334155; padding: 0 12px; border-radius: 8px; color: white !important;">حفظ</button>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Actions Row -->
-                        <div style="display: flex; gap: 10px; justify-content: flex-end; align-items: center; border-top: 1px dashed #e2e8f0; padding-top: 12px;">
-                            <button type="button" onclick="eessApproveUser(<?php echo $pu->ID; ?>)" class="sm-btn" style="width: auto; height: 32px; padding: 0 14px; font-size: 11px; font-weight: 700; background-color: #15803d !important;">✓ اعتماد وتفعيل الحساب</button>
-                            <button type="button" onclick="eessRejectUser(<?php echo $pu->ID; ?>)" class="sm-btn" style="width: auto; height: 32px; padding: 0 14px; font-size: 11px; font-weight: 700; background-color: #b91c1c !important;">✗ رفض وتنبيه بالرفض</button>
-                            <button type="button" onclick="permanentlyDeleteUserRequest(<?php echo $pu->ID; ?>)" class="sm-btn sm-btn-outline" style="width: auto; height: 32px; padding: 0 14px; font-size: 11px; font-weight: 700; color: #dc2626 !important; border-color: #fca5a5;">🗑️ حذف طلب المعلق نهائياً</button>
+                        <div style="display: flex; gap: 8px; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; padding-top: 12px; flex-wrap: wrap;">
+                            <button type="button" onclick="eessOpenUnifiedUserModal('edit_user', <?php echo $pu->ID; ?>)" class="sm-btn sm-btn-outline" style="height: 34px; padding: 0 12px; font-size: 11.5px; font-weight: 700; border-radius: 9999px !important; color: #334155;">تعديل البيانات والرتبة</button>
+
+                            <div style="display: flex; gap: 6px;">
+                                <button type="button" onclick="eessApproveUser(<?php echo $pu->ID; ?>)" class="sm-btn" style="height: 34px; padding: 0 14px; font-size: 11.5px; font-weight: 800; background-color: #16a34a !important; color: white !important; border-radius: 9999px !important; border: none;">اعتماد الحساب</button>
+                                <button type="button" onclick="eessRejectUser(<?php echo $pu->ID; ?>)" class="sm-btn" style="height: 34px; padding: 0 12px; font-size: 11.5px; font-weight: 800; background-color: #dc2626 !important; color: white !important; border-radius: 9999px !important; border: none;">رفض</button>
+                            </div>
                         </div>
 
                     </div>
