@@ -373,6 +373,15 @@ class SM_Public {
         global $wpdb;
         $mobile_submissions = array();
         $mobile_term_plans   = array();
+        $teacher_own_preps  = array();
+
+        if (is_user_logged_in()) {
+            $teacher_own_preps = $wpdb->get_results($wpdb->prepare(
+                "SELECT * FROM {$wpdb->prefix}sm_lesson_preps WHERE teacher_id = %d ORDER BY created_at DESC LIMIT 30",
+                $user->ID
+            ));
+        }
+
         if ($is_supervisor) {
             $mobile_submissions = $wpdb->get_results("SELECT p.*, u.display_name as teacher_name FROM {$wpdb->prefix}sm_lesson_preps p LEFT JOIN {$wpdb->users} u ON p.teacher_id = u.ID ORDER BY p.created_at DESC LIMIT 50");
             $mobile_term_plans   = $wpdb->get_results("SELECT tp.*, u.display_name as teacher_name FROM {$wpdb->prefix}sm_term_plans tp LEFT JOIN {$wpdb->users} u ON tp.teacher_id = u.ID ORDER BY tp.updated_at DESC LIMIT 50");
@@ -440,12 +449,12 @@ class SM_Public {
                                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                                     <div>
                                         <div style="font-weight: 800; font-size: 14px; color: #0f172a;"><?php echo esc_html($ms->teacher_name ?: 'معلم غير محدد'); ?></div>
-                                        <div style="font-size: 11px; color: #64748b; margin-top: 2px;">📚 <?php echo esc_html($ms->subject); ?> | الصف: <?php echo esc_html($ms->grade_level); ?></div>
+                                        <div style="font-size: 11px; color: #64748b; margin-top: 2px;"><span class="dashicons dashicons-book" style="font-size: 14px; width: 14px; height: 14px; color: #881337; vertical-align: middle;"></span> <?php echo esc_html($ms->subject); ?> | الصف: <?php echo esc_html($ms->grade_level); ?></div>
                                     </div>
                                     <span style="font-size: 10.5px; padding: 3px 10px; border-radius: 9999px; background: <?php echo $s_bg; ?>; color: <?php echo $s_col; ?>; font-weight: 800;"><?php echo $s_lbl; ?></span>
                                 </div>
                                 <div style="font-weight: 800; font-size: 13px; color: #1e293b; margin-bottom: 10px; background: #f8fafc; padding: 8px 12px; border-radius: 8px; border: 1px solid #f1f5f9;">
-                                    📌 <?php echo esc_html($ms->title); ?>
+                                    <span class="dashicons dashicons-editor-contract" style="font-size: 15px; width: 15px; height: 15px; color: #881337; vertical-align: middle;"></span> <?php echo esc_html($ms->title); ?>
                                 </div>
                                 <div style="display: flex; gap: 8px; justify-content: flex-end;">
                                     <button type="button" onclick="eessMobileApprovePrep(<?php echo $ms->id; ?>)" style="height: 32px; padding: 0 14px; border-radius: 9999px; background: #16a34a; color: white; border: none; font-weight: 800; font-size: 11.5px; cursor: pointer;">اعتماد</button>
@@ -591,16 +600,47 @@ class SM_Public {
                     <div style="font-size: 11px; color: #64748b; font-weight: 700;">اسم المعلم المعتمد:</div>
                     <div id="m_confirmed_name" style="font-size: 16px; font-weight: 800; color: #0f172a; margin-top: 2px;">-</div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; font-size: 12px; color: #334155; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;">
-                        <div>🏫 <strong>المدرسة:</strong> <span id="m_confirmed_school">-</span></div>
-                        <div>📚 <strong>المادة:</strong> <span id="m_confirmed_subject">-</span></div>
-                        <div>📇 <strong>الرقم:</strong> <span id="m_confirmed_empid">-</span></div>
-                        <div>🏢 <strong>القسم:</strong> <span id="m_confirmed_dept">-</span></div>
+                        <div><span class="dashicons dashicons-admin-home" style="font-size: 14px; width: 14px; height: 14px; color: #881337;"></span> <strong>المدرسة:</strong> <span id="m_confirmed_school">-</span></div>
+                        <div><span class="dashicons dashicons-book" style="font-size: 14px; width: 14px; height: 14px; color: #881337;"></span> <strong>المادة:</strong> <span id="m_confirmed_subject">-</span></div>
+                        <div><span class="dashicons dashicons-id" style="font-size: 14px; width: 14px; height: 14px; color: #881337;"></span> <strong>الرقم:</strong> <span id="m_confirmed_empid">-</span></div>
+                        <div><span class="dashicons dashicons-category" style="font-size: 14px; width: 14px; height: 14px; color: #881337;"></span> <strong>القسم:</strong> <span id="m_confirmed_dept">-</span></div>
                     </div>
                 </div>
 
                 <button type="button" onclick="eessConfirmMobileIdentity()" style="width: 100%; height: 44px; background: #16a34a; color: white; border: none; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer;">
                     تأكيد الهوية والمتابعة للتحضير
                 </button>
+            </div>
+
+            <!-- TEACHER PAST PREPARATIONS ARCHIVE CARD -->
+            <div id="m-teacher-history-card" style="display: <?php echo (!empty($teacher_own_preps)) ? 'block' : 'none'; ?>; background: #ffffff; border-radius: 16px; padding: 18px; border: 1px solid #e2e8f0; margin-top: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 12px;">
+                    <h3 style="margin: 0; font-size: 14.5px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                        <span class="dashicons dashicons-portfolio" style="color: #881337;"></span>
+                        <span>أرشيف وسجل تحضيراتي السابقة</span>
+                    </h3>
+                    <span style="font-size: 11px; color: #64748b; font-weight: 700;"><?php echo count($teacher_own_preps); ?> تحضير</span>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 10px; max-height: 280px; overflow-y: auto;">
+                    <?php foreach ($teacher_own_preps as $top):
+                        $s_bg = '#f1f5f9'; $s_col = '#64748b'; $s_lbl = 'مسودة';
+                        if ($top->status === 'submitted') { $s_bg = '#e0f2fe'; $s_col = '#0369a1'; $s_lbl = 'مرفوع للمراجعة'; }
+                        elseif ($top->status === 'approved') { $s_bg = '#dcfce7'; $s_col = '#15803d'; $s_lbl = 'معتمد رسمياً'; }
+                        elseif ($top->status === 'revision_required' || $top->status === 'returned') { $s_bg = '#fee2e2'; $s_col = '#b91c1c'; $s_lbl = 'طلب تعديل'; }
+                    ?>
+                        <div onclick="eessMobileReopenOwnPrep(<?php echo htmlspecialchars(json_encode($top)); ?>)" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s ease;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+                                <div style="font-weight: 800; font-size: 13px; color: #0f172a;"><?php echo esc_html($top->title); ?></div>
+                                <span style="font-size: 10px; padding: 2px 8px; border-radius: 9999px; background: <?php echo $s_bg; ?>; color: <?php echo $s_col; ?>; font-weight: 800; white-space: nowrap;"><?php echo $s_lbl; ?></span>
+                            </div>
+                            <div style="font-size: 11px; color: #64748b; display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                                <span><span class="dashicons dashicons-book" style="font-size: 13px; width: 13px; height: 13px; color: #881337; vertical-align: middle;"></span> <?php echo esc_html($top->subject); ?> (<?php echo esc_html($top->grade_level); ?>)</span>
+                                <span style="font-family: monospace; font-size: 10.5px;"><?php echo esc_html($top->lesson_date); ?></span>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
             </div>
 
             <!-- STEP 3: Mobile Lesson Preparation Form -->
@@ -710,6 +750,10 @@ class SM_Public {
 
                     if (res.success) {
                         currentTeacherData = res.data;
+                        if (res.data.fresh_nonce) {
+                            const nonceInput = document.querySelector('#eess_mobile_prep_form input[name="sm_nonce"]');
+                            if (nonceInput) nonceInput.value = res.data.fresh_nonce;
+                        }
                         document.getElementById('m_confirmed_name').innerText = res.data.teacher_name;
                         document.getElementById('m_confirmed_school').innerText = res.data.school || 'المدرسة الرئيسية';
                         document.getElementById('m_confirmed_subject').innerText = res.data.subject || 'عام';
@@ -787,6 +831,28 @@ class SM_Public {
                         if (d.evaluation) document.getElementById('m_evaluation').value = d.evaluation;
                     }
                 } catch(e) {}
+            }
+
+            function eessMobileReopenOwnPrep(prep) {
+                if (!prep) return;
+                document.getElementById('m_title').value = prep.title || '';
+                if (prep.subject) document.getElementById('m_subject').value = prep.subject;
+                if (prep.grade_level) document.getElementById('m_grade').value = prep.grade_level;
+                if (prep.class_section) document.getElementById('m_section').value = prep.class_section;
+                if (prep.lesson_date) document.getElementById('m_date').value = prep.lesson_date;
+
+                try {
+                    const parsed = typeof prep.lesson_data === 'string' ? JSON.parse(prep.lesson_data) : prep.lesson_data;
+                    if (parsed) {
+                        if (parsed.objectives) document.getElementById('m_objectives').value = parsed.objectives;
+                        if (parsed.warmup) document.getElementById('m_warmup').value = parsed.warmup;
+                        if (parsed.activities) document.getElementById('m_activities').value = parsed.activities;
+                        if (parsed.evaluation) document.getElementById('m_evaluation').value = parsed.evaluation;
+                    }
+                } catch(e) {}
+
+                document.getElementById('m-step-form').style.display = 'block';
+                document.getElementById('m-step-form').scrollIntoView({ behavior: 'smooth' });
             }
 
             // Bind input listeners for auto-saving drafts
@@ -7114,6 +7180,8 @@ class SM_Public {
         $section = get_user_meta($teacher->ID, 'sm_class_section', true) ?: (get_user_meta($teacher->ID, 'section', true) ?: '');
         $emp_code= get_user_meta($teacher->ID, 'eess_employee_number', true) ?: (get_user_meta($teacher->ID, 'sm_employee_id', true) ?: $emp_id);
 
+        $fresh_nonce = wp_create_nonce('sm_mobile_prep_nonce');
+
         wp_send_json_success(array(
             'teacher_id'   => $teacher->ID,
             'emp_id'       => $emp_code,
@@ -7123,7 +7191,8 @@ class SM_Public {
             'subject'      => $subject,
             'grade'        => $grade,
             'section'      => $section,
-            'classes'      => $classes
+            'classes'      => $classes,
+            'fresh_nonce'  => $fresh_nonce
         ));
     }
 
@@ -7132,15 +7201,22 @@ class SM_Public {
             wp_send_json_error('فشل التوثيق الأمني للجلسة.');
         }
 
+        $current_user_id = get_current_user_id();
         $teacher_id = isset($_POST['teacher_id']) ? intval($_POST['teacher_id']) : 0;
         $emp_id     = isset($_POST['emp_id']) ? sanitize_text_field($_POST['emp_id']) : '';
 
-        if (!$teacher_id || empty($emp_id)) {
-            wp_send_json_error('تعذر التحقق من هوية المعلم.');
+        if (!$current_user_id) {
+            if ($teacher_id > 0) {
+                wp_set_current_user($teacher_id);
+                wp_set_auth_cookie($teacher_id, true);
+                $current_user_id = $teacher_id;
+            } else {
+                wp_send_json_error('عفواً، انتهت صلاحية الجلسة. يرجى تسجيل الدخول مجدداً.');
+            }
         }
 
-        $teacher = SM_DB::get_teacher_by_employee_id_or_phone($emp_id);
-        if (!$teacher || $teacher->ID != $teacher_id) {
+        $teacher = get_userdata($current_user_id);
+        if (!$teacher) {
             wp_send_json_error('فشل التوثيق الأمني لملف المعلم.');
         }
 
