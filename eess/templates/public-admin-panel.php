@@ -457,7 +457,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
 
         <div style="display: flex; align-items: center; gap: 10px;">
             <?php if ($active_tab !== 'attendance'): ?>
-                <?php if ($is_teacher): ?>
+                <?php if ($is_teacher || in_array('sm_activities_supervisor', $roles) || in_array('sm_hod', $roles)): ?>
                     <button type="button" onclick="eessOpenTeacherReferralModal()" class="sm-btn" style="background: var(--sm-primary-color); height: 32px; padding: 0 14px; font-size: 11.5px; font-weight: 700; color: white !important; border-radius: 9999px !important; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                         <span class="dashicons dashicons-warning" style="font-size: 14px; width: 14px; height: 14px; color: white;"></span>
                         <span>تقديم حالة سلوكية</span>
@@ -470,8 +470,8 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                 <?php endif; ?>
             <?php endif; ?>
 
-            <button type="button" onclick="eessOpenSupportHelpCapsule()" class="sm-btn" style="background: #f8fafc; height: 32px; padding: 0 14px; font-size: 11.5px; font-weight: 700; color: #475569 !important; border-radius: 9999px !important; border: 1px solid #cbd5e1; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
-                <span class="dashicons dashicons-sos" style="font-size: 14px; width: 14px; height: 14px; color: #dc2626;"></span>
+            <button type="button" onclick="eessOpenSupportHelpCapsule()" class="sm-btn" style="background: #ffffff; height: 32px; padding: 0 14px; font-size: 11.5px; font-weight: 800; color: #dc2626 !important; border-radius: 9999px !important; border: 1px solid #fca5a5; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+                <span class="dashicons dashicons-sos" style="font-size: 15px; width: 15px; height: 15px; color: #dc2626;"></span>
                 <span>الدعم والمساعدة</span>
             </button>
 
