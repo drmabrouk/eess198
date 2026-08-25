@@ -186,11 +186,30 @@ $arabic_term_names = array(
 
         <div style="background: #ffffff; padding: 22px 26px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 14px;">
-                <div>
-                    <h3 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 800; color: #0f172a;">سجل وأرشيف الخطط الفصلية والسنوية الخاصة بي</h3>
-                    <p style="margin: 0; font-size: 12px; color: #64748b;">استعراض الخطط السابقة وإعادة تعديل المسودات أو الخطط التي حُددت للتعديل</p>
+                <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; flex: 1;">
+                    <div>
+                        <h3 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 800; color: #0f172a;">سجل وأرشيف الخطط الفصلية والسنوية الخاصة بي</h3>
+                        <p style="margin: 0; font-size: 12px; color: #64748b;">استعراض الخطط السابقة وإعادة تعديل المسودات أو الخطط التي حُددت للتعديل</p>
+                    </div>
+
+                    <!-- Compact Search Input Aligned Beside Title -->
+                    <div style="min-width: 220px; flex: 1; max-width: 320px; margin-right: auto;">
+                        <input type="text" id="eess-teacher-plan-search" onkeyup="eessFilterTeacherPlansTable()" class="sm-input" placeholder="بحث سريع في الأرشيف..." style="height: 36px; border-radius: 9999px !important; border: 1px solid #cbd5e1; font-size: 12px; padding: 0 14px; width: 100%;">
+                    </div>
                 </div>
             </div>
+
+            <script>
+            function eessFilterTeacherPlansTable() {
+                var q = document.getElementById('eess-teacher-plan-search').value.trim().toLowerCase();
+                var rows = document.querySelectorAll('#eess-teacher-plans-table tbody tr');
+                rows.forEach(function(row) {
+                    if (row.cells.length < 2) return;
+                    var text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(q) ? '' : 'none';
+                });
+            }
+            </script>
 
             <div style="overflow-x: auto;">
                 <table id="eess-teacher-plans-table" style="width: 100%; border-collapse: separate; border-spacing: 0; text-align: right;">

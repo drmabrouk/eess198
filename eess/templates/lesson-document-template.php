@@ -222,22 +222,24 @@ $fields = SM_Settings::get_subject_lesson_fields($prep->subject);
     $is_pe_doc = (strpos($sub_name, 'رياضية') !== false || strpos($sub_name, 'بدنية') !== false || strpos($sub_name, 'pe') !== false || strpos($sub_name, 'physical') !== false);
     if ($is_pe_doc):
     ?>
-    <!-- PE 45-Minute Lesson Allocation Breakdown -->
-    <div class="section-card" style="border-color: #bbf7d0; background: #f0fdf4;">
-        <h3 class="section-card-title" style="color: #166534;">⏱️ التوزيع الزمني المعياري لحصة التربية البدنية والصحية (45 دقيقة)</h3>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center; margin-top: 8px; font-size: 12px;">
-            <div style="background: #ffffff; padding: 8px; border-radius: 8px; border: 1px solid #bbf7d0;">
-                <div style="font-weight: 800; color: #15803d;">الإعداد البدني والإنماء (10 د)</div>
-                <div style="font-size: 11px; color: #475569;">الإحماء والتهيئة الحركية</div>
-            </div>
-            <div style="background: #ffffff; padding: 8px; border-radius: 8px; border: 1px solid #bbf7d0;">
-                <div style="font-weight: 800; color: #15803d;">النشاط المهري الرئيسي (25 د)</div>
-                <div style="font-size: 11px; color: #475569;">التطبيق والتمرين العملي</div>
-            </div>
-            <div style="background: #ffffff; padding: 8px; border-radius: 8px; border: 1px solid #bbf7d0;">
-                <div style="font-weight: 800; color: #15803d;">الخاتمة والتهدئة (10 د)</div>
-                <div style="font-size: 11px; color: #475569;">الانصراف وتقييم الأداء</div>
-            </div>
+    <!-- Specialized Physical Education Lesson Practical Cards (3 Equal-Width Cards in 1 Row) -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+        <div class="section-card" style="margin-bottom: 0; border-color: #bae6fd; background: #f0f9ff; text-align: center;">
+            <h3 class="section-card-title" style="color: #0369a1; justify-content: center; font-size: 12.5px;">🏃 التهيئة والإنماء (Warm-Up)</h3>
+            <div style="font-size: 11px; font-weight: 800; color: #0284c7; margin-bottom: 6px;">الزمن المخصص: 5 دقائق</div>
+            <div class="section-card-body" style="font-size: 11.5px; text-align: right;"><?php echo esc_html(!empty($data['warmup']) ? $data['warmup'] : 'إحماء وتهيئة حركية عامة'); ?></div>
+        </div>
+
+        <div class="section-card" style="margin-bottom: 0; border-color: #bbf7d0; background: #f0fdf4; text-align: center;">
+            <h3 class="section-card-title" style="color: #15803d; justify-content: center; font-size: 12.5px;">💪 الإعداد البدني (Physical Prep)</h3>
+            <div style="font-size: 11px; font-weight: 800; color: #16a34a; margin-bottom: 6px;">الزمن المخصص: 15 دقيقة</div>
+            <div class="section-card-body" style="font-size: 11.5px; text-align: right;"><?php echo esc_html(!empty($data['objectives']) ? $data['objectives'] : 'تدريبات لياقة وإنماء عناصر اللياقة'); ?></div>
+        </div>
+
+        <div class="section-card" style="margin-bottom: 0; border-color: #fef3c7; background: #fffbeb; text-align: center;">
+            <h3 class="section-card-title" style="color: #b45309; justify-content: center; font-size: 12.5px;">⚽ الإعداد المهاري (Skill Prep)</h3>
+            <div style="font-size: 11px; font-weight: 800; color: #d97706; margin-bottom: 6px;">الزمن المخصص: 20 دقيقة</div>
+            <div class="section-card-body" style="font-size: 11.5px; text-align: right;"><?php echo esc_html(!empty($data['activities']) ? $data['activities'] : 'خطوات وتطبيقات المهارة الحركية الرئيسية'); ?></div>
         </div>
     </div>
     <?php endif; ?>
@@ -255,6 +257,22 @@ $fields = SM_Settings::get_subject_lesson_fields($prep->subject);
     <div class="section-card">
         <h3 class="section-card-title">6. الملاحظات والتأملات التربوية / إرشادات السلامة والتوجيهات</h3>
         <div class="section-card-body"><?php echo esc_html(!empty($data['notes']) ? $data['notes'] : 'لا توجد ملاحظات إضافية مسجلة'); ?></div>
+    </div>
+
+    <!-- Official Signatures Footer Alignment -->
+    <div style="margin-top: 30px; padding-top: 15px; border-top: 2px solid #cbd5e1; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; text-align: center; page-break-inside: avoid;">
+        <div style="text-align: right;">
+            <div style="font-weight: 800; font-size: 12px; color: #0f172a; margin-bottom: 25px;">توقيع مدير / قائد المدرسة:</div>
+            <div style="font-size: 11px; color: #64748b; font-weight: 700;">الاسم والتوقيع: ...........................</div>
+        </div>
+        <div style="text-align: center;">
+            <div style="font-weight: 800; font-size: 12px; color: #0f172a; margin-bottom: 25px;">توقيع مشرف الأنشطة / الموجه الفني:</div>
+            <div style="font-size: 11px; color: #64748b; font-weight: 700;">الاسم والتوقيع: ...........................</div>
+        </div>
+        <div style="text-align: left;">
+            <div style="font-weight: 800; font-size: 12px; color: #0f172a; margin-bottom: 25px;">توقيع المعلم المعدّ للدرس:</div>
+            <div style="font-size: 11px; color: #64748b; font-weight: 700;"><?php echo esc_html($teacher_name); ?></div>
+        </div>
     </div>
 
 </body>

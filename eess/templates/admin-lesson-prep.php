@@ -365,7 +365,7 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
         <!-- Step-by-Step Modal Wizard for Lesson Prep -->
         <?php if ($is_teacher): ?>
         <div id="prep-modal" class="sm-modal-overlay" style="display: <?php echo ($edit_prep && $edit_prep->id > 0) ? 'flex' : 'none'; ?>; position: fixed; inset: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif;">
-            <div class="sm-modal-content" style="background: #ffffff; border-radius: 20px; max-width: 820px; width: 100%; max-height: 92vh; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); border: 1px solid #cbd5e1; display: flex; flex-direction: column;">
+            <div class="sm-modal-content" style="background: #ffffff; border-radius: 20px; max-width: 960px; width: 100%; max-height: 94vh; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); border: 1px solid #cbd5e1; display: flex; flex-direction: column;">
 
                 <!-- Flush Full-Width Modal Header Banner with White Title and White Icon -->
                 <div style="background: #0f172a; color: #ffffff; padding: 18px 24px; border-bottom: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; margin: 0;">
@@ -883,34 +883,34 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                 </span>
                             </td>
                             <td>
-                                <div style="display:flex; gap:5px; align-items:center;">
-                                    <!-- View Button (Neutral Slate) -->
-                                    <button onclick="smOpenPrepViewer(<?php echo $sub->id; ?>)" class="sm-btn" title="عرض تفاصيل التحضير الكاملة" style="width: 28px; height: 28px; padding: 0; background: #475569; color: white !important; border-radius: 6px; border: none; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;">
-                                        <span class="dashicons dashicons-visibility" style="font-size: 14px; width: 14px; height: 14px; margin: 0; line-height: 1;"></span>
+                                <div style="display:flex; gap:6px; align-items:center;">
+                                    <!-- View Button (Pastel Slate) -->
+                                    <button onclick="smOpenPrepViewer(<?php echo $sub->id; ?>)" class="sm-btn" title="عرض تفاصيل التحضير الكاملة" style="width: 32px; height: 32px; padding: 0; background: #f1f5f9; color: #475569 !important; border-radius: 8px; border: 1px solid #cbd5e1; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                                        <span class="dashicons dashicons-visibility" style="font-size: 16px; width: 16px; height: 16px; margin: 0; line-height: 1;"></span>
                                     </button>
 
-                                    <!-- Print PDF Button (Print Blue) -->
-                                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=lesson_prep&prep_id=' . $sub->id); ?>" target="_blank" class="sm-btn" title="طباعة أو تصدير وثيقة PDF المعتمدة" style="width: 28px; height: 28px; padding: 0; background: #0284c7; color: white !important; border-radius: 6px; border: none; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none;">
-                                        <span class="dashicons dashicons-printer" style="font-size: 14px; width: 14px; height: 14px; margin: 0; line-height: 1;"></span>
+                                    <!-- Print PDF Button (Pastel Sky Blue) -->
+                                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=lesson_prep&prep_id=' . $sub->id); ?>" target="_blank" class="sm-btn" title="طباعة أو تصدير وثيقة PDF المعتمدة" style="width: 32px; height: 32px; padding: 0; background: #e0f2fe; color: #0284c7 !important; border-radius: 8px; border: 1px solid #bae6fd; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: all 0.2s;">
+                                        <span class="dashicons dashicons-printer" style="font-size: 16px; width: 16px; height: 16px; margin: 0; line-height: 1;"></span>
                                     </a>
 
                                     <?php if ($can_review && ($sub->status === 'submitted' || $sub->status === 'late' || $sub->status === 'resubmitted')): ?>
-                                        <!-- Approve Button (Positive Green) -->
-                                        <button id="btn-approve-<?php echo $sub->id; ?>" onclick="smQuickApprovePrep(<?php echo $sub->id; ?>)" class="sm-btn" title="اعتماد خطة الدرس فوراً" style="width: 28px; height: 28px; padding: 0; background: #16a34a; color: white !important; border-radius: 6px; border: none; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;">
-                                            <span class="dashicons dashicons-yes-alt" style="font-size: 14px; width: 14px; height: 14px; margin: 0; line-height: 1;"></span>
+                                        <!-- Approve Button (Pastel Emerald Green) -->
+                                        <button id="btn-approve-<?php echo $sub->id; ?>" onclick="smQuickApprovePrep(<?php echo $sub->id; ?>)" class="sm-btn" title="اعتماد خطة الدرس فوراً" style="width: 32px; height: 32px; padding: 0; background: #dcfce7; color: #15803d !important; border-radius: 8px; border: 1px solid #bbf7d0; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                                            <span class="dashicons dashicons-yes-alt" style="font-size: 16px; width: 16px; height: 16px; margin: 0; line-height: 1;"></span>
                                         </button>
                                     <?php endif; ?>
 
                                     <?php if ($is_teacher && ($sub->status === 'draft' || $sub->status === 'revision_required')): ?>
-                                        <!-- Edit Button -->
-                                        <a href="<?php echo add_query_arg('edit_prep_id', $sub->id, home_url('/lesson-prep')); ?>" class="sm-btn" title="تعديل وثيقة التحضير" style="width: 28px; height: 28px; padding: 0; background: #d97706; color: white !important; border-radius: 6px; border: none; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none;">
-                                            <span class="dashicons dashicons-edit" style="font-size: 14px; width: 14px; height: 14px; margin: 0; line-height: 1;"></span>
+                                        <!-- Edit Button (Pastel Amber) -->
+                                        <a href="<?php echo add_query_arg('edit_prep_id', $sub->id, home_url('/lesson-prep')); ?>" class="sm-btn" title="تعديل وثيقة التحضير" style="width: 32px; height: 32px; padding: 0; background: #fef3c7; color: #b45309 !important; border-radius: 8px; border: 1px solid #fde68a; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: all 0.2s;">
+                                            <span class="dashicons dashicons-edit" style="font-size: 16px; width: 16px; height: 16px; margin: 0; line-height: 1;"></span>
                                         </a>
                                     <?php endif; ?>
 
-                                    <!-- Delete Button (Danger Red) -->
-                                    <button onclick="smDeletePrep(<?php echo $sub->id; ?>)" class="sm-btn" title="حذف التحضير نهائياً" style="width: 28px; height: 28px; padding: 0; background: #dc2626; color: white !important; border-radius: 6px; border: none; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;">
-                                        <span class="dashicons dashicons-trash" style="font-size: 14px; width: 14px; height: 14px; margin: 0; line-height: 1;"></span>
+                                    <!-- Delete Button (Pastel Red - Distinct Destructive Treatment) -->
+                                    <button onclick="smOpenDeletePrepModal(<?php echo $sub->id; ?>, '<?php echo esc_js($sub->title); ?>')" class="sm-btn" title="حذف التحضير نهائياً" style="width: 32px; height: 32px; padding: 0; background: #fee2e2; color: #dc2626 !important; border-radius: 8px; border: 1px solid #fca5a5; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                                        <span class="dashicons dashicons-trash" style="font-size: 16px; width: 16px; height: 16px; margin: 0; line-height: 1; color: #dc2626;"></span>
                                     </button>
                                 </div>
                             </td>
@@ -1082,6 +1082,30 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
         </div>
         <div class="sm-modal-body" id="prep-viewer-body" style="line-height: 1.6; font-size:13px; text-align:right;">
             <!-- Rendered dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- In-System Custom Confirmation Modal for Deleting Lesson Prep -->
+<div id="eess-delete-prep-modal" class="sm-modal-overlay" style="display: none; position: fixed; inset: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif;">
+    <div class="sm-modal-content" style="background: #ffffff; border-radius: 20px; max-width: 480px; width: 100%; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); border: 1px solid #cbd5e1; display: flex; flex-direction: column;">
+        <div style="background: #0f172a; color: #ffffff; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="dashicons dashicons-trash" style="color: #ef4444; font-size: 22px; width: 22px; height: 22px;"></span>
+                <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: #ffffff;">تأكيد حذف وثيقة تحضير الدرس</h3>
+            </div>
+            <button type="button" onclick="document.getElementById('eess-delete-prep-modal').style.display='none'" style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer; line-height: 1;">&times;</button>
+        </div>
+        <div style="padding: 22px; text-align: right;">
+            <p style="margin: 0 0 12px 0; font-size: 13px; color: #334155; line-height: 1.6;">هل أنت متأكد من رغبتك في حذف وثيقة التحضير التالية نهائياً؟</p>
+            <div style="background: #fef2f2; border: 1px solid #fecdd3; border-radius: 10px; padding: 12px 16px; margin-bottom: 20px; font-weight: 800; font-size: 13.5px; color: #991b1b;" id="eess_delete_prep_title_display">
+                <!-- Title filled dynamically -->
+            </div>
+            <input type="hidden" id="eess_delete_prep_target_id" value="0">
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" onclick="document.getElementById('eess-delete-prep-modal').style.display='none'" class="sm-btn sm-btn-outline" style="height: 40px; padding: 0 20px; border-radius: 9999px !important; font-size: 12.5px; font-weight: 700; color: #475569;">إلغاء</button>
+                <button type="button" id="eess-btn-confirm-delete-prep" onclick="eessExecuteConfirmDeletePrep()" class="sm-btn" style="height: 40px; padding: 0 24px; border-radius: 9999px !important; font-size: 12.5px; background: #dc2626; color: #ffffff !important; font-weight: 800; border: none; cursor: pointer;">تأكيد الحذف النهائي</button>
+            </div>
         </div>
     </div>
 </div>
@@ -1451,9 +1475,20 @@ window.smQuickApprovePrep = function(prepId) {
     });
 };
 
-window.smDeletePrep = function(prepId) {
+window.smOpenDeletePrepModal = function(prepId, title) {
     if (!prepId) return;
-    if (!confirm('هل أنت متأكد من رغبتك في حذف هذا التحضير نهائياً؟')) return;
+    document.getElementById('eess_delete_prep_target_id').value = prepId;
+    document.getElementById('eess_delete_prep_title_display').innerText = title || 'وثيقة التحضير';
+    document.getElementById('eess-delete-prep-modal').style.display = 'flex';
+};
+
+window.eessExecuteConfirmDeletePrep = function() {
+    var prepId = document.getElementById('eess_delete_prep_target_id').value;
+    if (!prepId || prepId === '0') return;
+
+    var btn = document.getElementById('eess-btn-confirm-delete-prep');
+    btn.disabled = true;
+    btn.innerText = 'جاري الحذف...';
 
     var formData = new FormData();
     formData.append('action', 'eess_bulk_lesson_action');
@@ -1464,12 +1499,20 @@ window.smDeletePrep = function(prepId) {
     fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })
     .then(r => r.json())
     .then(res => {
+        btn.disabled = false;
+        btn.innerText = 'تأكيد الحذف النهائي';
+        document.getElementById('eess-delete-prep-modal').style.display = 'none';
+
         if (res.success) {
-            alert('✅ تم حذف التحضير بنجاح.');
+            if (typeof smShowNotification === 'function') {
+                smShowNotification('تم حذف وثيقة التحضير بنجاح');
+            } else {
+                alert('تم حذف وثيقة التحضير بنجاح');
+            }
             var row = document.getElementById('prep-row-' + prepId);
             if (row) row.remove();
         } else {
-            alert('❌ خطأ: ' + (res.data || 'فشل حذف التحضير.'));
+            alert('خطأ: ' + (res.data || 'فشل حذف التحضير.'));
         }
     });
 };
