@@ -6725,11 +6725,16 @@ class SM_Public {
 
     public function ajax_save_user_unified() {
         check_ajax_referer('sm_user_action', 'sm_nonce');
-        if (!current_user_can('manage_options') && !current_user_can('edit_users')) {
+
+        $user_id     = intval($_POST['user_id'] ?? 0);
+        $curr_user_id = get_current_user_id();
+        $is_system_admin = current_user_can('manage_options') || current_user_can('edit_users');
+
+        // Allow users to edit their own basic profile details OR admins to edit any account
+        if (!$is_system_admin && ($user_id !== $curr_user_id || $user_id === 0)) {
             wp_send_json_error('عذراً، لا تمتلك صلاحيات تعديل أو إضافة الحسابات.');
         }
 
-        $user_id     = intval($_POST['user_id'] ?? 0);
         $first_name  = sanitize_text_field($_POST['first_name'] ?? '');
         $last_name   = sanitize_text_field($_POST['last_name'] ?? '');
         $raw_emp_id  = sanitize_text_field($_POST['employee_id'] ?? '');
@@ -6760,6 +6765,14 @@ class SM_Public {
         if ($user_role === 'educational_supervisor') $user_role = 'sm_supervisor';
         if ($user_role === 'clinic') $user_role = 'sm_clinic';
         if ($user_role === 'accountant') $user_role = 'sm_accountant';
+
+        // Security: Non-admin users editing their own profile MUST retain their existing role
+        if (!$is_system_admin && $user_id > 0) {
+            $existing_user = get_userdata($user_id);
+            if ($existing_user && !empty($existing_user->roles)) {
+                $user_role = $existing_user->roles[0];
+            }
+        }
         $access_scope   = sanitize_text_field($_POST['access_scope'] ?? 'school');
         $institution_id = intval($_POST['institution_id'] ?? 0);
         $school_id      = intval($_POST['school_id'] ?? 0);

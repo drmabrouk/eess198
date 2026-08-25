@@ -643,97 +643,10 @@ if (!is_array($timeline)) $timeline = json_decode($timeline, true) ?: array();
 </div>
 
 <?php include_once SM_PLUGIN_DIR . 'templates/partials/unified-user-modal.php'; ?>
-<!-- Interactive Modal for Editing Employee Profile with Instant System Sync -->
-<div id="eessProfileEditModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99999; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(2px);">
-    <div style="background: #fff; width: 100%; max-width: 650px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; max-height: 90vh;">
-
-        <!-- Header -->
-        <div style="background: #1e293b; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800; font-family: 'Cairo', sans-serif;">تعديل وتزامن معلومات الموظف</h3>
-            <button type="button" onclick="eessCloseProfileEditModal()" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer; line-height: 1;">&times;</button>
-        </div>
-
-        <!-- Body with edit form -->
-        <form method="POST" action="" style="padding: 20px; overflow-y: auto; flex: 1; font-family: 'Cairo', sans-serif;">
-            <?php wp_nonce_field('eess_save_profile', 'eess_profile_nonce'); ?>
-            <input type="hidden" name="eess_save_profile_action" value="1">
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                <div>
-                    <label style="display: block; font-size: 12px; font-weight: bold; color: #475569; margin-bottom: 5px;">الاسم الأول *</label>
-                    <input type="text" name="first_name" value="<?php echo esc_attr($first_name); ?>" required style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; font-family:'Cairo';">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 12px; font-weight: bold; color: #475569; margin-bottom: 5px;">اسم العائلة *</label>
-                    <input type="text" name="last_name" value="<?php echo esc_attr($last_name); ?>" required style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; font-family:'Cairo';">
-                </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                <div>
-                    <label style="display: block; font-size: 12px; font-weight: bold; color: #475569; margin-bottom: 5px;">البريد الإلكتروني المعتمد *</label>
-                    <input type="email" name="email" value="<?php echo esc_attr($u->user_email); ?>" required style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; font-family:'Cairo';">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 12px; font-weight: bold; color: #475569; margin-bottom: 5px;">رقم الهاتف المتحرك *</label>
-                    <input type="text" name="phone" value="<?php echo esc_attr($phone); ?>" required style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; font-family:'Cairo';">
-                </div>
-            </div>
-
-            <?php if ($is_admin || $is_sys_admin || $is_hr): ?>
-                <div style="border-top: 1px dashed #cbd5e1; margin: 15px 0; padding-top: 15px;">
-                    <h4 style="margin:0 0 15px 0; font-size:13px; font-weight:800; color:#1e293b;">🔒 حقول الموارد البشرية والتعيين (خاص بالإدارة / HR)</h4>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                        <div>
-                            <label style="display: block; font-size: 12px; font-weight: bold; color: #475569; margin-bottom: 5px;">رقم الموظف الوظيفي</label>
-                            <input type="text" name="employee_number" value="<?php echo esc_attr($emp_num); ?>" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; font-family:'Cairo';">
-                        </div>
-                        <div>
-                            <label style="display: block; font-size: 12px; font-weight: bold; color: #475569; margin-bottom: 5px;">القسم / الإدارة</label>
-                            <input type="text" name="department" value="<?php echo esc_attr($dept); ?>" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; font-family:'Cairo';">
-                        </div>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                        <div>
-                            <label style="display: block; font-size: 12px; font-weight: bold; color: #475569; margin-bottom: 5px;">المادة أو التخصص الدراسي</label>
-                            <input type="text" name="specialization" value="<?php echo esc_attr($specialization); ?>" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; font-family:'Cairo';">
-                        </div>
-                        <div>
-                            <label style="display: block; font-size: 12px; font-weight: bold; color: #475569; margin-bottom: 5px;">المؤسسة أو المدرسة التابع لها</label>
-                            <input type="text" name="school_name" value="<?php echo esc_attr($school_name); ?>" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; font-family:'Cairo';">
-                        </div>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div>
-                            <label style="display: block; font-size: 12px; font-weight: bold; color: #475569; margin-bottom: 5px;">تاريخ مباشرة العمل</label>
-                            <input type="date" name="employment_date" value="<?php echo esc_attr($employment_date); ?>" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; font-family:'Cairo';">
-                        </div>
-                        <div>
-                            <label style="display: block; font-size: 12px; font-weight: bold; color: #475569; margin-bottom: 5px;">حالة التوظيف في الخدمة</label>
-                            <select name="employment_status" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; font-family:'Cairo'; height:40px;">
-                                <option value="active" <?php selected($employment_status, 'active'); ?>>نشط بالخدمة</option>
-                                <option value="on_leave" <?php selected($employment_status, 'on_leave'); ?>>غير نشط / إجازة</option>
-                                <option value="restricted" <?php selected($employment_status, 'restricted'); ?>>مقيد الدخول للمنصة</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            <?php endif; ?>
-
-            <!-- Footer Buttons -->
-            <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid #cbd5e1; display: flex; justify-content: flex-end; gap: 10px;">
-                <button type="button" onclick="eessCloseProfileEditModal()" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:10px 20px; border-radius:8px; font-weight:700; cursor:pointer; font-family:'Cairo';">إلغاء</button>
-                <button type="submit" style="background:#000; color:#white; border:none; padding:10px 25px; border-radius:8px; font-weight:700; cursor:pointer; color:white !important; font-family:'Cairo';">حفظ ومزامنة البيانات</button>
-            </div>
-        </form>
-
-    </div>
-</div>
 
 <script>
+var eessIsAdmin = <?php echo ($is_admin || $is_sys_admin) ? 'true' : 'false'; ?>;
+
 // Tab Switching logic for 11 distinct sections inside Employee Profile
 function switchEmployeeProfileTab(tabId, btn) {
     document.querySelectorAll('.wp-tab-content').forEach(el => el.style.display = 'none');
@@ -744,11 +657,11 @@ function switchEmployeeProfileTab(tabId, btn) {
     btn.classList.add('sm-active');
 }
 
-// Modal Toggle Utilities
+// Modal Toggle Utilities invoking Unified Modal directly
 function eessOpenProfileEditModal() {
-    eessOpenUnifiedUserModal('edit_employee_profile', <?php echo $emp->ID; ?>);
+    eessOpenUnifiedUserModal('edit_employee_profile', <?php echo $target_user_id; ?>);
 }
 function eessCloseProfileEditModal() {
-    document.getElementById('eessProfileEditModal').style.display = 'none';
+    eessCloseUnifiedUserModal();
 }
 </script>

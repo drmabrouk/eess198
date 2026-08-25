@@ -37,11 +37,21 @@ window.eessOpenUnifiedUserModal = function(mode, userId) {
     var errors = document.querySelectorAll('.eess-field-error');
     errors.forEach(function(el) { el.style.display = 'none'; });
 
-    // Set title according to mode
+    // Set title and icon according to mode
     var titleEl = document.getElementById('u_modal_title');
+    var iconEl = document.getElementById('u_modal_icon');
+
     if (titleEl) {
-        if (mode === 'add_user' || mode === 'add_employee') titleEl.innerText = 'إضافة مستخدم جديد في المنصة';
-        else titleEl.innerText = 'تعديل بيانات الحساب وتعيينات الموظف';
+        if (mode === 'edit_employee_profile') {
+            titleEl.innerText = 'تعديل ملف الموظف والبيانات المهنية';
+            if (iconEl) iconEl.className = 'dashicons dashicons-id-alt';
+        } else if (mode === 'add_user' || mode === 'add_employee') {
+            titleEl.innerText = 'إضافة مستخدم جديد في المنصة';
+            if (iconEl) iconEl.className = 'dashicons dashicons-user-plus';
+        } else {
+            titleEl.innerText = 'تعديل بيانات الحساب وتعيينات الموظف';
+            if (iconEl) iconEl.className = 'dashicons dashicons-admin-users';
+        }
     }
 
     // Passwords & Change Password Toggle
@@ -439,7 +449,21 @@ window.eessLoadUserData = function(userId) {
             if (normalizedRole === 'educational_supervisor') normalizedRole = 'sm_supervisor';
             if (normalizedRole === 'clinic') normalizedRole = 'sm_clinic';
 
-            document.getElementById('u_user_role').value = normalizedRole;
+            var roleSelect = document.getElementById('u_user_role');
+            if (roleSelect) {
+                roleSelect.value = normalizedRole;
+                // Role lock: Non-admin users cannot alter their own or others' roles/positions
+                var isSystemAdminUser = (typeof eessIsAdmin !== 'undefined' && eessIsAdmin) || (u.can_edit_roles === true);
+                if (!isSystemAdminUser) {
+                    roleSelect.disabled = true;
+                    roleSelect.style.background = '#f8fafc';
+                    roleSelect.style.cursor = 'not-allowed';
+                } else {
+                    roleSelect.disabled = false;
+                    roleSelect.style.background = '#ffffff';
+                    roleSelect.style.cursor = 'pointer';
+                }
+            }
             document.getElementById('u_institution_id').value = u.institution_id || '';
             document.getElementById('u_department').value = u.department || '';
             document.getElementById('u_specialization').value = u.specialization || '';
