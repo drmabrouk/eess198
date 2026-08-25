@@ -498,7 +498,7 @@ window.eessSubmitUnifiedUserForm = function() {
         return;
     } else { document.getElementById('err_u_user_role').style.display = 'none'; }
 
-    if (!inst) {
+    if (role !== 'administrator' && !inst) {
         document.getElementById('err_u_institution_id').style.display = 'block';
         return;
     } else { document.getElementById('err_u_institution_id').style.display = 'none'; }
@@ -521,6 +521,14 @@ window.eessSubmitUnifiedUserForm = function() {
                 alert('تم حفظ وتزامن بيانات الموظف بنجاح');
             }
             eessCloseUnifiedUserModal();
+
+            // Client-side DOM update without full page reload if on Profile or Users List
+            if (res.data && res.data.user_data) {
+                var u = res.data.user_data;
+                var fnEl = document.querySelector('.wp-tab-content h2');
+                if (fnEl && u.display_name) fnEl.innerText = u.display_name;
+            }
+
             setTimeout(function() { location.reload(); }, 600);
         } else {
             alert('خطأ: ' + (res.data || 'حدث خطأ أثناء حفظ البيانات.'));
