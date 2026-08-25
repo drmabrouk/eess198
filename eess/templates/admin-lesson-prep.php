@@ -468,23 +468,41 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                         <div class="eess-prep-wizard-stage" id="eess-prep-stage-2" style="display: none;">
                             <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 800; color: #0f172a;">الخطوة الثانية: الربط والتفكير والإعداد البدني لدرس (<?php echo esc_html($current_subject); ?>)</h4>
 
-                            <!-- Connection to Other Subjects -->
+                            <!-- Connection to Other Subjects (max 250 chars) -->
                             <div class="eess-float-group" style="margin-bottom: 22px;">
-                                <textarea id="eess_cross_subject" name="cross_subject" class="sm-input eess-float-input" style="height: 80px; font-size: 12.5px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 18px 16px 10px 16px;" placeholder=" "><?php echo esc_textarea($data['cross_subject'] ?? ''); ?></textarea>
-                                <label for="eess_cross_subject" class="eess-float-label">2. التكامل والربط المواد الأخرى (مثل: العلوم، الصحة، الرياضيات)</label>
+                                <textarea id="eess_cross_subject" name="cross_subject" maxlength="250" oninput="eessUpdateCharCount(this, 250, 'cnt_cross_subject')" class="sm-input eess-float-input" style="height: 80px; font-size: 12.5px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 18px 16px 10px 16px;" placeholder=" "><?php echo esc_textarea($data['cross_subject'] ?? ''); ?></textarea>
+                                <label for="eess_cross_subject" class="eess-float-label">2. الربط بالمواد الأخرى (الحد الأقصى: 250 حرف)</label>
+                                <div style="text-align: left; font-size: 10.5px; color: #64748b; font-family: monospace; margin-top: 2px;" id="cnt_cross_subject">0 / 250</div>
                             </div>
 
-                            <!-- Critical Thinking Questions -->
+                            <!-- Critical Thinking Questions (max 250 chars) -->
                             <div class="eess-float-group" style="margin-bottom: 22px;">
-                                <textarea id="eess_critical_thinking" name="critical_thinking" class="sm-input eess-float-input" style="height: 80px; font-size: 12.5px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 18px 16px 10px 16px;" placeholder=" "><?php echo esc_textarea($data['critical_thinking'] ?? ''); ?></textarea>
-                                <label for="eess_critical_thinking" class="eess-float-label">3. أسئلة التفكير الناقد والتحدي الأكاديمي/الحركي</label>
+                                <textarea id="eess_critical_thinking" name="critical_thinking" maxlength="250" oninput="eessUpdateCharCount(this, 250, 'cnt_critical_thinking')" class="sm-input eess-float-input" style="height: 80px; font-size: 12.5px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 18px 16px 10px 16px;" placeholder=" "><?php echo esc_textarea($data['critical_thinking'] ?? ''); ?></textarea>
+                                <label for="eess_critical_thinking" class="eess-float-label">3. أسئلة التفكير الناقد والتحدي الحركي (الحد الأقصى: 250 حرف)</label>
+                                <div style="text-align: left; font-size: 10.5px; color: #64748b; font-family: monospace; margin-top: 2px;" id="cnt_critical_thinking">0 / 250</div>
                             </div>
 
-                            <!-- Warm-Up (5 min) -->
+                            <!-- Warm-Up (5 min, max 250 chars) -->
                             <div class="eess-float-group" style="margin-bottom: 15px;">
-                                <textarea id="eess_warmup" name="warmup" class="sm-input eess-float-input" style="height: 85px; font-size: 12.5px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 18px 16px 10px 16px;" placeholder=" " required><?php echo esc_textarea($data['warmup'] ?? ''); ?></textarea>
+                                <textarea id="eess_warmup" name="warmup" maxlength="250" oninput="eessUpdateCharCount(this, 250, 'cnt_warmup')" class="sm-input eess-float-input" style="height: 85px; font-size: 12.5px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 18px 16px 10px 16px;" placeholder=" " required><?php echo esc_textarea($data['warmup'] ?? ''); ?></textarea>
                                 <label for="eess_warmup" class="eess-float-label">4. الإحماء والتهيئة البدنية (Warm-Up - 5 دقائق) <span style="color:#ef4444;">*</span></label>
+                                <div style="text-align: left; font-size: 10.5px; color: #64748b; font-family: monospace; margin-top: 2px;" id="cnt_warmup">0 / 250</div>
                             </div>
+
+                            <script>
+                            function eessUpdateCharCount(input, maxLen, badgeId) {
+                                var len = input.value.length;
+                                var badge = document.getElementById(badgeId);
+                                if (badge) {
+                                    badge.innerText = len + ' / ' + maxLen;
+                                    if (len >= maxLen) {
+                                        badge.style.color = '#dc2626';
+                                    } else {
+                                        badge.style.color = '#64748b';
+                                    }
+                                }
+                            }
+                            </script>
                         </div>
 
                         <!-- Stage 3: Activities & Learning Resources (Capsules Selection - Max 5 Choices) -->
